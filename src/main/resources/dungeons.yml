@@ -1,0 +1,116 @@
+# Cấu hình các phó bản
+# Ví dụ mẫu
+
+dungeons:
+  example_dungeon:
+    # Tên hiển thị
+    display-name: "&6Phó Bản Ví Dụ"
+    
+    # Mô tả
+    description:
+      - "&7Một phó bản ví dụ"
+      - "&7Có 3 ải đánh quái và 1 boss"
+    
+    # Số người chơi
+    min-players: 1
+    max-players: 5
+    
+    # Lượt chơi
+    entries-per-reset: 3
+    
+    # Lượt hồi sinh
+    respawn-lives: 3
+    
+    # Điểm spawn (set bằng command)
+    spawn-point:
+      world: world
+      x: 0
+      y: 64
+      z: 0
+      yaw: 0
+      pitch: 0
+    
+    # Điểm lobby
+    lobby-point:
+      world: world
+      x: 0
+      y: 64
+      z: 10
+      yaw: 0
+      pitch: 0
+    
+    # Các ải (10 ải quái + 1 ải boss)
+    stages:
+      # Ải 1
+      1:
+        type: NORMAL
+        # Các đợt quái
+        waves:
+          1:
+            # Tên mob trong MythicMobs
+            mobs:
+              - mob: SkeletonKing
+                amount: 5
+              - mob: Zombie
+                amount: 3
+          2:
+            mobs:
+              - mob: SkeletonKing
+                amount: 8
+      
+      # Ải 2
+      2:
+        type: NORMAL
+        waves:
+          1:
+            mobs:
+              - mob: Spider
+                amount: 10
+          2:
+            mobs:
+              - mob: Spider
+                amount: 15
+              - mob: CaveSpider
+                amount: 5
+      
+      # Ải 3
+      3:
+        type: NORMAL
+        waves:
+          1:
+            mobs:
+              - mob: Creeper
+                amount: 5
+          2:
+            mobs:
+              - mob: Creeper
+                amount: 10
+      
+      # Ải Boss (ải 11)
+      11:
+        type: BOSS
+        waves:
+          1:
+            mobs:
+              - mob: FinalBoss
+                amount: 1
+    
+    # Phần thưởng
+    rewards:
+      # Phần thưởng hoàn thành
+      completion:
+        items:
+          - "DIAMOND 5"
+          - "EMERALD 10"
+        commands:
+          - "eco give {player} 1000"
+      
+      # Phần thưởng theo điểm
+      score-based:
+        1000:
+          items:
+            - "DIAMOND 10"
+        2000:
+          items:
+            - "DIAMOND 20"
+            - "NETHERITE_INGOT 1"

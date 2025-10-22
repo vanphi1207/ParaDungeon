@@ -1,0 +1,123 @@
+# ParaDungeon Configuration
+# Plugin tạo phó bản Minecraft với MythicMobs
+
+# Thiết lập chung
+settings:
+  # Ngôn ngữ
+  language: vi
+  
+  # Thời gian tự động làm mới phòng khi chưa start (phút)
+  auto-renew-time: 10
+  
+  # Hệ thống lượt chơi
+  entry-system:
+    # Loại reset: DAILY hoặc HOURLY
+    reset-type: DAILY
+    # Số lượt mặc định mỗi kỳ
+    default-entries: 3
+    # Thời gian reset (giờ, chỉ dùng cho HOURLY)
+    reset-hours: 24
+  
+  # Hệ thống hồi sinh
+  respawn-system:
+    # Số lượt hồi sinh mặc định
+    default-lives: 3
+    # Cooldown hồi sinh (giây)
+    respawn-cooldown: 5
+    # Thời gian bất tử sau hồi sinh (giây)
+    safe-time: 5
+    # Có teleport về spawn point không
+    teleport-to-spawn: true
+  
+  # Phòng chờ
+  lobby:
+    # Số người chơi tối thiểu để bắt đầu
+    min-players: 1
+    # Số người chơi tối đa
+    max-players: 5
+    # Thời gian đếm ngược trước khi bắt đầu (giây)
+    countdown-time: 10
+  
+  # Leaderboard
+  leaderboard:
+    # Số lượng người chơi hiển thị
+    top-players: 10
+    # Cập nhật mỗi bao nhiêu phút
+    update-interval: 5
+
+  # Hiệu ứng và hiển thị
+  effects:
+    # Bật/tắt particles
+    particles:
+      enabled: true
+      # Particles trước khi spawn quái
+      pre-spawn: true
+      # Particles sau khi spawn quái
+      post-spawn: true
+
+    # Bật/tắt âm thanh
+    sounds:
+      enabled: true
+      # Âm thanh khi join phòng
+      join: true
+      # Âm thanh countdown
+      countdown: true
+      # Âm thanh khi bắt đầu dungeon
+      start: true
+      # Âm thanh khi bắt đầu stage/wave
+      stage-wave: true
+      # Âm thanh khi spawn quái
+      mob-spawn: true
+      # Âm thanh khi giết quái
+      mob-kill: true
+      # Âm thanh chiến thắng/thất bại
+      end: true
+
+    # Bật/tắt titles
+    titles:
+      enabled: true
+      # Title countdown
+      countdown: true
+      # Title khi bắt đầu
+      start: true
+      # Title cho stage/wave
+      stage-wave: true
+      # Title kết thúc
+      end: true
+
+    # Bật/tắt ActionBar
+    actionbar:
+      enabled: true
+      # Hiển thị progress bar
+      show-progress: true
+      # Hiển thị thời gian
+      show-time: true
+      # Hiển thị điểm số
+      show-score: true
+      # Hiển thị số mạng
+      show-lives: true
+      # Cập nhật mỗi bao nhiêu ticks (10 ticks = 0.5 giây)
+      update-interval: 10
+
+# Command Aliases
+command-aliases:
+  dungeon:
+    - dg
+    - phobans
+    - pb
+  dungeonadmin:
+    - dgadmin
+    - phobanadmin
+    - pbadmin
+
+# Database settings
+database:
+  # Loại: SQLITE hoặc MYSQL
+  type: SQLITE
+  # MySQL settings (nếu dùng MySQL)
+  mysql:
+    host: localhost
+    port: 3306
+    database: paradungeon
+    username: root
+    password: password

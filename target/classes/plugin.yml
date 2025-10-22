@@ -1,0 +1,13 @@
+name: ParaDungeon
+version: '1.0.0'
+main: me.ihqqq.paraDungeon.ParaDungeon
+api-version: '1.21'
+author: ihqqq
+softdepend: [PlaceholderAPI, MythicMobs]
+commands:
+  dungeon:
+    description: Main dungeon command
+    aliases: [dg, phobans]
+  dungeonadmin:
+    description: Dungeon admin command
+    aliases: [dgadmin, phobanadmin]

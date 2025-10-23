@@ -132,9 +132,9 @@ public class RewardEditorGUI {
         gui.setItem(8, cmdInfo);
 
         // Load existing rewards (slots 18-44 for items)
-        List<String> currentRewards = rewards.getCompletionItems();
-        for (int i = 0; i < currentRewards.size() && i < 27; i++) {
-            // Items will be manually placed by player
+        List<ItemStack> currentRewardItems = rewards.getCompletionRewardItems();
+        for (int i = 0; i < currentRewardItems.size() && i < 27; i++) {
+            gui.setItem(18 + i, currentRewardItems.get(i));
         }
 
         // Save button
@@ -213,7 +213,7 @@ public class RewardEditorGUI {
                     "edit_tier_" + dungeon.getId() + "_" + score,
                     "§7Phần thưởng cho " + score + " điểm",
                     "",
-                    "§eVật phẩm: §a" + reward.getItems().size(),
+                    "§eVật phẩm: §a" + reward.getRewardItems().size(),
                     "§eCommands: §a" + reward.getCommands().size(),
                     "",
                     "§a▶ Click trái: Chỉnh sửa",
@@ -275,6 +275,12 @@ public class RewardEditorGUI {
                 "§e▶ Click để quản lý!"
         );
         gui.setItem(8, cmdInfo);
+
+        // Load existing rewards
+        List<ItemStack> currentRewardItems = scoreReward.getRewardItems();
+        for (int i = 0; i < currentRewardItems.size() && i < 27; i++) {
+            gui.setItem(18 + i, currentRewardItems.get(i));
+        }
 
         // Save button
         ItemStack save = createItemWithData(

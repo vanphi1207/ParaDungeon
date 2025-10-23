@@ -8,8 +8,10 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -44,22 +46,60 @@ public class RewardGUIListener implements Listener {
         }
 
         Player player = (Player) event.getWhoClicked();
-        ItemStack clickedItem = event.getCurrentItem();
 
         // Handle reward editor GUIs differently - allow item placement
         if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
                 title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
 
+            Inventory topInventory = event.getView().getTopInventory(); // Dòng code bị thiếu đã được thêm vào
+
+            // Handle shift-clicking items from player inventory to the reward GUI
+            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+                event.setCancelled(true); // Always cancel the default action to handle it manually
+
+                ItemStack clickedItem = event.getCurrentItem();
+                if (clickedItem == null || clickedItem.getType().isAir()) {
+                    return; // Nothing to move
+                }
+
+                int playerInventorySlot = event.getRawSlot();
+
+                // Ensure the click is within the player's inventory
+                if (playerInventorySlot >= topInventory.getSize()) {
+                    // Find the first empty slot in the reward area (slots 18-44)
+                    int firstEmpty = -1;
+                    for (int i = 18; i <= 44; i++) {
+                        if (topInventory.getItem(i) == null || topInventory.getItem(i).getType().isAir()) {
+                            firstEmpty = i;
+                            break;
+                        }
+                    }
+
+                    if (firstEmpty != -1) {
+                        // Move the item to the first empty slot
+                        topInventory.setItem(firstEmpty, clickedItem.clone());
+                        event.setCurrentItem(null); // Clear the item from the player's inventory
+                    } else {
+                        player.sendMessage(plugin.getConfigManager().getMessage("prefix") + "§cKhông còn chỗ trống để thêm phần thưởng.");
+                    }
+                }
+                return; // Stop further processing for this event
+            }
+
             int slot = event.getRawSlot();
 
-            // Allow item placement in slots 18-44 (reward slots)
+            // Allow normal placing/taking items in the reward slots
             if (slot >= 18 && slot <= 44) {
-                // Don't cancel - allow item placement
+                return;
+            }
+            // Allow clicking in the player's own inventory
+            if (slot >= topInventory.getSize()) {
                 return;
             }
 
-            // Cancel clicks on control items
+            // If we are here, it's a click on a control item or a blocked slot, so we cancel it.
             event.setCancelled(true);
+            ItemStack clickedItem = event.getCurrentItem();
 
             if (clickedItem == null || clickedItem.getType().isAir()) {
                 return;
@@ -79,8 +119,9 @@ public class RewardGUIListener implements Listener {
             return;
         }
 
-        // For other reward GUIs, cancel all clicks
+        // For other reward GUIs (main menu, etc.), cancel all clicks
         event.setCancelled(true);
+        ItemStack clickedItem = event.getCurrentItem();
 
         if (clickedItem == null || clickedItem.getType().isAir()) {
             return;
@@ -98,6 +139,24 @@ public class RewardGUIListener implements Listener {
 
         handleRewardMenuClick(player, data, event.isLeftClick());
     }
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent event) {
+        String title = event.getView().getTitle();
+
+        if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
+                title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
+
+            // Allow dragging into the reward area (slots 18-44)
+            for (int slot : event.getRawSlots()) {
+                if (slot >= 18 && slot <= 44) {
+                    return;
+                }
+            }
+            event.setCancelled(true);
+
+        }
+    }
+
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
@@ -147,7 +206,7 @@ public class RewardGUIListener implements Listener {
             String dungeonId = data.substring(12);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
             if (dungeon != null) {
-                plugin.getGUIManager().getRewardEditorGUI().openRewardMenu(player, dungeon);
+                plugin.getGUIManager().openDungeonInfo(player,dungeon);
             }
         } else if (data.startsWith("preview_")) {
             String dungeonId = data.substring(8);

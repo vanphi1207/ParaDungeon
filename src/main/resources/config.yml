@@ -45,6 +45,14 @@ settings:
     # Cập nhật mỗi bao nhiêu phút
     update-interval: 5
 
+  # Hiệu ứng glow cho mob trong dungeon
+  mob-glow:
+    # Bật/tắt glow effect
+    enabled: true
+    # Màu glow: RED, BLUE, GREEN, YELLOW, AQUA, LIGHT_PURPLE, GOLD, DARK_RED, etc.
+    # Danh sách đầy đủ: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/ChatColor.html
+    color: RED
+
   # Hiệu ứng và hiển thị
   effects:
     # Bật/tắt particles

@@ -6,7 +6,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.*;
 
 public class DungeonManager {
@@ -81,7 +86,10 @@ public class DungeonManager {
                 dungeon.addStage(stage.getStageNumber(), stage);
             }
         }
-        // ... load rewards logic ...
+
+        // Load rewards
+        dungeon.setRewards(loadRewards(section));
+
         return dungeon;
     }
 
@@ -94,7 +102,8 @@ public class DungeonManager {
         dungeonSection.set("description", dungeon.getDescription());
         dungeonSection.set("min-players", dungeon.getMinPlayers());
         dungeonSection.set("max-players", dungeon.getMaxPlayers());
-        // ... set other properties ...
+        dungeonSection.set("entries-per-reset", dungeon.getEntriesPerReset());
+        dungeonSection.set("respawn-lives", dungeon.getRespawnLives());
 
         if (dungeon.getSpawnPoint() != null)
             saveLocation(dungeonSection.createSection("spawn-point"), dungeon.getSpawnPoint());
@@ -119,6 +128,10 @@ public class DungeonManager {
                 }
             }
         }
+
+        // Save rewards
+        saveRewards(dungeonSection, dungeon.getRewards());
+
         plugin.getConfigManager().saveDungeonsConfig();
         dungeons.put(dungeon.getId(), dungeon);
     }
@@ -167,5 +180,181 @@ public class DungeonManager {
         dungeons.remove(id);
         plugin.getConfigManager().getDungeonsConfig().set("dungeons." + id, null);
         plugin.getConfigManager().saveDungeonsConfig();
+    }
+
+    /**
+     * Save rewards with ItemStack support
+     */
+    private void saveRewards(ConfigurationSection dungeonSection, DungeonRewards rewards) {
+        if (rewards == null) return;
+
+        ConfigurationSection rewardsSection = dungeonSection.createSection("rewards");
+
+        // Completion rewards
+        ConfigurationSection completionSection = rewardsSection.createSection("completion");
+
+        // Save ItemStacks as Base64
+        if (!rewards.getCompletionRewardItems().isEmpty()) {
+            List<String> encodedItems = new ArrayList<>();
+            for (ItemStack item : rewards.getCompletionRewardItems()) {
+                String encoded = itemStackToBase64(item);
+                if (encoded != null) {
+                    encodedItems.add(encoded);
+                }
+            }
+            completionSection.set("items-encoded", encodedItems);
+        }
+
+        // Legacy string items
+        if (!rewards.getCompletionItems().isEmpty()) {
+            completionSection.set("items", rewards.getCompletionItems());
+        }
+
+        // Commands
+        if (!rewards.getCompletionCommands().isEmpty()) {
+            completionSection.set("commands", rewards.getCompletionCommands());
+        }
+
+        // Score-based rewards
+        if (!rewards.getScoreBasedRewards().isEmpty()) {
+            ConfigurationSection scoreSection = rewardsSection.createSection("score-based");
+            for (Map.Entry<Integer, DungeonRewards.ScoreReward> entry : rewards.getScoreBasedRewards().entrySet()) {
+                ConfigurationSection tierSection = scoreSection.createSection(String.valueOf(entry.getKey()));
+                DungeonRewards.ScoreReward reward = entry.getValue();
+
+                // Save ItemStacks
+                if (!reward.getRewardItems().isEmpty()) {
+                    List<String> encodedItems = new ArrayList<>();
+                    for (ItemStack item : reward.getRewardItems()) {
+                        String encoded = itemStackToBase64(item);
+                        if (encoded != null) {
+                            encodedItems.add(encoded);
+                        }
+                    }
+                    tierSection.set("items-encoded", encodedItems);
+                }
+
+                // Legacy
+                if (!reward.getItems().isEmpty()) {
+                    tierSection.set("items", reward.getItems());
+                }
+
+                if (!reward.getCommands().isEmpty()) {
+                    tierSection.set("commands", reward.getCommands());
+                }
+            }
+        }
+    }
+
+    /**
+     * Load rewards with ItemStack support
+     */
+    private DungeonRewards loadRewards(ConfigurationSection dungeonSection) {
+        ConfigurationSection rewardsSection = dungeonSection.getConfigurationSection("rewards");
+        if (rewardsSection == null) return null;
+
+        DungeonRewards rewards = new DungeonRewards();
+
+        // Completion rewards
+        ConfigurationSection completionSection = rewardsSection.getConfigurationSection("completion");
+        if (completionSection != null) {
+            // Load ItemStacks
+            if (completionSection.contains("items-encoded")) {
+                List<ItemStack> items = new ArrayList<>();
+                for (String encoded : completionSection.getStringList("items-encoded")) {
+                    ItemStack item = itemStackFromBase64(encoded);
+                    if (item != null) {
+                        items.add(item);
+                    }
+                }
+                rewards.setCompletionRewardItems(items);
+            }
+
+            // Legacy items
+            if (completionSection.contains("items")) {
+                rewards.setCompletionItems(completionSection.getStringList("items"));
+            }
+
+            // Commands
+            if (completionSection.contains("commands")) {
+                rewards.setCompletionCommands(completionSection.getStringList("commands"));
+            }
+        }
+
+        // Score-based rewards
+        ConfigurationSection scoreSection = rewardsSection.getConfigurationSection("score-based");
+        if (scoreSection != null) {
+            for (String scoreStr : scoreSection.getKeys(false)) {
+                try {
+                    int score = Integer.parseInt(scoreStr);
+                    ConfigurationSection tierSection = scoreSection.getConfigurationSection(scoreStr);
+
+                    DungeonRewards.ScoreReward scoreReward = new DungeonRewards.ScoreReward();
+
+                    // Load ItemStacks
+                    if (tierSection.contains("items-encoded")) {
+                        List<ItemStack> items = new ArrayList<>();
+                        for (String encoded : tierSection.getStringList("items-encoded")) {
+                            ItemStack item = itemStackFromBase64(encoded);
+                            if (item != null) {
+                                items.add(item);
+                            }
+                        }
+                        scoreReward.setRewardItems(items);
+                    }
+
+                    // Legacy
+                    if (tierSection.contains("items")) {
+                        scoreReward.setItems(tierSection.getStringList("items"));
+                    }
+
+                    if (tierSection.contains("commands")) {
+                        scoreReward.setCommands(tierSection.getStringList("commands"));
+                    }
+
+                    rewards.addScoreReward(score, scoreReward);
+                } catch (NumberFormatException e) {
+                    plugin.getLogger().warning("Invalid score tier: " + scoreStr);
+                }
+            }
+        }
+
+        return rewards;
+    }
+
+    /**
+     * Convert ItemStack to Base64 string
+     */
+    private String itemStackToBase64(ItemStack item) {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+
+            dataOutput.writeObject(item);
+            dataOutput.close();
+
+            return Base64.getEncoder().encodeToString(outputStream.toByteArray());
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to encode ItemStack: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Convert Base64 string to ItemStack
+     */
+    private ItemStack itemStackFromBase64(String data) {
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data));
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+
+            ItemStack item = (ItemStack) dataInput.readObject();
+            dataInput.close();
+
+            return item;
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to decode ItemStack: " + e.getMessage());
+            return null;
+        }
     }
 }

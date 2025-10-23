@@ -1,8 +1,8 @@
 package me.ihqqq.paraDungeon.gui;
 
 import me.ihqqq.paraDungeon.ParaDungeon;
+
 import me.ihqqq.paraDungeon.models.Dungeon;
-import me.ihqqq.paraDungeon.models.DungeonRoom;
 import me.ihqqq.paraDungeon.models.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -22,6 +22,7 @@ import java.util.List;
 public class GUIManager {
 
     private final ParaDungeon plugin;
+    private final RewardEditorGUI rewardEditorGUI;
 
     // GUI Titles
     public static final String MAIN_MENU_TITLE = "§8▎ §6§lParaDungeon Menu";
@@ -33,6 +34,11 @@ public class GUIManager {
 
     public GUIManager(ParaDungeon plugin) {
         this.plugin = plugin;
+        this.rewardEditorGUI = new RewardEditorGUI(plugin);
+    }
+
+    public RewardEditorGUI getRewardEditorGUI() {
+        return rewardEditorGUI;
     }
 
     /**
@@ -41,7 +47,6 @@ public class GUIManager {
     public void openMainMenu(Player player) {
         Inventory gui = Bukkit.createInventory(null, 27, MAIN_MENU_TITLE);
 
-        // Dungeon List (slot 10)
         ItemStack dungeonList = createItem(
                 Material.DIAMOND_SWORD,
                 "§6§lDanh Sách Phó Bản",
@@ -52,7 +57,6 @@ public class GUIManager {
         );
         gui.setItem(10, dungeonList);
 
-        // My Stats (slot 12)
         ItemStack stats = createItem(
                 Material.BOOK,
                 "§6§lThống Kê Của Tôi",
@@ -63,7 +67,6 @@ public class GUIManager {
         );
         gui.setItem(12, stats);
 
-        // Leaderboard (slot 14)
         ItemStack leaderboard = createItem(
                 Material.GOLDEN_HELMET,
                 "§6§lBảng Xếp Hạng",
@@ -74,7 +77,6 @@ public class GUIManager {
         );
         gui.setItem(14, leaderboard);
 
-        // Settings (slot 16)
         ItemStack settings = createItem(
                 Material.REDSTONE,
                 "§6§lCài Đặt",
@@ -85,9 +87,7 @@ public class GUIManager {
         );
         gui.setItem(16, settings);
 
-        // Fill empty slots with glass pane
         fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
-
         player.openInventory(gui);
     }
 
@@ -109,17 +109,14 @@ public class GUIManager {
             Material icon = getDungeonIcon(dungeon, data);
             List<String> lore = new ArrayList<>();
 
-            // Description
             dungeon.getDescription().forEach(line -> lore.add("§7" + line.replace("&", "§")));
             lore.add("");
 
-            // Info
             lore.add("§8▎ §7Người chơi: §e" + dungeon.getMinPlayers() + "-" + dungeon.getMaxPlayers());
             lore.add("§8▎ §7Số ải: §e" + dungeon.getTotalStages());
             lore.add("§8▎ §7Số mạng: §e" + dungeon.getRespawnLives());
             lore.add("");
 
-            // Your stats
             int entries = data.getDungeonEntries(dungeon.getId());
             int highScore = data.getDungeonScore(dungeon.getId());
             int rank = plugin.getLeaderboardManager().getPlayerRank(dungeon.getId(), player.getUniqueId());
@@ -132,7 +129,6 @@ public class GUIManager {
             }
             lore.add("");
 
-            // Actions
             if (entries > 0) {
                 lore.add("§a§l▶ Click trái: §aTham gia");
             } else {
@@ -150,7 +146,6 @@ public class GUIManager {
             gui.setItem(i, item);
         }
 
-        // Back button
         if (size > 27) {
             ItemStack back = createItem(
                     Material.ARROW,
@@ -168,10 +163,9 @@ public class GUIManager {
      * Open dungeon info GUI
      */
     public void openDungeonInfo(Player player, Dungeon dungeon) {
-        Inventory gui = Bukkit.createInventory(null, 45, DUNGEON_INFO_TITLE);
+        Inventory gui = Bukkit.createInventory(null, 54, DUNGEON_INFO_TITLE);
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player.getUniqueId());
 
-        // Dungeon Icon (center top)
         ItemStack dungeonIcon = createItem(
                 getDungeonIcon(dungeon, data),
                 dungeon.getDisplayName().replace("&", "§"),
@@ -181,7 +175,6 @@ public class GUIManager {
         );
         gui.setItem(4, dungeonIcon);
 
-        // General Info
         ItemStack generalInfo = createItem(
                 Material.BOOK,
                 "§6§lThông Tin Chung",
@@ -192,7 +185,6 @@ public class GUIManager {
         );
         gui.setItem(19, generalInfo);
 
-        // Your Stats
         int entries = data.getDungeonEntries(dungeon.getId());
         int highScore = data.getDungeonScore(dungeon.getId());
         int rank = plugin.getLeaderboardManager().getPlayerRank(dungeon.getId(), player.getUniqueId());
@@ -206,7 +198,6 @@ public class GUIManager {
         );
         gui.setItem(21, yourStats);
 
-        // Top Players
         ItemStack topPlayers = createItem(
                 Material.GOLDEN_HELMET,
                 "§6§lTop Người Chơi",
@@ -216,19 +207,20 @@ public class GUIManager {
         );
         gui.setItem(23, topPlayers);
 
-        // Rewards
-        ItemStack rewards = createItem(
+        ItemStack rewards = createItemWithData(
                 Material.CHEST,
                 "§6§lPhần Thưởng",
+                "rewards_" + dungeon.getId(),
                 "§7Hoàn thành phó bản để",
                 "§7nhận phần thưởng hấp dẫn!",
                 "",
                 "§e⭐ Điểm càng cao,",
-                "§e⭐ thưởng càng nhiều!"
+                "§e⭐ thưởng càng nhiều!",
+                "",
+                player.hasPermission("paradungeon.admin") ? "§c▶ Click để quản lý!" : "§e▶ Click để xem!"
         );
         gui.setItem(25, rewards);
 
-        // Join Button
         if (entries > 0) {
             ItemStack joinBtn = createItemWithData(
                     Material.LIME_WOOL,
@@ -238,7 +230,7 @@ public class GUIManager {
                     "",
                     "§aLượt còn lại: §e" + entries
             );
-            gui.setItem(40, joinBtn);
+            gui.setItem(49, joinBtn);
         } else {
             ItemStack noEntries = createItem(
                     Material.RED_WOOL,
@@ -247,16 +239,15 @@ public class GUIManager {
                     "§7Lượt chơi sẽ reset vào:",
                     "§e" + getResetTimeString()
             );
-            gui.setItem(40, noEntries);
+            gui.setItem(49, noEntries);
         }
 
-        // Back Button
         ItemStack back = createItem(
                 Material.ARROW,
                 "§c§lQuay Lại",
                 "§7Về danh sách phó bản"
         );
-        gui.setItem(36, back);
+        gui.setItem(45, back);
 
         fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
         player.openInventory(gui);
@@ -273,7 +264,6 @@ public class GUIManager {
 
         var leaderboard = plugin.getLeaderboardManager().getLeaderboard(dungeonId);
 
-        // Title item
         ItemStack title = createItem(
                 Material.GOLDEN_HELMET,
                 "§6§lBảng Xếp Hạng",
@@ -283,7 +273,6 @@ public class GUIManager {
         );
         gui.setItem(4, title);
 
-        // Leaderboard entries
         int slot = 18;
         for (int i = 0; i < Math.min(leaderboard.size(), 21); i++) {
             var entry = leaderboard.get(i);
@@ -301,10 +290,9 @@ public class GUIManager {
             );
 
             gui.setItem(slot++, item);
-            if ((slot + 1) % 9 == 0) slot += 2; // Skip to next row
+            if ((slot + 1) % 9 == 0) slot += 2;
         }
 
-        // Your rank
         int playerRank = plugin.getLeaderboardManager().getPlayerRank(dungeonId, player.getUniqueId());
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player.getUniqueId());
 
@@ -316,7 +304,6 @@ public class GUIManager {
         );
         gui.setItem(49, yourRank);
 
-        // Back button
         ItemStack back = createItem(
                 Material.ARROW,
                 "§c§lQuay Lại",
@@ -335,7 +322,6 @@ public class GUIManager {
         Inventory gui = Bukkit.createInventory(null, 54, STATS_TITLE);
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player.getUniqueId());
 
-        // Player head
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
         if (skullMeta != null) {
@@ -348,7 +334,6 @@ public class GUIManager {
         }
         gui.setItem(4, head);
 
-        // Stats for each dungeon
         int slot = 18;
         for (Dungeon dungeon : plugin.getDungeonManager().getAllDungeons()) {
             int entries = data.getDungeonEntries(dungeon.getId());
@@ -365,7 +350,6 @@ public class GUIManager {
                     "§e▶ Click để xem chi tiết!"
             );
 
-            // Store dungeon ID
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
                 meta.getPersistentDataContainer().set(
@@ -380,7 +364,6 @@ public class GUIManager {
             if (slot >= 44) break;
         }
 
-        // Back button
         ItemStack back = createItem(
                 Material.ARROW,
                 "§c§lQuay Lại",
@@ -398,7 +381,6 @@ public class GUIManager {
     public void openSettings(Player player) {
         Inventory gui = Bukkit.createInventory(null, 27, SETTINGS_TITLE);
 
-        // Coming soon items
         ItemStack particles = createItem(
                 Material.BLAZE_POWDER,
                 "§6§lHiệu Ứng Particles",
@@ -426,7 +408,6 @@ public class GUIManager {
         );
         gui.setItem(15, notifications);
 
-        // Back button
         ItemStack back = createItem(
                 Material.ARROW,
                 "§c§lQuay Lại",
@@ -490,7 +471,6 @@ public class GUIManager {
         int entries = data.getDungeonEntries(dungeon.getId());
         if (entries <= 0) return Material.RED_WOOL;
 
-        // Check if dungeon has boss stage
         boolean hasBoss = dungeon.getStages().values().stream()
                 .anyMatch(stage -> stage.isBoss());
 

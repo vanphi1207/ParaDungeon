@@ -45,7 +45,6 @@ public class RoomManager {
         }
         player.sendMessage(plugin.getConfigManager().getMessage("lobby.joined", "dungeon", room.getDungeon().getDisplayName()));
 
-        // Play sound when joining
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.5f);
 
         if (room.hasMinPlayers() && room.getStatus() == DungeonRoom.RoomStatus.WAITING) {
@@ -80,23 +79,19 @@ public class RoomManager {
                     return;
                 }
 
-                // Send title and actionbar for countdown
                 for (UUID uuid : room.getPlayers()) {
                     Player p = Bukkit.getPlayer(uuid);
                     if (p != null) {
-                        // Title
                         p.sendTitle(
                                 ChatColor.GOLD + "" + ChatColor.BOLD + timeLeft,
                                 ChatColor.YELLOW + "Chuẩn bị bắt đầu...",
                                 5, 20, 5
                         );
 
-                        // ActionBar progress
                         String progressBar = createProgressBar(countdownTime - timeLeft, countdownTime, 20);
                         p.spigot().sendMessage(ChatMessageType.ACTION_BAR,
                                 new TextComponent(ChatColor.YELLOW + "Đếm ngược: " + progressBar + ChatColor.GOLD + " " + timeLeft + "s"));
 
-                        // Sound
                         if (timeLeft <= 5) {
                             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f, 1.0f + (timeLeft * 0.1f));
                         } else if (timeLeft % 5 == 0) {
@@ -122,7 +117,6 @@ public class RoomManager {
         room.setStatus(DungeonRoom.RoomStatus.WAITING);
         broadcastToRoom(room, plugin.getConfigManager().getMessage("lobby.countdown-cancel"));
 
-        // Clear titles
         for (UUID uuid : room.getPlayers()) {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null) {
@@ -136,7 +130,6 @@ public class RoomManager {
         room.setStartTime(System.currentTimeMillis());
         broadcastToRoom(room, plugin.getConfigManager().getMessage("lobby.starting"));
 
-        // Title and sound effects
         for (UUID uuid : room.getPlayers()) {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null) {
@@ -167,7 +160,6 @@ public class RoomManager {
         }
         room.setCurrentStage(stageNum);
 
-        // Title and sound for new stage
         for (UUID uuid : room.getPlayers()) {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null) {
@@ -208,7 +200,6 @@ public class RoomManager {
         Stage stage = room.getDungeon().getStage(stageNum);
         int totalWaves = stage.getTotalWaves();
 
-        // Wave notification
         for (UUID uuid : room.getPlayers()) {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null) {
@@ -240,16 +231,17 @@ public class RoomManager {
             return;
         }
 
+        boolean enableGlow = plugin.getConfig().getBoolean("settings.mob-glow.enabled", true);
+        ChatColor glowColor = getGlowColor(plugin.getConfig().getString("settings.mob-glow.color", "RED"));
+
         for (Wave.MobSpawn mobSpawn : wave.getMobs()) {
             for (int i = 0; i < mobSpawn.getAmount(); i++) {
                 Location spawnPoint = useWaveSpawns ?
                         waveSpawnPoints.get(random.nextInt(waveSpawnPoints.size())) :
                         defaultSpawnPoint;
 
-                // Spawn particles BEFORE mob spawns
                 spawnPreSpawnParticles(spawnPoint);
 
-                // Delay spawn for effect
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     ActiveMob mob = MythicBukkit.inst().getMobManager().spawnMob(
                             mobSpawn.getMobId(),
@@ -260,10 +252,13 @@ public class RoomManager {
                         LivingEntity entity = (LivingEntity) mob.getEntity().getBukkitEntity();
                         room.addEntity(entity);
 
-                        // Spawn particles AFTER mob spawns
+                        // Apply glow effect
+                        if (enableGlow) {
+                            applyGlowEffect(entity, glowColor);
+                        }
+
                         spawnPostSpawnParticles(entity.getLocation());
 
-                        // Play spawn sound
                         entity.getWorld().playSound(
                                 entity.getLocation(),
                                 Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED,
@@ -273,8 +268,43 @@ public class RoomManager {
                     } else {
                         plugin.getLogger().warning("Invalid mob type or failed to spawn: " + mobSpawn.getMobId());
                     }
-                }, i * 5L); // Stagger spawns slightly
+                }, i * 5L);
             }
+        }
+    }
+
+    /**
+     * Apply glowing effect to mob
+     */
+    private void applyGlowEffect(LivingEntity entity, ChatColor color) {
+        entity.setGlowing(true);
+
+        // Try to set team color for glow (requires Scoreboard API)
+        try {
+            org.bukkit.scoreboard.Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+            String teamName = "dungeon_mob_" + color.name().toLowerCase();
+            org.bukkit.scoreboard.Team team = scoreboard.getTeam(teamName);
+
+            if (team == null) {
+                team = scoreboard.registerNewTeam(teamName);
+                team.setColor(color);
+            }
+
+            team.addEntry(entity.getUniqueId().toString());
+        } catch (Exception e) {
+            // Fallback: just use basic glow without color
+            plugin.getLogger().warning("Could not set glow color: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get ChatColor from string
+     */
+    private ChatColor getGlowColor(String colorName) {
+        try {
+            return ChatColor.valueOf(colorName.toUpperCase());
+        } catch (Exception e) {
+            return ChatColor.RED; // Default
         }
     }
 
@@ -282,7 +312,6 @@ public class RoomManager {
         World world = location.getWorld();
         if (world == null) return;
 
-        // Spiral particles going up
         Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
             int ticks = 0;
             @Override
@@ -314,7 +343,6 @@ public class RoomManager {
         World world = location.getWorld();
         if (world == null) return;
 
-        // Explosion effect
         world.spawnParticle(
                 Particle.EXPLOSION,
                 location.clone().add(0, 1, 0),
@@ -332,7 +360,6 @@ public class RoomManager {
         if (killer != null && room.getPlayers().contains(killer.getUniqueId())) {
             room.addScore(killer.getUniqueId(), 10);
 
-            // Send actionbar with score update
             int score = room.getPlayerScore(killer.getUniqueId());
             killer.spigot().sendMessage(ChatMessageType.ACTION_BAR,
                     new TextComponent(ChatColor.GOLD + "+" + ChatColor.YELLOW + "10 " +
@@ -343,8 +370,6 @@ public class RoomManager {
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             room.getActiveEntities().removeIf(e -> e == null || e.isDead());
-
-            // Update progress in actionbar for all players
             updateProgressActionBar(room);
 
             if (room.getActiveEntities().isEmpty()) {
@@ -398,7 +423,6 @@ public class RoomManager {
     public void completeDungeon(DungeonRoom room) {
         room.setStatus(DungeonRoom.RoomStatus.COMPLETED);
 
-        // Victory effects
         for (UUID uuid : room.getPlayers()) {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null) {
@@ -410,7 +434,6 @@ public class RoomManager {
 
                 p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
 
-                // Victory particles
                 Location loc = p.getLocation();
                 p.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, loc, 50, 1, 2, 1, 0.1);
                 p.getWorld().spawnParticle(Particle.END_ROD, loc, 30, 0.5, 1, 0.5, 0.1);
@@ -435,7 +458,6 @@ public class RoomManager {
     public void failDungeon(DungeonRoom room) {
         room.setStatus(DungeonRoom.RoomStatus.FAILED);
 
-        // Defeat effects
         for (UUID uuid : room.getPlayers()) {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null) {
@@ -464,7 +486,7 @@ public class RoomManager {
                     spawn = p.getWorld().getSpawnLocation();
                 }
                 p.teleport(spawn);
-                p.sendTitle("", "", 0, 0, 0); // Clear title
+                p.sendTitle("", "", 0, 0, 0);
             }
         }
         if (room.getCountdownTask() != -1) Bukkit.getScheduler().cancelTask(room.getCountdownTask());

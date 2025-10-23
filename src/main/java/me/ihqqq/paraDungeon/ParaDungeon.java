@@ -100,6 +100,7 @@ public final class ParaDungeon extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new DungeonListener(this), this);
         getServer().getPluginManager().registerEvents(new GUIListener(this), this);
+        getServer().getPluginManager().registerEvents(new RewardGUIListener(this), this);
     }
 
     private void startTasks() {

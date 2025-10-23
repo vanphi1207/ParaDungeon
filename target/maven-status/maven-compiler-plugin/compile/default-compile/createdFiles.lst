@@ -17,12 +17,14 @@ me\ihqqq\paraDungeon\models\DungeonRoom$RoomStatus.class
 me\ihqqq\paraDungeon\managers\RoomManager$1.class
 me\ihqqq\paraDungeon\models\DungeonRewards$ScoreReward.class
 me\ihqqq\paraDungeon\tasks\ActionBarTask.class
+me\ihqqq\paraDungeon\listeners\RewardGUIListener.class
 me\ihqqq\paraDungeon\listeners\DungeonListener.class
 me\ihqqq\paraDungeon\gui\GUIManager.class
 me\ihqqq\paraDungeon\listeners\GUIListener.class
 me\ihqqq\paraDungeon\models\Dungeon.class
 me\ihqqq\paraDungeon\ParaDungeon.class
 me\ihqqq\paraDungeon\commands\DungeonCommand.class
+me\ihqqq\paraDungeon\gui\RewardEditorGUI.class
 me\ihqqq\paraDungeon\models\Wave.class
 me\ihqqq\paraDungeon\managers\RewardManager.class
 me\ihqqq\paraDungeon\managers\ConfigManager.class

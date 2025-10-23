@@ -41,6 +41,7 @@ dungeon:
 rewards:
   received: "&a✓ Phần thưởng: &e{rewards}"
   score: "&a⭐ Điểm số: &e{score}"
+  dropped: "&eVật phẩm đã rơi trên mặt đất (túi đầy)!"
 
 # Admin
 admin:
@@ -52,6 +53,8 @@ admin:
   setspawn: "&aĐã đặt điểm spawn cho phó bản &e{dungeon}"
   setlobby: "&aĐã đặt điểm lobby cho phó bản &e{dungeon}"
   wave-spawn-set: "&aĐã thêm vị trí spawn cho đợt {wave}, ải {stage} của phó bản {dungeon}."
+  rewards-saved: "&aĐã lưu phần thưởng thành công!"
+  type-score: "&eNhập điểm số yêu cầu trong chat (hoặc 'cancel' để hủy):"
 
 # Leaderboard
 leaderboard:
@@ -102,11 +105,19 @@ gui:
     notifications: "&6&lThông Báo"
     coming-soon: "&e🔧 Đang phát triển..."
 
+  rewards:
+    title: "&6&lQuản Lý Phần Thưởng"
+    completion: "&6&lPhần Thưởng Hoàn Thành"
+    score-based: "&6&lPhần Thưởng Theo Điểm"
+    preview: "&6&lXem Trước Phần Thưởng"
+
   common:
     back: "&c&lQuay Lại"
     close: "&c&lĐóng"
     next-page: "&a&lTrang Sau"
     previous-page: "&e&lTrang Trước"
+    save: "&a&l✔ LƯU"
+    cancel: "&c&l✖ HỦY"
 
 # Help
 help:

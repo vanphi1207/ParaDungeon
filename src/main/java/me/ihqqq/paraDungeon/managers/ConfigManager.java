@@ -53,16 +53,17 @@ public class ConfigManager {
     }
 
     /**
-     * Lấy và định dạng message từ messages.yml (không có placeholder)
-     * Đã sửa lỗi không hiển thị màu cho prefix.
+     * Lấy message với prefix tự động
      */
     public String getMessage(String path) {
         String prefix = messagesConfig.getString("prefix", "");
-        String message = messagesConfig.getString(path, ""); // Dùng giá trị mặc định để tránh null
+        String message = messagesConfig.getString(path, "");
         return (prefix + message).replace("&", "§");
     }
 
-
+    /**
+     * Lấy message với prefix tự động và thay thế placeholder
+     */
     public String getMessage(String path, String... replacements) {
         String prefix = messagesConfig.getString("prefix", "");
         String messageTemplate = messagesConfig.getString(path, "");
@@ -74,5 +75,35 @@ public class ConfigManager {
         }
 
         return (prefix + messageTemplate).replace("&", "§");
+    }
+
+    /**
+     * Lấy message KHÔNG có prefix (dùng cho các trường hợp đặc biệt)
+     */
+    public String getMessageRaw(String path) {
+        String message = messagesConfig.getString(path, "");
+        return message.replace("&", "§");
+    }
+
+    /**
+     * Lấy message KHÔNG có prefix với placeholder
+     */
+    public String getMessageRaw(String path, String... replacements) {
+        String messageTemplate = messagesConfig.getString(path, "");
+
+        for (int i = 0; i < replacements.length; i += 2) {
+            if (i + 1 < replacements.length) {
+                messageTemplate = messageTemplate.replace("{" + replacements[i] + "}", replacements[i + 1]);
+            }
+        }
+
+        return messageTemplate.replace("&", "§");
+    }
+
+    /**
+     * Lấy prefix
+     */
+    public String getPrefix() {
+        return messagesConfig.getString("prefix", "").replace("&", "§");
     }
 }

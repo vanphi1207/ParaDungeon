@@ -10,6 +10,12 @@ general:
   dungeon-not-found: "&cKhông tìm thấy phó bản: &e{dungeon}"
   invalid-number: "&cSố không hợp lệ: &e{number}"
 
+# Usage messages (no prefix)
+usage:
+  join: "&cSử dụng: /dungeon join <tên>"
+  top: "&cSử dụng: /dungeon top <tên>"
+  info: "&cSử dụng: /dungeon info <tên>"
+
 # Phòng chờ
 lobby:
   joined: "&aĐã tham gia phòng phó bản &e{dungeon}&a!"
@@ -36,6 +42,7 @@ dungeon:
   safe-mode: "&a✓ Bạn đang trong trạng thái an toàn!"
   lives-remaining: "&eSố lượt hồi sinh còn lại: &a{lives}"
   mob-killed: "&a+10 điểm!"
+  command-blocked: "&cBạn không thể sử dụng lệnh này trong phó bản!"
 
 # Rewards
 rewards:
@@ -111,6 +118,12 @@ gui:
     completion: "&6&lPhần Thưởng Hoàn Thành"
     score-based: "&6&lPhần Thưởng Theo Điểm"
     preview: "&6&lXem Trước Phần Thưởng"
+    no-space: "&cKhông còn chỗ trống để thêm phần thưởng."
+    preview-coming-soon: "&7Tính năng xem trước phần thưởng đang được phát triển!"
+    score-tier-coming-soon: "&eTính năng này đang được hoàn thiện. Vui lòng sử dụng config file để thêm score tier mới."
+
+  settings-coming-soon: "&eTính năng này đang được phát triển!"
+  top-players-hint: "&7Sử dụng &e/dungeon top <tên> &7để xem bảng xếp hạng"
 
   common:
     back: "&c&lQuay Lại"
@@ -141,6 +154,7 @@ help:
     - "&c/dgadmin addwave <tên> <stage> <đợt> <mob> <số lượng> &7- Thêm đợt quái"
     - "&c/dgadmin setspawn <tên> &7- Đặt điểm spawn"
     - "&c/dgadmin setlobby <tên> &7- Đặt điểm lobby"
+    - "&c/dgadmin setend <tên> &7- Đặt điểm kết thúc"
     - "&c/dgadmin setwavespawn <dungeon> <ải> <đợt> &7- Thêm điểm spawn cho wave"
     - "&c/dgadmin reload &7- Tải lại config"
 

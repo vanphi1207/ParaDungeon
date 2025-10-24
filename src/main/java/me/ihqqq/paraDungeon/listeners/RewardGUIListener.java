@@ -22,14 +22,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Listener for Reward Editor GUI
- */
 public class RewardGUIListener implements Listener {
 
     private final ParaDungeon plugin;
-    private final Map<String, String> editingSessions; // player name -> dungeon id
-    private final Map<String, Integer> editingScores; // player name -> score tier
+    private final Map<String, String> editingSessions;
+    private final Map<String, Integer> editingScores;
 
     public RewardGUIListener(ParaDungeon plugin) {
         this.plugin = plugin;
@@ -47,26 +44,22 @@ public class RewardGUIListener implements Listener {
 
         Player player = (Player) event.getWhoClicked();
 
-        // Handle reward editor GUIs differently - allow item placement
         if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
                 title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
 
-            Inventory topInventory = event.getView().getTopInventory(); // Dòng code bị thiếu đã được thêm vào
+            Inventory topInventory = event.getView().getTopInventory();
 
-            // Handle shift-clicking items from player inventory to the reward GUI
             if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-                event.setCancelled(true); // Always cancel the default action to handle it manually
+                event.setCancelled(true);
 
                 ItemStack clickedItem = event.getCurrentItem();
                 if (clickedItem == null || clickedItem.getType().isAir()) {
-                    return; // Nothing to move
+                    return;
                 }
 
                 int playerInventorySlot = event.getRawSlot();
 
-                // Ensure the click is within the player's inventory
                 if (playerInventorySlot >= topInventory.getSize()) {
-                    // Find the first empty slot in the reward area (slots 18-44)
                     int firstEmpty = -1;
                     for (int i = 18; i <= 44; i++) {
                         if (topInventory.getItem(i) == null || topInventory.getItem(i).getType().isAir()) {
@@ -76,28 +69,24 @@ public class RewardGUIListener implements Listener {
                     }
 
                     if (firstEmpty != -1) {
-                        // Move the item to the first empty slot
                         topInventory.setItem(firstEmpty, clickedItem.clone());
-                        event.setCurrentItem(null); // Clear the item from the player's inventory
+                        event.setCurrentItem(null);
                     } else {
-                        player.sendMessage(plugin.getConfigManager().getMessage("prefix") + "§cKhông còn chỗ trống để thêm phần thưởng.");
+                        player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-no-space"));
                     }
                 }
-                return; // Stop further processing for this event
+                return;
             }
 
             int slot = event.getRawSlot();
 
-            // Allow normal placing/taking items in the reward slots
             if (slot >= 18 && slot <= 44) {
                 return;
             }
-            // Allow clicking in the player's own inventory
             if (slot >= topInventory.getSize()) {
                 return;
             }
 
-            // If we are here, it's a click on a control item or a blocked slot, so we cancel it.
             event.setCancelled(true);
             ItemStack clickedItem = event.getCurrentItem();
 
@@ -119,7 +108,6 @@ public class RewardGUIListener implements Listener {
             return;
         }
 
-        // For other reward GUIs (main menu, etc.), cancel all clicks
         event.setCancelled(true);
         ItemStack clickedItem = event.getCurrentItem();
 
@@ -139,6 +127,7 @@ public class RewardGUIListener implements Listener {
 
         handleRewardMenuClick(player, data, event.isLeftClick());
     }
+
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
         String title = event.getView().getTitle();
@@ -146,24 +135,20 @@ public class RewardGUIListener implements Listener {
         if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
                 title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
 
-            // Allow dragging into the reward area (slots 18-44)
             for (int slot : event.getRawSlots()) {
                 if (slot >= 18 && slot <= 44) {
                     return;
                 }
             }
             event.setCancelled(true);
-
         }
     }
-
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         String title = event.getView().getTitle();
         Player player = (Player) event.getPlayer();
 
-        // Auto-save when closing reward editor
         if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE)) {
             String dungeonId = editingSessions.get(player.getName());
             if (dungeonId != null) {
@@ -206,12 +191,10 @@ public class RewardGUIListener implements Listener {
             String dungeonId = data.substring(12);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
             if (dungeon != null) {
-                plugin.getGUIManager().openDungeonInfo(player,dungeon);
+                plugin.getGUIManager().openDungeonInfo(player, dungeon);
             }
         } else if (data.startsWith("preview_")) {
-            String dungeonId = data.substring(8);
-            player.sendMessage(plugin.getConfigManager().getMessage("prefix") +
-                    "§7Tính năng xem trước phần thưởng đang được phát triển!");
+            player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-preview-coming-soon"));
         }
     }
 
@@ -231,10 +214,7 @@ public class RewardGUIListener implements Listener {
             String dungeonId = data.substring(15);
             player.closeInventory();
             player.sendMessage(plugin.getConfigManager().getMessage("admin.type-score"));
-            // TODO: Implement chat listener for score input
-            // For now, just inform the user
-            player.sendMessage(plugin.getConfigManager().getMessage("prefix") +
-                    "§eTính năng này đang được hoàn thiện. Vui lòng sử dụng config file để thêm score tier mới.");
+            player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-score-tier-coming-soon"));
         } else if (data.startsWith("edit_tier_")) {
             String[] parts = data.substring(10).split("_");
             if (parts.length >= 2) {
@@ -284,21 +264,18 @@ public class RewardGUIListener implements Listener {
             dungeon.setRewards(rewards);
         }
 
-        // Collect items from slots 18-44
         List<ItemStack> rewardItems = new ArrayList<>();
         for (int i = 18; i <= 44; i++) {
             ItemStack item = inv.getItem(i);
             if (item != null && !item.getType().isAir()) {
-                // Check if it's not a control item
                 ItemMeta meta = item.getItemMeta();
                 if (meta != null && meta.getPersistentDataContainer().has(plugin.getDungeonKey(), PersistentDataType.STRING)) {
-                    continue; // Skip control items
+                    continue;
                 }
                 rewardItems.add(item.clone());
             }
         }
 
-        // Save items to dungeon config
         rewards.setCompletionRewardItems(rewardItems);
         plugin.getDungeonManager().saveDungeon(dungeon);
 
@@ -321,7 +298,6 @@ public class RewardGUIListener implements Listener {
             rewards.addScoreReward(score, scoreReward);
         }
 
-        // Collect items from slots 18-44
         List<ItemStack> rewardItems = new ArrayList<>();
         for (int i = 18; i <= 44; i++) {
             ItemStack item = inv.getItem(i);
@@ -334,7 +310,6 @@ public class RewardGUIListener implements Listener {
             }
         }
 
-        // Save items
         scoreReward.setRewardItems(rewardItems);
         plugin.getDungeonManager().saveDungeon(dungeon);
 

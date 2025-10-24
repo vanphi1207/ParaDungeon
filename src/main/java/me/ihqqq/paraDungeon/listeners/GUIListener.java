@@ -142,8 +142,9 @@ public class GUIListener implements Listener {
         }
 
         if (displayName.contains("Top Người Chơi")) {
+            // Không dùng getMessage() ở đây vì đã có prefix trong message
             player.sendMessage(plugin.getConfigManager().getMessage("prefix") +
-                    "§7Sử dụng §e/dungeon top <tên> §7để xem bảng xếp hạng");
+                    plugin.getConfigManager().getMessageRaw("gui.top-players-hint"));
             return;
         }
 
@@ -157,8 +158,7 @@ public class GUIListener implements Listener {
                     plugin.getGUIManager().getRewardEditorGUI().openRewardMenu(player, dungeon);
                 } else {
                     // Show preview for players
-                    player.sendMessage(plugin.getConfigManager().getMessage("prefix") +
-                            "§7Tính năng xem trước phần thưởng đang được phát triển!");
+                    player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-preview-coming-soon"));
                 }
             }
         }
@@ -196,7 +196,6 @@ public class GUIListener implements Listener {
             return;
         }
 
-        player.sendMessage(plugin.getConfigManager().getMessage("prefix") +
-                "§eTính năng này đang được phát triển!");
+        player.sendMessage(plugin.getConfigManager().getMessage("gui.settings-coming-soon"));
     }
 }

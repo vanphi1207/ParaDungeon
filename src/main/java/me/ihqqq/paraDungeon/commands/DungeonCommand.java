@@ -1,10 +1,8 @@
 package me.ihqqq.paraDungeon.commands;
 
 import me.ihqqq.paraDungeon.ParaDungeon;
-import me.ihqqq.paraDungeon.managers.LeaderboardManager;
 import me.ihqqq.paraDungeon.models.Dungeon;
 import me.ihqqq.paraDungeon.models.DungeonRoom;
-import me.ihqqq.paraDungeon.models.PlayerData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -31,7 +29,6 @@ public class DungeonCommand implements CommandExecutor, TabCompleter {
         Player player = (Player) sender;
 
         if (args.length == 0) {
-            // Open main menu GUI instead of help
             plugin.getGUIManager().openMainMenu(player);
             return true;
         }
@@ -46,7 +43,8 @@ public class DungeonCommand implements CommandExecutor, TabCompleter {
                 break;
             case "join":
                 if (args.length < 2) {
-                    player.sendMessage(plugin.getConfigManager().getMessage("prefix") + "§cSử dụng: /dungeon join <tên>");
+                    // SỬA LỖI: Gọi trực tiếp message, không ghép prefix
+                    player.sendMessage(plugin.getConfigManager().getMessage("usage.join"));
                     return true;
                 }
                 joinDungeon(player, args[1]);
@@ -56,14 +54,16 @@ public class DungeonCommand implements CommandExecutor, TabCompleter {
                 break;
             case "top":
                 if (args.length < 2) {
-                    player.sendMessage(plugin.getConfigManager().getMessage("prefix") + "§cSử dụng: /dungeon top <tên>");
+                    // SỬA LỖI: Gọi trực tiếp message, không ghép prefix
+                    player.sendMessage(plugin.getConfigManager().getMessage("usage.top"));
                     return true;
                 }
                 plugin.getGUIManager().openLeaderboard(player, args[1]);
                 break;
             case "info":
                 if (args.length < 2) {
-                    player.sendMessage(plugin.getConfigManager().getMessage("prefix") + "§cSử dụng: /dungeon info <tên>");
+                    // SỬA LỖI: Gọi trực tiếp message, không ghép prefix
+                    player.sendMessage(plugin.getConfigManager().getMessage("usage.info"));
                     return true;
                 }
                 Dungeon dungeon = plugin.getDungeonManager().getDungeon(args[1]);
@@ -106,19 +106,16 @@ public class DungeonCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        // Check if already in dungeon
-        if (plugin.getPlayerDataManager().getPlayerData(player.getUniqueId()).isInDungeon()) {
+        if (plugin.getRoomManager().getPlayerRoom(player.getUniqueId()) != null) {
             player.sendMessage(plugin.getConfigManager().getMessage("lobby.already-in-dungeon"));
             return;
         }
 
-        // Check entries
         if (!plugin.getPlayerDataManager().hasAvailableEntries(player, dungeonId)) {
             player.sendMessage(plugin.getConfigManager().getMessage("lobby.no-entries"));
             return;
         }
 
-        // Find or create room
         Collection<DungeonRoom> availableRooms = plugin.getRoomManager().getAvailableRooms(dungeon);
         DungeonRoom room;
 
@@ -133,19 +130,16 @@ public class DungeonCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        // Consume entry
         plugin.getPlayerDataManager().consumeEntry(player, dungeonId);
-
-        // Join room
         plugin.getRoomManager().joinRoom(player, room);
     }
 
     private void leaveDungeon(Player player) {
-        if (!plugin.getPlayerDataManager().getPlayerData(player.getUniqueId()).isInDungeon()) {
+        DungeonRoom room = plugin.getRoomManager().getPlayerRoom(player.getUniqueId());
+        if (room == null) {
             player.sendMessage(plugin.getConfigManager().getMessage("lobby.not-in-lobby"));
             return;
         }
-
         plugin.getRoomManager().leaveRoom(player);
     }
 

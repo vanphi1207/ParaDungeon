@@ -53,6 +53,16 @@ settings:
     # Danh sách đầy đủ: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/ChatColor.html
     color: RED
 
+  # Chặn lệnh trong phó bản
+  dungeon-restrictions:
+    enabled: true
+    # Các lệnh bị cấm (viết liền không có dấu /)
+    blocked-cmds:
+      - "spawn"
+      - "home"
+      - "tpa"
+      - "warp"
+
   # Hiệu ứng và hiển thị
   effects:
     # Bật/tắt particles

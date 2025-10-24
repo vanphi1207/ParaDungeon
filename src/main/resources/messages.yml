@@ -52,6 +52,7 @@ admin:
   need-min-stages: "&cCần ít nhất 3 ải để có thể khởi tạo phó bản!"
   setspawn: "&aĐã đặt điểm spawn cho phó bản &e{dungeon}"
   setlobby: "&aĐã đặt điểm lobby cho phó bản &e{dungeon}"
+  setend: "&aĐã đặt điểm kết thúc cho phó bản &e{dungeon}"
   wave-spawn-set: "&aĐã thêm vị trí spawn cho đợt {wave}, ải {stage} của phó bản {dungeon}."
   rewards-saved: "&aĐã lưu phần thưởng thành công!"
   type-score: "&eNhập điểm số yêu cầu trong chat (hoặc 'cancel' để hủy):"

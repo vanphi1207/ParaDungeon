@@ -481,11 +481,16 @@ public class RoomManager {
             playerRooms.remove(playerId);
             Player p = Bukkit.getPlayer(playerId);
             if(p != null) {
-                Location spawn = p.getRespawnLocation();
-                if (spawn == null) {
-                    spawn = p.getWorld().getSpawnLocation();
-                }
-                p.teleport(spawn);
+                Location endPoint = room.getDungeon().getEndPoint(); // Đã thêm
+                if (endPoint != null) { // Đã thêm
+                    p.teleport(endPoint); // Đã thêm
+                } else { // Đã thêm
+                    Location spawn = p.getRespawnLocation();
+                    if (spawn == null) {
+                        spawn = p.getWorld().getSpawnLocation();
+                    }
+                    p.teleport(spawn);
+                } // Đã thêm
                 p.sendTitle("", "", 0, 0, 0);
             }
         }

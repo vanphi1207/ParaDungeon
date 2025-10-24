@@ -60,6 +60,8 @@ public class DungeonManager {
             dungeon.setSpawnPoint(loadLocation(section.getConfigurationSection("spawn-point")));
         if (section.getConfigurationSection("lobby-point") != null)
             dungeon.setLobbyPoint(loadLocation(section.getConfigurationSection("lobby-point")));
+        if (section.getConfigurationSection("end-point") != null) // Đã thêm
+            dungeon.setEndPoint(loadLocation(section.getConfigurationSection("end-point"))); // Đã thêm
 
         ConfigurationSection stagesSection = section.getConfigurationSection("stages");
         if (stagesSection != null) {
@@ -109,6 +111,8 @@ public class DungeonManager {
             saveLocation(dungeonSection.createSection("spawn-point"), dungeon.getSpawnPoint());
         if (dungeon.getLobbyPoint() != null)
             saveLocation(dungeonSection.createSection("lobby-point"), dungeon.getLobbyPoint());
+        if (dungeon.getEndPoint() != null) // Đã thêm
+            saveLocation(dungeonSection.createSection("end-point"), dungeon.getEndPoint()); // Đã thêm
 
         ConfigurationSection stagesSection = dungeonSection.createSection("stages");
         for (Stage stage : dungeon.getStages().values()) {

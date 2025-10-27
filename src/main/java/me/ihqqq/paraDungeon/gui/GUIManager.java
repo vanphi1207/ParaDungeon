@@ -23,6 +23,7 @@ public class GUIManager {
 
     private final ParaDungeon plugin;
     private final RewardEditorGUI rewardEditorGUI;
+    private final CommandRewardGUI commandRewardGUI;
 
     // GUI Titles
     public static final String MAIN_MENU_TITLE = "§8▎ §6§lParaDungeon Menu";
@@ -35,10 +36,15 @@ public class GUIManager {
     public GUIManager(ParaDungeon plugin) {
         this.plugin = plugin;
         this.rewardEditorGUI = new RewardEditorGUI(plugin);
+        this.commandRewardGUI = new CommandRewardGUI(plugin);
     }
 
     public RewardEditorGUI getRewardEditorGUI() {
         return rewardEditorGUI;
+    }
+
+    public CommandRewardGUI getCommandRewardGUI() {
+        return commandRewardGUI;
     }
 
     /**

@@ -26,6 +26,7 @@ me\ihqqq\paraDungeon\listeners\GUIListener.class
 me\ihqqq\paraDungeon\models\Dungeon.class
 me\ihqqq\paraDungeon\ParaDungeon.class
 me\ihqqq\paraDungeon\commands\DungeonCommand.class
+me\ihqqq\paraDungeon\gui\CommandRewardGUI$PendingScoreTierInput.class
 me\ihqqq\paraDungeon\gui\RewardEditorGUI.class
 me\ihqqq\paraDungeon\models\Wave.class
 me\ihqqq\paraDungeon\gui\CommandRewardGUI.class

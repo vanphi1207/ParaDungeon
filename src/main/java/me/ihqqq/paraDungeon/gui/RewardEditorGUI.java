@@ -220,6 +220,16 @@ public class RewardEditorGUI {
                     "§a▶ Click trái: Chỉnh sửa",
                     "§c▶ Click phải: Xóa"
             );
+            // Store both edit and delete data
+            ItemMeta tierMeta = tierItem.getItemMeta();
+            if (tierMeta != null) {
+                tierMeta.getPersistentDataContainer().set(
+                    plugin.getDeleteKey(),
+                    PersistentDataType.STRING,
+                    "delete_tier_" + dungeon.getId() + "_" + score
+                );
+                tierItem.setItemMeta(tierMeta);
+            }
             gui.setItem(slot++, tierItem);
 
             if (slot >= 44) break;

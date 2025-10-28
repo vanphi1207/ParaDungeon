@@ -25,6 +25,7 @@ public final class ParaDungeon extends JavaPlugin {
 
     private GUIManager guiManager;
     private NamespacedKey dungeonKey;
+    private NamespacedKey deleteKey;
 
     private ActionBarTask actionBarTask;
 
@@ -33,6 +34,7 @@ public final class ParaDungeon extends JavaPlugin {
         instance = this;
 
         dungeonKey = new NamespacedKey(this, "dungeon_id");
+        deleteKey = new NamespacedKey(this, "delete_action");
 
         saveDefaultConfig();
         configManager = new ConfigManager(this);
@@ -138,6 +140,10 @@ public final class ParaDungeon extends JavaPlugin {
 
     public NamespacedKey getDungeonKey() {
         return dungeonKey;
+    }
+
+    public NamespacedKey getDeleteKey() {
+        return deleteKey;
     }
 
     public static ParaDungeon getInstance() {

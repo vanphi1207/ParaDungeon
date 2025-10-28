@@ -63,10 +63,14 @@ admin:
   wave-spawn-set: "&aĐã thêm vị trí spawn cho đợt {wave}, ải {stage} của phó bản {dungeon}."
   rewards-saved: "&aĐã lưu phần thưởng thành công!"
   type-score: "&eNhập điểm số yêu cầu trong chat (hoặc 'cancel' để hủy):"
-  command-prompt: "&eNhập lệnh command reward:"
+  command-prompt: "&eNhập lệnh command reward (hoặc 'cancel' để hủy):"
   command-added: "&aĐã thêm lệnh: &e{command}"
   command-removed: "&cĐã xóa lệnh: &e{command}"
-  command-cancelled: "&cĐã hủy thêm lệnh!"
+  command-cancelled: "&cĐã hủy thao tác!"
+  score-tier-prompt: "&eNhập điểm số yêu cầu (hoặc 'cancel' để hủy):"
+  score-tier-added: "&aĐã thêm mức điểm: &e{score}"
+  score-tier-removed: "&cĐã xóa mức điểm: &e{score}"
+  score-tier-exists: "&cMức điểm &e{score} &cđã tồn tại!"
 
 # Leaderboard
 leaderboard:

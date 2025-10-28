@@ -19,10 +19,12 @@ public class CommandRewardGUI {
     public static final String COMPLETION_COMMANDS_TITLE = "§8▎ §6§lLệnh Hoàn Thành";
     public static final String SCORE_COMMANDS_TITLE = "§8▎ §6§lLệnh Theo Điểm";
     private final Map<UUID, PendingCommandInput> pendingInputs;
+    private final Map<UUID, PendingScoreTierInput> pendingScoreTierInputs;
 
     public CommandRewardGUI(ParaDungeon plugin) {
         this.plugin = plugin;
         this.pendingInputs = new HashMap<>();
+        this.pendingScoreTierInputs = new HashMap<>();
     }
 
     public void openCompletionCommands(Player player, Dungeon dungeon) {
@@ -171,7 +173,70 @@ public class CommandRewardGUI {
         player.sendMessage(plugin.getConfigManager().getMessage("admin.command-prompt"));
     }
 
+    public void startAddingScoreTier(Player player, String dungeonId) {
+        player.closeInventory();
+        PendingScoreTierInput input = new PendingScoreTierInput(dungeonId);
+        pendingScoreTierInputs.put(player.getUniqueId(), input);
+        player.sendMessage(plugin.getConfigManager().getMessage("admin.score-tier-prompt"));
+    }
+
     public boolean handleChatInput(Player player, String message) {
+        // Check for score tier input first
+        PendingScoreTierInput scoreTierInput = pendingScoreTierInputs.get(player.getUniqueId());
+        if (scoreTierInput != null) {
+            pendingScoreTierInputs.remove(player.getUniqueId());
+
+            if (message.equalsIgnoreCase("cancel")) {
+                player.sendMessage(plugin.getConfigManager().getMessage("admin.command-cancelled"));
+                Dungeon dungeon = plugin.getDungeonManager().getDungeon(scoreTierInput.dungeonId);
+                if (dungeon != null) {
+                    Bukkit.getScheduler().runTaskLater(plugin, () ->
+                        plugin.getGUIManager().getRewardEditorGUI().openScoreRewardsEditor(player, dungeon), 1L);
+                }
+                return true;
+            }
+
+            try {
+                int score = Integer.parseInt(message);
+                if (score <= 0) {
+                    player.sendMessage(plugin.getConfigManager().getMessage("general.invalid-number", "number", message));
+                    return true;
+                }
+
+                Dungeon dungeon = plugin.getDungeonManager().getDungeon(scoreTierInput.dungeonId);
+                if (dungeon == null) {
+                    player.sendMessage(plugin.getConfigManager().getMessage("general.dungeon-not-found", "dungeon", scoreTierInput.dungeonId));
+                    return true;
+                }
+
+                DungeonRewards rewards = dungeon.getRewards();
+                if (rewards == null) {
+                    rewards = new DungeonRewards();
+                    dungeon.setRewards(rewards);
+                }
+
+                if (rewards.getScoreBasedRewards().containsKey(score)) {
+                    player.sendMessage(plugin.getConfigManager().getMessage("admin.score-tier-exists", "score", String.valueOf(score)));
+                    Bukkit.getScheduler().runTaskLater(plugin, () ->
+                        plugin.getGUIManager().getRewardEditorGUI().openScoreRewardsEditor(player, dungeon), 1L);
+                    return true;
+                }
+
+                rewards.addScoreReward(score, new DungeonRewards.ScoreReward());
+                plugin.getDungeonManager().saveDungeon(dungeon);
+                player.sendMessage(plugin.getConfigManager().getMessage("admin.score-tier-added", "score", String.valueOf(score)));
+
+                Bukkit.getScheduler().runTaskLater(plugin, () ->
+                    plugin.getGUIManager().getRewardEditorGUI().openScoreTierEditor(player, dungeon, score), 1L);
+
+                return true;
+            } catch (NumberFormatException e) {
+                player.sendMessage(plugin.getConfigManager().getMessage("general.invalid-number", "number", message));
+                return true;
+            }
+        }
+
+        // Handle command input
         PendingCommandInput input = pendingInputs.get(player.getUniqueId());
         if (input == null) return false;
 
@@ -217,10 +282,11 @@ public class CommandRewardGUI {
 
     public void cancelPendingInput(UUID playerId) {
         pendingInputs.remove(playerId);
+        pendingScoreTierInputs.remove(playerId);
     }
 
     public boolean hasPendingInput(UUID playerId) {
-        return pendingInputs.containsKey(playerId);
+        return pendingInputs.containsKey(playerId) || pendingScoreTierInputs.containsKey(playerId);
     }
 
     private void reopenCommandGUI(Player player, PendingCommandInput input) {
@@ -307,6 +373,14 @@ public class CommandRewardGUI {
         PendingCommandInput(String dungeonId, Integer scoreRequirement) {
             this.dungeonId = dungeonId;
             this.scoreRequirement = scoreRequirement;
+        }
+    }
+
+    private static class PendingScoreTierInput {
+        final String dungeonId;
+
+        PendingScoreTierInput(String dungeonId) {
+            this.dungeonId = dungeonId;
         }
     }
 }

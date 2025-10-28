@@ -15,31 +15,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * GUI để quản lý phần thưởng của dungeon
- */
 public class RewardEditorGUI {
 
     private final ParaDungeon plugin;
 
-    // GUI Titles
     public static final String REWARD_MENU_TITLE = "§8▎ §6§lQuản Lý Phần Thưởng";
     public static final String COMPLETION_REWARDS_TITLE = "§8▎ §6§lPhần Thưởng Hoàn Thành";
     public static final String SCORE_REWARDS_TITLE = "§8▎ §6§lPhần Thưởng Theo Điểm";
     public static final String EDIT_SCORE_REWARD_TITLE = "§8▎ §6§lChỉnh Sửa Phần Thưởng";
-    public static final String ADD_SCORE_REWARD_TITLE = "§8▎ §6§lThêm Điểm Yêu Cầu";
 
     public RewardEditorGUI(ParaDungeon plugin) {
         this.plugin = plugin;
     }
 
-    /**
-     * Open main reward management menu
-     */
     public void openRewardMenu(Player player, Dungeon dungeon) {
         Inventory gui = Bukkit.createInventory(null, 27, REWARD_MENU_TITLE);
 
-        // Completion Rewards
         ItemStack completionRewards = createItemWithData(
                 Material.CHEST,
                 "§6§lPhần Thưởng Hoàn Thành",
@@ -51,7 +42,6 @@ public class RewardEditorGUI {
         );
         gui.setItem(11, completionRewards);
 
-        // Score-based Rewards
         ItemStack scoreRewards = createItemWithData(
                 Material.NETHER_STAR,
                 "§6§lPhần Thưởng Theo Điểm",
@@ -65,7 +55,6 @@ public class RewardEditorGUI {
         );
         gui.setItem(13, scoreRewards);
 
-        // Preview Rewards
         ItemStack preview = createItemWithData(
                 Material.BOOK,
                 "§6§lXem Trước Phần Thưởng",
@@ -77,11 +66,10 @@ public class RewardEditorGUI {
         );
         gui.setItem(15, preview);
 
-        // Back button
         ItemStack back = createItemWithData(
                 Material.ARROW,
                 "§c§lQuay Lại",
-                "back_dungeon_info_" + dungeon.getId(), // Thêm data để quay lại đúng GUI
+                "back_dungeon_info_" + dungeon.getId(),
                 "§7Về thông tin phó bản"
         );
         gui.setItem(22, back);
@@ -90,9 +78,6 @@ public class RewardEditorGUI {
         player.openInventory(gui);
     }
 
-    /**
-     * Open completion rewards editor
-     */
     public void openCompletionRewardsEditor(Player player, Dungeon dungeon) {
         Inventory gui = Bukkit.createInventory(null, 54, COMPLETION_REWARDS_TITLE);
 
@@ -118,11 +103,11 @@ public class RewardEditorGUI {
         );
         gui.setItem(4, info);
 
-        // Command rewards info
+        // ✅ FIX: Đổi data key thành "add_cmd_completion_"
         ItemStack cmdInfo = createItemWithData(
                 Material.COMMAND_BLOCK,
                 "§6§lCommand Rewards",
-                "add_command_completion_" + dungeon.getId(), // SỬA Ở ĐÂY
+                "add_cmd_completion_" + dungeon.getId(),
                 "§7Thêm lệnh thực thi khi",
                 "§7người chơi hoàn thành",
                 "",
@@ -158,13 +143,10 @@ public class RewardEditorGUI {
         );
         gui.setItem(45, back);
 
-        fillEmptySlots(gui, Material.BLACK_STAINED_GLASS_PANE, 0, 17); // Only top rows
+        fillEmptySlots(gui, Material.BLACK_STAINED_GLASS_PANE, 0, 17);
         player.openInventory(gui);
     }
 
-    /**
-     * Open score-based rewards editor
-     */
     public void openScoreRewardsEditor(Player player, Dungeon dungeon) {
         Inventory gui = Bukkit.createInventory(null, 54, SCORE_REWARDS_TITLE);
 
@@ -174,7 +156,6 @@ public class RewardEditorGUI {
             dungeon.setRewards(rewards);
         }
 
-        // Info
         ItemStack info = createItem(
                 Material.PAPER,
                 "§6§lHướng Dẫn",
@@ -190,7 +171,6 @@ public class RewardEditorGUI {
         );
         gui.setItem(4, info);
 
-        // Add new score tier
         ItemStack addTier = createItemWithData(
                 Material.EMERALD_BLOCK,
                 "§a§l+ THÊM MỨC ĐIỂM",
@@ -201,7 +181,6 @@ public class RewardEditorGUI {
         );
         gui.setItem(8, addTier);
 
-        // Display existing score tiers
         Map<Integer, DungeonRewards.ScoreReward> scoreRewards = rewards.getScoreBasedRewards();
         int slot = 18;
         for (Map.Entry<Integer, DungeonRewards.ScoreReward> entry : scoreRewards.entrySet()) {
@@ -220,13 +199,13 @@ public class RewardEditorGUI {
                     "§a▶ Click trái: Chỉnh sửa",
                     "§c▶ Click phải: Xóa"
             );
-            // Store both edit and delete data
+
             ItemMeta tierMeta = tierItem.getItemMeta();
             if (tierMeta != null) {
                 tierMeta.getPersistentDataContainer().set(
-                    plugin.getDeleteKey(),
-                    PersistentDataType.STRING,
-                    "delete_tier_" + dungeon.getId() + "_" + score
+                        plugin.getDeleteKey(),
+                        PersistentDataType.STRING,
+                        "delete_tier_" + dungeon.getId() + "_" + score
                 );
                 tierItem.setItemMeta(tierMeta);
             }
@@ -235,7 +214,6 @@ public class RewardEditorGUI {
             if (slot >= 44) break;
         }
 
-        // Back button
         ItemStack back = createItemWithData(
                 Material.ARROW,
                 "§c§lQuay Lại",
@@ -248,9 +226,6 @@ public class RewardEditorGUI {
         player.openInventory(gui);
     }
 
-    /**
-     * Open editor for specific score tier
-     */
     public void openScoreTierEditor(Player player, Dungeon dungeon, int score) {
         Inventory gui = Bukkit.createInventory(null, 54, EDIT_SCORE_REWARD_TITLE);
 
@@ -263,7 +238,6 @@ public class RewardEditorGUI {
             rewards.addScoreReward(score, scoreReward);
         }
 
-        // Info
         ItemStack info = createItem(
                 Material.PAPER,
                 "§6§lPhần Thưởng " + score + " Điểm",
@@ -274,11 +248,11 @@ public class RewardEditorGUI {
         );
         gui.setItem(4, info);
 
-        // Command rewards
+        // ✅ FIX: Đổi data key thành "add_cmd_tier_"
         ItemStack cmdInfo = createItemWithData(
                 Material.COMMAND_BLOCK,
                 "§6§lCommand Rewards",
-                "add_command_tier_" + dungeon.getId() + "_" + score,
+                "add_cmd_tier_" + dungeon.getId() + "_" + score,
                 "§7Thêm lệnh thực thi",
                 "",
                 "§eSố lượng: §a" + scoreReward.getCommands().size(),
@@ -287,13 +261,11 @@ public class RewardEditorGUI {
         );
         gui.setItem(8, cmdInfo);
 
-        // Load existing rewards
         List<ItemStack> currentRewardItems = scoreReward.getRewardItems();
         for (int i = 0; i < currentRewardItems.size() && i < 27; i++) {
             gui.setItem(18 + i, currentRewardItems.get(i));
         }
 
-        // Save button
         ItemStack save = createItemWithData(
                 Material.LIME_WOOL,
                 "§a§l✔ LƯU",
@@ -304,7 +276,6 @@ public class RewardEditorGUI {
         );
         gui.setItem(49, save);
 
-        // Back button
         ItemStack back = createItemWithData(
                 Material.ARROW,
                 "§c§lQuay Lại",
@@ -316,8 +287,6 @@ public class RewardEditorGUI {
         fillEmptySlots(gui, Material.BLACK_STAINED_GLASS_PANE, 0, 17);
         player.openInventory(gui);
     }
-
-    // ==================== UTILITY METHODS ====================
 
     private ItemStack createItem(Material material, String name, String... lore) {
         ItemStack item = new ItemStack(material);

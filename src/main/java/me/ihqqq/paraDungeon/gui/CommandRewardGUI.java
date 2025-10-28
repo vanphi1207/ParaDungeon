@@ -121,10 +121,11 @@ public class CommandRewardGUI {
         );
         gui.setItem(4, info);
 
+        // ✅ FIX: Đổi prefix thành "add_command_tier_"
         ItemStack addCmd = createItemWithData(
                 Material.WRITABLE_BOOK,
                 "§a§l+ THÊM LỆNH",
-                "add_cmd_tier_" + dungeon.getId() + "_" + score,
+                "add_command_tier_" + dungeon.getId() + "_" + score,
                 "§7Click để thêm lệnh mới",
                 "",
                 "§e▶ Nhập lệnh trong chat!"
@@ -168,6 +169,14 @@ public class CommandRewardGUI {
 
     public void startAddingCommand(Player player, String dungeonId, Integer scoreRequirement) {
         player.closeInventory();
+
+        // ✅ FIX: Kiểm tra dungeon tồn tại TRƯỚC KHI lưu input
+        Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+        if (dungeon == null) {
+            player.sendMessage(plugin.getConfigManager().getMessage("general.dungeon-not-found", "dungeon", dungeonId));
+            return;
+        }
+
         PendingCommandInput input = new PendingCommandInput(dungeonId, scoreRequirement);
         pendingInputs.put(player.getUniqueId(), input);
         player.sendMessage(plugin.getConfigManager().getMessage("admin.command-prompt"));
@@ -175,6 +184,14 @@ public class CommandRewardGUI {
 
     public void startAddingScoreTier(Player player, String dungeonId) {
         player.closeInventory();
+
+        // ✅ FIX: Kiểm tra dungeon
+        Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+        if (dungeon == null) {
+            player.sendMessage(plugin.getConfigManager().getMessage("general.dungeon-not-found", "dungeon", dungeonId));
+            return;
+        }
+
         PendingScoreTierInput input = new PendingScoreTierInput(dungeonId);
         pendingScoreTierInputs.put(player.getUniqueId(), input);
         player.sendMessage(plugin.getConfigManager().getMessage("admin.score-tier-prompt"));
@@ -191,7 +208,7 @@ public class CommandRewardGUI {
                 Dungeon dungeon = plugin.getDungeonManager().getDungeon(scoreTierInput.dungeonId);
                 if (dungeon != null) {
                     Bukkit.getScheduler().runTaskLater(plugin, () ->
-                        plugin.getGUIManager().getRewardEditorGUI().openScoreRewardsEditor(player, dungeon), 1L);
+                            plugin.getGUIManager().getRewardEditorGUI().openScoreRewardsEditor(player, dungeon), 1L);
                 }
                 return true;
             }
@@ -218,7 +235,7 @@ public class CommandRewardGUI {
                 if (rewards.getScoreBasedRewards().containsKey(score)) {
                     player.sendMessage(plugin.getConfigManager().getMessage("admin.score-tier-exists", "score", String.valueOf(score)));
                     Bukkit.getScheduler().runTaskLater(plugin, () ->
-                        plugin.getGUIManager().getRewardEditorGUI().openScoreRewardsEditor(player, dungeon), 1L);
+                            plugin.getGUIManager().getRewardEditorGUI().openScoreRewardsEditor(player, dungeon), 1L);
                     return true;
                 }
 
@@ -227,7 +244,7 @@ public class CommandRewardGUI {
                 player.sendMessage(plugin.getConfigManager().getMessage("admin.score-tier-added", "score", String.valueOf(score)));
 
                 Bukkit.getScheduler().runTaskLater(plugin, () ->
-                    plugin.getGUIManager().getRewardEditorGUI().openScoreTierEditor(player, dungeon, score), 1L);
+                        plugin.getGUIManager().getRewardEditorGUI().openScoreTierEditor(player, dungeon, score), 1L);
 
                 return true;
             } catch (NumberFormatException e) {
@@ -250,11 +267,9 @@ public class CommandRewardGUI {
 
         String command = message.startsWith("/") ? message.substring(1) : message;
 
-        // === ĐOẠN SỬA LỖI QUAN TRỌNG NHẤT ===
-        // Lấy ID phó bản từ 'input' đã được lưu trữ trước đó, không phải từ message chat.
+        // ✅ FIX: Kiểm tra dungeon lại lần nữa
         Dungeon dungeon = plugin.getDungeonManager().getDungeon(input.dungeonId);
         if (dungeon == null) {
-            // Bây giờ nếu có lỗi, nó sẽ hiển thị đúng ID, ví dụ: "test"
             player.sendMessage(plugin.getConfigManager().getMessage("general.dungeon-not-found", "dungeon", input.dungeonId));
             return true;
         }
@@ -268,7 +283,10 @@ public class CommandRewardGUI {
         if (input.scoreRequirement == null) {
             rewards.getCompletionCommands().add(command);
         } else {
-            DungeonRewards.ScoreReward scoreReward = rewards.getScoreBasedRewards().computeIfAbsent(input.scoreRequirement, k -> new DungeonRewards.ScoreReward());
+            DungeonRewards.ScoreReward scoreReward = rewards.getScoreBasedRewards().computeIfAbsent(
+                    input.scoreRequirement,
+                    k -> new DungeonRewards.ScoreReward()
+            );
             scoreReward.getCommands().add(command);
         }
 

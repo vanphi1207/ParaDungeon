@@ -45,33 +45,47 @@ public class RewardGUIListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
 
+        // ✅ FIX: Cho phép tương tác với reward slots (18-44)
         if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
                 title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
 
-            // Xử lý logic di chuyển item vào inventory phần thưởng
-            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY && event.getClickedInventory() != event.getView().getTopInventory()) {
-                event.setCancelled(true);
-                if (clickedItem != null && !clickedItem.getType().isAir()) {
-                    int firstEmpty = event.getView().getTopInventory().firstEmpty();
-                    if (firstEmpty != -1 && firstEmpty >= 18 && firstEmpty <= 44) {
-                        event.getView().getTopInventory().setItem(firstEmpty, clickedItem.clone());
-                        event.setCurrentItem(null);
-                    } else {
-                        player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-no-space"));
-                    }
-                }
+            int slot = event.getRawSlot();
+
+            // Cho phép đặt/lấy item ở slots 18-44
+            if (slot >= 18 && slot <= 44) {
+                // Không cancel, cho phép tương tác bình thường
                 return;
             }
 
-            // Chỉ cho phép tương tác với các slot nhất định
-            if (event.getRawSlot() >= 18 && event.getRawSlot() <= 44) {
-                return; // Cho phép người chơi đặt/lấy item
+            // Cho phép shift-click từ player inventory
+            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+                if (event.getClickedInventory() != event.getView().getTopInventory()) {
+                    event.setCancelled(true);
+
+                    if (clickedItem != null && !clickedItem.getType().isAir()) {
+                        // Tìm slot trống trong khoảng 18-44
+                        Inventory topInv = event.getView().getTopInventory();
+                        for (int i = 18; i <= 44; i++) {
+                            ItemStack slotItem = topInv.getItem(i);
+                            if (slotItem == null || slotItem.getType().isAir()) {
+                                topInv.setItem(i, clickedItem.clone());
+                                event.setCurrentItem(null);
+                                return;
+                            }
+                        }
+                        player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-no-space"));
+                    }
+                    return;
+                }
             }
+
+            // Cho phép tương tác với player inventory
             if (event.getClickedInventory() != event.getView().getTopInventory()) {
-                return; // Cho phép tương tác với inventory người chơi
+                return;
             }
         }
 
+        // Cancel các click khác
         event.setCancelled(true);
 
         if (clickedItem == null || clickedItem.getType().isAir()) {
@@ -88,16 +102,18 @@ public class RewardGUIListener implements Listener {
 
         if (data == null) return;
 
-        // Phân luồng xử lý cho các GUI khác nhau
-        if (title.equals(RewardEditorGUI.REWARD_MENU_TITLE) || title.equals(RewardEditorGUI.SCORE_REWARDS_TITLE)) {
+        // Phân luồng xử lý
+        if (title.equals(RewardEditorGUI.REWARD_MENU_TITLE) ||
+                title.equals(RewardEditorGUI.SCORE_REWARDS_TITLE)) {
             handleRewardMenuClick(player, data, meta, event.isLeftClick());
-        } else if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) || title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
+        } else if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
+                title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
             handleRewardEditorClick(player, data, event.getInventory());
-        } else if (title.equals(CommandRewardGUI.COMPLETION_COMMANDS_TITLE) || title.equals(CommandRewardGUI.SCORE_COMMANDS_TITLE)) {
+        } else if (title.equals(CommandRewardGUI.COMPLETION_COMMANDS_TITLE) ||
+                title.equals(CommandRewardGUI.SCORE_COMMANDS_TITLE)) {
             handleCommandRewardGUIClick(player, data, event.isRightClick());
         }
     }
-
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
@@ -106,8 +122,10 @@ public class RewardGUIListener implements Listener {
         if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
                 title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
 
+            // Chỉ cho phép drag trong slots 18-44
             for (int slot : event.getRawSlots()) {
-                if (slot < event.getView().getTopInventory().getSize() && (slot < 18 || slot > 44)) {
+                if (slot < event.getView().getTopInventory().getSize() &&
+                        (slot < 18 || slot > 44)) {
                     event.setCancelled(true);
                     return;
                 }
@@ -154,26 +172,30 @@ public class RewardGUIListener implements Listener {
                 editingSessions.put(player.getName(), dungeonId);
                 plugin.getGUIManager().getRewardEditorGUI().openCompletionRewardsEditor(player, dungeon);
             }
+
         } else if (data.startsWith("score_")) {
             String dungeonId = data.substring(6);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
             if (dungeon != null) {
                 plugin.getGUIManager().getRewardEditorGUI().openScoreRewardsEditor(player, dungeon);
             }
+
         } else if (data.startsWith("back_dungeon_info_")) {
             String dungeonId = data.substring(18);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
             if (dungeon != null) {
                 plugin.getGUIManager().openDungeonInfo(player, dungeon);
             }
+
         } else if (data.startsWith("preview_")) {
             player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-preview-coming-soon"));
+
         } else if (data.startsWith("edit_tier_")) {
             if (!isLeftClick) {
-                // Right click - handle delete
+                // Right click - delete
                 String deleteData = meta.getPersistentDataContainer().get(
-                    plugin.getDeleteKey(),
-                    PersistentDataType.STRING
+                        plugin.getDeleteKey(),
+                        PersistentDataType.STRING
                 );
                 if (deleteData != null && deleteData.startsWith("delete_tier_")) {
                     String[] parts = deleteData.substring(12).split("_", 2);
@@ -200,7 +222,7 @@ public class RewardGUIListener implements Listener {
             }
 
             // Left click - edit
-            String[] parts = data.substring(10).split("_");
+            String[] parts = data.substring(10).split("_", 2);
             if (parts.length >= 2) {
                 String dungeonId = parts[0];
                 try {
@@ -215,6 +237,7 @@ public class RewardGUIListener implements Listener {
                     player.sendMessage(plugin.getConfigManager().getMessage("general.invalid-number", "number", parts[1]));
                 }
             }
+
         } else if (data.startsWith("add_score_tier_")) {
             String dungeonId = data.substring(15);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
@@ -229,20 +252,25 @@ public class RewardGUIListener implements Listener {
             String dungeonId = data.substring(16);
             saveCompletionRewards(player, inv, dungeonId);
             player.sendMessage(plugin.getConfigManager().getMessage("admin.rewards-saved"));
+
         } else if (data.startsWith("back_reward_")) {
             String dungeonId = data.substring(12);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
             if (dungeon != null) {
                 plugin.getGUIManager().getRewardEditorGUI().openRewardMenu(player, dungeon);
             }
-        } else if (data.startsWith("add_command_completion_")) {
-            String dungeonId = data.substring(23);
+
+            // ✅ FIX: Đổi prefix thành "add_cmd_completion_"
+        } else if (data.startsWith("add_cmd_completion_")) {
+            String dungeonId = data.substring(19);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
             if (dungeon != null) {
                 plugin.getGUIManager().getCommandRewardGUI().openCompletionCommands(player, dungeon);
             }
-        } else if (data.startsWith("add_command_tier_")) {
-            String[] parts = data.substring(17).split("_", 2);
+
+            // ✅ FIX: Đổi prefix thành "add_cmd_tier_"
+        } else if (data.startsWith("add_cmd_tier_")) {
+            String[] parts = data.substring(13).split("_", 2);
             if (parts.length >= 2) {
                 String dungeonId = parts[0];
                 try {
@@ -255,8 +283,8 @@ public class RewardGUIListener implements Listener {
                     player.sendMessage(plugin.getConfigManager().getMessage("general.invalid-number", "number", parts[1]));
                 }
             }
-        }
-        else if (data.startsWith("save_tier_")) {
+
+        } else if (data.startsWith("save_tier_")) {
             String[] parts = data.substring(10).split("_", 2);
             if (parts.length >= 2) {
                 String dungeonId = parts[0];
@@ -268,6 +296,7 @@ public class RewardGUIListener implements Listener {
                     player.sendMessage(plugin.getConfigManager().getMessage("general.invalid-number", "number", parts[1]));
                 }
             }
+
         } else if (data.startsWith("back_score_rewards_")) {
             String dungeonId = data.substring(19);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
@@ -285,8 +314,8 @@ public class RewardGUIListener implements Listener {
             String dungeonId = data.substring(19);
             cmdGUI.startAddingCommand(player, dungeonId, null);
 
-        } else if (data.startsWith("add_cmd_tier_")) {
-            String[] parts = data.substring(13).split("_", 2);
+        } else if (data.startsWith("add_command_tier_")) {
+            String[] parts = data.substring(17).split("_", 2);
             if (parts.length >= 2) {
                 String dungeonId = parts[0];
                 try {
@@ -332,7 +361,7 @@ public class RewardGUIListener implements Listener {
             }
         } else if (data.startsWith("back_tier_editor_")) {
             String[] parts = data.substring(17).split("_", 2);
-            if(parts.length >= 2) {
+            if (parts.length >= 2) {
                 String dungeonId = parts[0];
                 try {
                     int score = Integer.parseInt(parts[1]);
@@ -350,7 +379,7 @@ public class RewardGUIListener implements Listener {
             }
         } else if (data.startsWith("save_close_tier_commands_")) {
             String[] parts = data.substring(25).split("_", 2);
-            if(parts.length >= 2) {
+            if (parts.length >= 2) {
                 String dungeonId = parts[0];
                 try {
                     int score = Integer.parseInt(parts[1]);
@@ -362,7 +391,6 @@ public class RewardGUIListener implements Listener {
             }
         }
     }
-
 
     private void saveCompletionRewards(Player player, Inventory inv, String dungeonId) {
         Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);

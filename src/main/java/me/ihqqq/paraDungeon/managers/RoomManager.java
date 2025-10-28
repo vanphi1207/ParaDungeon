@@ -55,9 +55,16 @@ public class RoomManager {
     public void leaveRoom(Player player) {
         DungeonRoom room = getPlayerRoom(player.getUniqueId());
         if (room == null) return;
+
+        // Dịch chuyển người chơi ra ngoài trước khi xử lý logic phòng
+        teleportPlayerOut(player, room.getDungeon());
+
+        // Xóa người chơi khỏi phòng
         room.removePlayer(player.getUniqueId());
         playerRooms.remove(player.getUniqueId());
         player.sendMessage(plugin.getConfigManager().getMessage("lobby.left"));
+
+        // Kiểm tra và xử lý phòng sau khi người chơi rời đi
         if (room.getPlayerCount() == 0) {
             deleteRoom(room);
         } else if (!room.hasMinPlayers() && room.getStatus() == DungeonRoom.RoomStatus.COUNTDOWN) {
@@ -252,7 +259,6 @@ public class RoomManager {
                         LivingEntity entity = (LivingEntity) mob.getEntity().getBukkitEntity();
                         room.addEntity(entity);
 
-                        // Apply glow effect
                         if (enableGlow) {
                             applyGlowEffect(entity, glowColor);
                         }
@@ -273,13 +279,9 @@ public class RoomManager {
         }
     }
 
-    /**
-     * Apply glowing effect to mob
-     */
     private void applyGlowEffect(LivingEntity entity, ChatColor color) {
         entity.setGlowing(true);
 
-        // Try to set team color for glow (requires Scoreboard API)
         try {
             org.bukkit.scoreboard.Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
             String teamName = "dungeon_mob_" + color.name().toLowerCase();
@@ -292,19 +294,15 @@ public class RoomManager {
 
             team.addEntry(entity.getUniqueId().toString());
         } catch (Exception e) {
-            // Fallback: just use basic glow without color
             plugin.getLogger().warning("Could not set glow color: " + e.getMessage());
         }
     }
 
-    /**
-     * Get ChatColor from string
-     */
     private ChatColor getGlowColor(String colorName) {
         try {
             return ChatColor.valueOf(colorName.toUpperCase());
         } catch (Exception e) {
-            return ChatColor.RED; // Default
+            return ChatColor.RED;
         }
     }
 
@@ -480,22 +478,30 @@ public class RoomManager {
         for (UUID playerId : new HashSet<>(room.getPlayers())) {
             playerRooms.remove(playerId);
             Player p = Bukkit.getPlayer(playerId);
-            if(p != null) {
-                Location endPoint = room.getDungeon().getEndPoint(); // Đã thêm
-                if (endPoint != null) { // Đã thêm
-                    p.teleport(endPoint); // Đã thêm
-                } else { // Đã thêm
-                    Location spawn = p.getRespawnLocation();
-                    if (spawn == null) {
-                        spawn = p.getWorld().getSpawnLocation();
-                    }
-                    p.teleport(spawn);
-                } // Đã thêm
+            if (p != null) {
+                teleportPlayerOut(p, room.getDungeon());
                 p.sendTitle("", "", 0, 0, 0);
             }
         }
         if (room.getCountdownTask() != -1) Bukkit.getScheduler().cancelTask(room.getCountdownTask());
         rooms.remove(room.getRoomId());
+    }
+
+    private void teleportPlayerOut(Player player, Dungeon dungeon) {
+        if (player == null || !player.isOnline()) {
+            return;
+        }
+
+        Location endPoint = dungeon.getEndPoint();
+        if (endPoint != null) {
+            player.teleport(endPoint);
+        } else {
+            Location spawn = player.getRespawnLocation();
+            if (spawn == null) {
+                spawn = player.getWorld().getSpawnLocation();
+            }
+            player.teleport(spawn);
+        }
     }
 
     public void checkAutoRenew() {

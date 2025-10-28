@@ -23,24 +23,18 @@ public class GUIListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         String title = event.getView().getTitle();
-
         if (!isPluginGUI(title)) {
             return;
         }
-
         event.setCancelled(true);
-
         if (!(event.getWhoClicked() instanceof Player)) {
             return;
         }
-
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
-
         if (clickedItem == null || clickedItem.getType().isAir()) {
             return;
         }
-
         ItemMeta meta = clickedItem.getItemMeta();
         if (meta == null) return;
 
@@ -77,7 +71,6 @@ public class GUIListener implements Listener {
 
     private void handleMainMenu(Player player, ItemStack item, ItemMeta meta) {
         String displayName = meta.getDisplayName();
-
         if (displayName.contains("Danh Sách Phó Bản")) {
             plugin.getGUIManager().openDungeonList(player);
         } else if (displayName.contains("Thống Kê Của Tôi")) {
@@ -98,14 +91,8 @@ public class GUIListener implements Listener {
             plugin.getGUIManager().openMainMenu(player);
             return;
         }
-
-        String dungeonId = meta.getPersistentDataContainer().get(
-                plugin.getDungeonKey(),
-                PersistentDataType.STRING
-        );
-
+        String dungeonId = meta.getPersistentDataContainer().get(plugin.getDungeonKey(), PersistentDataType.STRING);
         if (dungeonId == null) return;
-
         Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
         if (dungeon == null) return;
 
@@ -119,17 +106,11 @@ public class GUIListener implements Listener {
 
     private void handleDungeonInfo(Player player, ItemStack item, ItemMeta meta) {
         String displayName = meta.getDisplayName();
-
         if (item.getType() == Material.ARROW) {
             plugin.getGUIManager().openDungeonList(player);
             return;
         }
-
-        String data = meta.getPersistentDataContainer().get(
-                plugin.getDungeonKey(),
-                PersistentDataType.STRING
-        );
-
+        String data = meta.getPersistentDataContainer().get(plugin.getDungeonKey(), PersistentDataType.STRING);
         if (data == null) return;
 
         if (displayName.contains("THAM GIA")) {
@@ -142,22 +123,18 @@ public class GUIListener implements Listener {
         }
 
         if (displayName.contains("Top Người Chơi")) {
-            // Không dùng getMessage() ở đây vì đã có prefix trong message
             player.sendMessage(plugin.getConfigManager().getMessage("prefix") +
                     plugin.getConfigManager().getMessageRaw("gui.top-players-hint"));
             return;
         }
 
-        // Handle rewards button
         if (data.startsWith("rewards_")) {
             String dungeonId = data.substring(8);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
             if (dungeon != null) {
                 if (player.hasPermission("paradungeon.admin")) {
-                    // Open reward editor for admin
                     plugin.getGUIManager().getRewardEditorGUI().openRewardMenu(player, dungeon);
                 } else {
-                    // Show preview for players
                     player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-preview-coming-soon"));
                 }
             }
@@ -176,12 +153,7 @@ public class GUIListener implements Listener {
             plugin.getGUIManager().openMainMenu(player);
             return;
         }
-
-        String dungeonId = meta.getPersistentDataContainer().get(
-                plugin.getDungeonKey(),
-                PersistentDataType.STRING
-        );
-
+        String dungeonId = meta.getPersistentDataContainer().get(plugin.getDungeonKey(), PersistentDataType.STRING);
         if (dungeonId != null) {
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
             if (dungeon != null) {
@@ -195,7 +167,6 @@ public class GUIListener implements Listener {
             plugin.getGUIManager().openMainMenu(player);
             return;
         }
-
         player.sendMessage(plugin.getConfigManager().getMessage("gui.settings-coming-soon"));
     }
 }

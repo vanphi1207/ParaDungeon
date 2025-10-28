@@ -1,6 +1,7 @@
 package me.ihqqq.paraDungeon.listeners;
 
 import me.ihqqq.paraDungeon.ParaDungeon;
+import me.ihqqq.paraDungeon.gui.CommandRewardGUI;
 import me.ihqqq.paraDungeon.gui.RewardEditorGUI;
 import me.ihqqq.paraDungeon.models.Dungeon;
 import me.ihqqq.paraDungeon.models.DungeonRewards;
@@ -43,33 +44,18 @@ public class RewardGUIListener implements Listener {
         }
 
         Player player = (Player) event.getWhoClicked();
+        ItemStack clickedItem = event.getCurrentItem();
 
         if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
                 title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
 
-            Inventory topInventory = event.getView().getTopInventory();
-
-            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+            // Xử lý logic di chuyển item vào inventory phần thưởng
+            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY && event.getClickedInventory() != event.getView().getTopInventory()) {
                 event.setCancelled(true);
-
-                ItemStack clickedItem = event.getCurrentItem();
-                if (clickedItem == null || clickedItem.getType().isAir()) {
-                    return;
-                }
-
-                int playerInventorySlot = event.getRawSlot();
-
-                if (playerInventorySlot >= topInventory.getSize()) {
-                    int firstEmpty = -1;
-                    for (int i = 18; i <= 44; i++) {
-                        if (topInventory.getItem(i) == null || topInventory.getItem(i).getType().isAir()) {
-                            firstEmpty = i;
-                            break;
-                        }
-                    }
-
-                    if (firstEmpty != -1) {
-                        topInventory.setItem(firstEmpty, clickedItem.clone());
+                if (clickedItem != null && !clickedItem.getType().isAir()) {
+                    int firstEmpty = event.getView().getTopInventory().firstEmpty();
+                    if (firstEmpty != -1 && firstEmpty >= 18 && firstEmpty <= 44) {
+                        event.getView().getTopInventory().setItem(firstEmpty, clickedItem.clone());
                         event.setCurrentItem(null);
                     } else {
                         player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-no-space"));
@@ -78,38 +64,16 @@ public class RewardGUIListener implements Listener {
                 return;
             }
 
-            int slot = event.getRawSlot();
-
-            if (slot >= 18 && slot <= 44) {
-                return;
+            // Chỉ cho phép tương tác với các slot nhất định
+            if (event.getRawSlot() >= 18 && event.getRawSlot() <= 44) {
+                return; // Cho phép người chơi đặt/lấy item
             }
-            if (slot >= topInventory.getSize()) {
-                return;
+            if (event.getClickedInventory() != event.getView().getTopInventory()) {
+                return; // Cho phép tương tác với inventory người chơi
             }
-
-            event.setCancelled(true);
-            ItemStack clickedItem = event.getCurrentItem();
-
-            if (clickedItem == null || clickedItem.getType().isAir()) {
-                return;
-            }
-
-            ItemMeta meta = clickedItem.getItemMeta();
-            if (meta == null) return;
-
-            String data = meta.getPersistentDataContainer().get(
-                    plugin.getDungeonKey(),
-                    PersistentDataType.STRING
-            );
-
-            if (data == null) return;
-
-            handleRewardEditorClick(player, data, event.getInventory());
-            return;
         }
 
         event.setCancelled(true);
-        ItemStack clickedItem = event.getCurrentItem();
 
         if (clickedItem == null || clickedItem.getType().isAir()) {
             return;
@@ -125,8 +89,16 @@ public class RewardGUIListener implements Listener {
 
         if (data == null) return;
 
-        handleRewardMenuClick(player, data, event.isLeftClick());
+        // Phân luồng xử lý cho các GUI khác nhau
+        if (title.equals(RewardEditorGUI.REWARD_MENU_TITLE) || title.equals(RewardEditorGUI.SCORE_REWARDS_TITLE)) {
+            handleRewardMenuClick(player, data, event.isLeftClick());
+        } else if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) || title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
+            handleRewardEditorClick(player, data, event.getInventory());
+        } else if (title.equals(CommandRewardGUI.COMPLETION_COMMANDS_TITLE) || title.equals(CommandRewardGUI.SCORE_COMMANDS_TITLE)) {
+            handleCommandRewardGUIClick(player, data, event.isRightClick());
+        }
     }
+
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
@@ -136,11 +108,11 @@ public class RewardGUIListener implements Listener {
                 title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
 
             for (int slot : event.getRawSlots()) {
-                if (slot >= 18 && slot <= 44) {
+                if (slot < event.getView().getTopInventory().getSize() && (slot < 18 || slot > 44)) {
+                    event.setCancelled(true);
                     return;
                 }
             }
-            event.setCancelled(true);
         }
     }
 
@@ -170,7 +142,9 @@ public class RewardGUIListener implements Listener {
         return title.equals(RewardEditorGUI.REWARD_MENU_TITLE) ||
                 title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
                 title.equals(RewardEditorGUI.SCORE_REWARDS_TITLE) ||
-                title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE);
+                title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE) ||
+                title.equals(CommandRewardGUI.COMPLETION_COMMANDS_TITLE) ||
+                title.equals(CommandRewardGUI.SCORE_COMMANDS_TITLE);
     }
 
     private void handleRewardMenuClick(Player player, String data, boolean isLeftClick) {
@@ -187,14 +161,33 @@ public class RewardGUIListener implements Listener {
             if (dungeon != null) {
                 plugin.getGUIManager().getRewardEditorGUI().openScoreRewardsEditor(player, dungeon);
             }
-        } else if (data.startsWith("back_reward_")) {
-            String dungeonId = data.substring(12);
+        } else if (data.startsWith("back_dungeon_info_")) {
+            String dungeonId = data.substring(18);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
             if (dungeon != null) {
                 plugin.getGUIManager().openDungeonInfo(player, dungeon);
             }
         } else if (data.startsWith("preview_")) {
             player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-preview-coming-soon"));
+        } else if (data.startsWith("edit_tier_")) {
+            String[] parts = data.substring(10).split("_");
+            if (parts.length >= 2) {
+                String dungeonId = parts[0];
+                try {
+                    int score = Integer.parseInt(parts[1]);
+                    Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+                    if (dungeon != null) {
+                        editingSessions.put(player.getName(), dungeonId);
+                        editingScores.put(player.getName(), score);
+                        plugin.getGUIManager().getRewardEditorGUI().openScoreTierEditor(player, dungeon, score);
+                    }
+                } catch (NumberFormatException e) {
+                    player.sendMessage(plugin.getConfigManager().getMessage("general.invalid-number", "number", parts[1]));
+                }
+            }
+        } else if (data.startsWith("add_score_tier_")) {
+            String dungeonId = data.substring(15);
+            player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-score-tier-coming-soon"));
         }
     }
 
@@ -207,33 +200,31 @@ public class RewardGUIListener implements Listener {
             String dungeonId = data.substring(12);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
             if (dungeon != null) {
-                player.closeInventory();
                 plugin.getGUIManager().getRewardEditorGUI().openRewardMenu(player, dungeon);
             }
-        } else if (data.startsWith("add_score_tier_")) {
-            String dungeonId = data.substring(15);
-            player.closeInventory();
-            player.sendMessage(plugin.getConfigManager().getMessage("admin.type-score"));
-            player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-score-tier-coming-soon"));
-        } else if (data.startsWith("edit_tier_")) {
-            String[] parts = data.substring(10).split("_");
+        } else if (data.startsWith("add_command_completion_")) {
+            String dungeonId = data.substring(23);
+            Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+            if (dungeon != null) {
+                plugin.getGUIManager().getCommandRewardGUI().openCompletionCommands(player, dungeon);
+            }
+        } else if (data.startsWith("add_command_tier_")) {
+            String[] parts = data.substring(17).split("_", 2);
             if (parts.length >= 2) {
                 String dungeonId = parts[0];
                 try {
                     int score = Integer.parseInt(parts[1]);
                     Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
                     if (dungeon != null) {
-                        editingSessions.put(player.getName(), dungeonId);
-                        editingScores.put(player.getName(), score);
-                        player.closeInventory();
-                        plugin.getGUIManager().getRewardEditorGUI().openScoreTierEditor(player, dungeon, score);
+                        plugin.getGUIManager().getCommandRewardGUI().openScoreTierCommands(player, dungeon, score);
                     }
                 } catch (NumberFormatException e) {
                     player.sendMessage(plugin.getConfigManager().getMessage("general.invalid-number", "number", parts[1]));
                 }
             }
-        } else if (data.startsWith("save_tier_")) {
-            String[] parts = data.substring(10).split("_");
+        }
+        else if (data.startsWith("save_tier_")) {
+            String[] parts = data.substring(10).split("_", 2);
             if (parts.length >= 2) {
                 String dungeonId = parts[0];
                 try {
@@ -248,11 +239,97 @@ public class RewardGUIListener implements Listener {
             String dungeonId = data.substring(19);
             Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
             if (dungeon != null) {
-                player.closeInventory();
                 plugin.getGUIManager().getRewardEditorGUI().openScoreRewardsEditor(player, dungeon);
             }
         }
     }
+
+    private void handleCommandRewardGUIClick(Player player, String data, boolean isRightClick) {
+        CommandRewardGUI cmdGUI = plugin.getGUIManager().getCommandRewardGUI();
+        RewardEditorGUI rewardGUI = plugin.getGUIManager().getRewardEditorGUI();
+
+        if (data.startsWith("add_cmd_completion_")) {
+            String dungeonId = data.substring(21);
+            cmdGUI.startAddingCommand(player, dungeonId, null);
+
+        } else if (data.startsWith("add_cmd_tier_")) {
+            String[] parts = data.substring(13).split("_", 2);
+            if (parts.length >= 2) {
+                String dungeonId = parts[0];
+                try {
+                    int score = Integer.parseInt(parts[1]);
+                    cmdGUI.startAddingCommand(player, dungeonId, score);
+                } catch (NumberFormatException ignored) {}
+            }
+
+        } else if (data.startsWith("cmd_completion_")) {
+            if (isRightClick) {
+                String[] parts = data.substring(15).split("_", 2);
+                if (parts.length >= 2) {
+                    String dungeonId = parts[0];
+                    Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+                    if (dungeon != null) {
+                        try {
+                            int index = Integer.parseInt(parts[1]);
+                            cmdGUI.removeCompletionCommand(player, dungeon, index);
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
+            }
+        } else if (data.startsWith("cmd_tier_")) {
+            if (isRightClick) {
+                String[] parts = data.substring(9).split("_", 3);
+                if (parts.length >= 3) {
+                    String dungeonId = parts[0];
+                    Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+                    if (dungeon != null) {
+                        try {
+                            int score = Integer.parseInt(parts[1]);
+                            int index = Integer.parseInt(parts[2]);
+                            cmdGUI.removeScoreTierCommand(player, dungeon, score, index);
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
+            }
+        } else if (data.startsWith("back_reward_")) {
+            String dungeonId = data.substring(12);
+            Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+            if (dungeon != null) {
+                rewardGUI.openCompletionRewardsEditor(player, dungeon);
+            }
+        } else if (data.startsWith("back_tier_editor_")) {
+            String[] parts = data.substring(17).split("_", 2);
+            if(parts.length >= 2) {
+                String dungeonId = parts[0];
+                try {
+                    int score = Integer.parseInt(parts[1]);
+                    Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+                    if (dungeon != null) {
+                        rewardGUI.openScoreTierEditor(player, dungeon, score);
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+        } else if (data.startsWith("save_close_commands_")) {
+            String dungeonId = data.substring(20);
+            Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+            if (dungeon != null) {
+                rewardGUI.openCompletionRewardsEditor(player, dungeon);
+            }
+        } else if (data.startsWith("save_close_tier_commands_")) {
+            String[] parts = data.substring(25).split("_", 2);
+            if(parts.length >= 2) {
+                String dungeonId = parts[0];
+                try {
+                    int score = Integer.parseInt(parts[1]);
+                    Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+                    if (dungeon != null) {
+                        rewardGUI.openScoreTierEditor(player, dungeon, score);
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+    }
+
 
     private void saveCompletionRewards(Player player, Inventory inv, String dungeonId) {
         Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
@@ -268,10 +345,6 @@ public class RewardGUIListener implements Listener {
         for (int i = 18; i <= 44; i++) {
             ItemStack item = inv.getItem(i);
             if (item != null && !item.getType().isAir()) {
-                ItemMeta meta = item.getItemMeta();
-                if (meta != null && meta.getPersistentDataContainer().has(plugin.getDungeonKey(), PersistentDataType.STRING)) {
-                    continue;
-                }
                 rewardItems.add(item.clone());
             }
         }
@@ -302,10 +375,6 @@ public class RewardGUIListener implements Listener {
         for (int i = 18; i <= 44; i++) {
             ItemStack item = inv.getItem(i);
             if (item != null && !item.getType().isAir()) {
-                ItemMeta meta = item.getItemMeta();
-                if (meta != null && meta.getPersistentDataContainer().has(plugin.getDungeonKey(), PersistentDataType.STRING)) {
-                    continue;
-                }
                 rewardItems.add(item.clone());
             }
         }

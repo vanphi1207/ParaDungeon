@@ -78,9 +78,10 @@ public class RewardEditorGUI {
         gui.setItem(15, preview);
 
         // Back button
-        ItemStack back = createItem(
+        ItemStack back = createItemWithData(
                 Material.ARROW,
                 "§c§lQuay Lại",
+                "back_dungeon_info_" + dungeon.getId(), // Thêm data để quay lại đúng GUI
                 "§7Về thông tin phó bản"
         );
         gui.setItem(22, back);
@@ -121,7 +122,7 @@ public class RewardEditorGUI {
         ItemStack cmdInfo = createItemWithData(
                 Material.COMMAND_BLOCK,
                 "§6§lCommand Rewards",
-                "add_command_" + dungeon.getId(),
+                "add_command_completion_" + dungeon.getId(), // SỬA Ở ĐÂY
                 "§7Thêm lệnh thực thi khi",
                 "§7người chơi hoàn thành",
                 "",

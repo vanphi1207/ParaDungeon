@@ -27,12 +27,10 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(plugin.getConfigManager().getMessage("general.no-permission"));
             return true;
         }
-
         if (args.length == 0) {
             sendHelp(sender);
             return true;
         }
-
         switch (args[0].toLowerCase()) {
             case "create":
                 if (args.length < 2) {
@@ -95,7 +93,7 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
                 }
                 setWaveSpawn((Player) sender, args[1], args[2], args[3]);
                 break;
-            case "setend": // Đã thêm
+            case "setend":
                 if (!(sender instanceof Player)) {
                     sender.sendMessage(plugin.getConfigManager().getMessage("general.player-only"));
                     return true;
@@ -242,7 +240,7 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void setEnd(Player player, String dungeonId) { // Đã thêm
+    private void setEnd(Player player, String dungeonId) {
         Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
         if (dungeon == null) {
             player.sendMessage(plugin.getConfigManager().getMessage("general.dungeon-not-found", "dungeon", dungeonId));
@@ -256,7 +254,7 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("create", "delete", "addstage", "addwave", "setspawn", "setlobby", "setwavespawn", "setend", "reload") // Đã thêm
+            return Arrays.asList("create", "delete", "addstage", "addwave", "setspawn", "setlobby", "setwavespawn", "setend", "reload")
                     .stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
         }
         if (args.length == 2 && !args[0].equalsIgnoreCase("create") && !args[0].equalsIgnoreCase("reload")) {

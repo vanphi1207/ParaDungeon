@@ -1,83 +1,104 @@
-# Thông báo của Plugin
+# ==================================================================================================
+#
+#                                      ParaDungeon Messages
+#
+# ==================================================================================================
+#
+# Hướng dẫn:
+# - Sử dụng mã màu với ký tự '&'. Ví dụ: &a, &l, &6.
+# - Sử dụng placeholders
+#
+# ==================================================================================================
 
 prefix: "&8[&6ParaDungeon&8] &r"
 
-# Thông báo chung
+# --------------------------------------------------------------------------------------------------
+# Tin nhắn chung
+# --------------------------------------------------------------------------------------------------
 general:
-  no-permission: "&cBạn không có quyền sử dụng lệnh này!"
-  player-only: "&cChỉ người chơi mới có thể sử dụng lệnh này!"
-  reload-success: "&aĐã tải lại cấu hình thành công!"
-  dungeon-not-found: "&cKhông tìm thấy phó bản: &e{dungeon}"
-  invalid-number: "&cSố không hợp lệ: &e{number}"
+  no-permission: "&cBạn không có quyền để thực hiện hành động này."
+  player-only: "&cChỉ người chơi mới có thể sử dụng lệnh này."
+  reload-success: "&aĐã tải lại cấu hình của plugin thành công!"
+  dungeon-not-found: "&cKhông tìm thấy phó bản nào có tên &e{dungeon}&c."
+  invalid-number: "&cGiá trị &e{number} &ckhông phải là một con số hợp lệ."
 
-# Usage messages (no prefix)
+# --------------------------------------------------------------------------------------------------
+# Hướng dẫn sử dụng lệnh (Không có prefix)
+# --------------------------------------------------------------------------------------------------
 usage:
-  join: "&cSử dụng: /dungeon join <tên>"
-  top: "&cSử dụng: /dungeon top <tên>"
-  info: "&cSử dụng: /dungeon info <tên>"
+  join: "&cSử dụng: /dungeon join <tên_phó_bản>"
+  top: "&cSử dụng: /dungeon top <tên_phó_bản>"
+  info: "&cSử dụng: /dungeon info <tên_phó_bản>"
 
-# Phòng chờ
+# --------------------------------------------------------------------------------------------------
+# Tin nhắn phòng chờ (Lobby)
+# --------------------------------------------------------------------------------------------------
 lobby:
-  joined: "&aĐã tham gia phòng phó bản &e{dungeon}&a!"
-  left: "&cĐã rời khỏi phòng phó bản!"
-  full: "&cPhòng đã đầy! Vui lòng thử lại sau."
-  already-in-dungeon: "&cBạn đang trong phó bản!"
-  not-in-lobby: "&cBạn không ở trong phòng chờ!"
-  countdown-start: "&aPhó bản sẽ bắt đầu sau &e{time} &agiây..."
-  countdown-cancel: "&cĐã hủy khởi động do không đủ người chơi!"
-  starting: "&aPhó bản đang bắt đầu..."
-  auto-renew: "&cPhòng chưa bắt đầu trong {time} phút! Tất cả người chơi bị kick!"
-  no-entries: "&cBạn đã hết lượt chơi! Lượt chơi sẽ được reset."
+  joined: "&aBạn đã tham gia phòng chờ của phó bản &e{dungeon}&a!"
+  left: "&cBạn đã rời khỏi phòng chờ phó bản."
+  full: "&cPhòng chờ đã đầy, vui lòng thử lại sau."
+  already-in-dungeon: "&cBạn đã ở trong một phó bản rồi."
+  not-in-lobby: "&cBạn không ở trong phòng chờ của phó bản nào."
+  countdown-start: "&aPhó bản sẽ bắt đầu sau &e{time} &agiây nữa..."
+  countdown-cancel: "&cĐã hủy đếm ngược do không đủ số lượng người chơi."
+  starting: "&aPhó bản đang được bắt đầu..."
+  auto-renew: "&cPhòng chờ đã bị hủy do không hoạt động trong &e{time} &cphút. Tất cả người chơi đã bị đưa ra ngoài."
+  no-entries: "&cBạn đã hết lượt đi phó bản trong hôm nay. Lượt đi sẽ được làm mới sau."
 
-# Dungeon
+# --------------------------------------------------------------------------------------------------
+# Tin nhắn trong phó bản (Dungeon)
+# --------------------------------------------------------------------------------------------------
 dungeon:
-  stage-start: "&a▶ Ải {stage} bắt đầu!"
-  wave-start: "&e▶ Đợt {wave}/{total} bắt đầu!"
-  boss-spawn: "&c&l⚔ BOSS XUẤT HIỆN ⚔"
+  stage-start: "&a▶ Ải &e{stage} &abắt đầu!"
+  wave-start: "&e▶ Đợt &6{wave}&e/&6{total} &ebắt đầu!"
+  boss-spawn: "&c&l⚔ BOSS ĐÃ XUẤT HIỆN ⚔"
   victory: "&a&l✔ BẠN ĐÃ HOÀN THÀNH PHÓ BẢN!"
   defeat: "&c&l✖ BẠN ĐÃ THẤT BẠI!"
-  respawn: "&aHồi sinh sau &e{time} &agiây..."
-  respawned: "&aĐã hồi sinh! Bất tử trong &e{time} &agiây."
-  no-lives: "&cBạn đã hết lượt hồi sinh!"
+  respawn: "&cHồi sinh sau &e{time} &cgiây nữa..."
+  respawned: "&aĐã hồi sinh! Bạn được bất tử trong &e{time} &agiây."
+  no-lives: "&cBạn đã hết mạng hồi sinh."
   safe-mode: "&a✓ Bạn đang trong trạng thái an toàn!"
-  lives-remaining: "&eSố lượt hồi sinh còn lại: &a{lives}"
+  lives-remaining: "&eSố mạng hồi sinh còn lại: &a{lives}"
   mob-killed: "&a+10 điểm!"
-  command-blocked: "&cBạn không thể sử dụng lệnh này trong phó bản!"
+  command-blocked: "&cBạn không thể sử dụng lệnh này khi ở trong phó bản."
 
-# Rewards
+# --------------------------------------------------------------------------------------------------
+# Tin nhắn phần thưởng (Rewards)
+# --------------------------------------------------------------------------------------------------
 rewards:
-  received: "&a✓ Phần thưởng: &e{rewards}"
-  score: "&a⭐ Điểm số: &e{score}"
-  dropped: "&eVật phẩm đã rơi trên mặt đất (túi đầy)!"
+  received: "&a✓ Bạn nhận được phần thưởng: &e{rewards}"
+  score: "&a⭐ Điểm số của bạn: &e{score}"
+  dropped: "&cTúi đồ của bạn đã đầy! Vật phẩm đã bị rơi ra đất."
 
-# Admin
+# --------------------------------------------------------------------------------------------------
+# Tin nhắn dành cho quản trị viên (Admin)
+# --------------------------------------------------------------------------------------------------
 admin:
-  dungeon-created: "&aĐã tạo phó bản: &e{dungeon}"
-  dungeon-deleted: "&aĐã xóa phó bản: &e{dungeon}"
-  dungeon-already-exists: "&cPhó bản đã tồn tại!"
-  stage-added: "&aĐã thêm ải &e{stage} &avào phó bản &e{dungeon}"
-  stage-not-exist: "&cẢi không tồn tại!"
-  wave-added: "&aĐã thêm đợt quái vào ải &e{stage}"
-  wave-not-exist: "&cĐợt {wave} không tồn tại trong ải {stage}!"
-  need-min-stages: "&cCần ít nhất 3 ải để có thể khởi tạo phó bản!"
-  setspawn: "&aĐã đặt điểm spawn cho phó bản &e{dungeon}"
-  setlobby: "&aĐã đặt điểm lobby cho phó bản &e{dungeon}"
-  setend: "&aĐã đặt điểm kết thúc cho phó bản &e{dungeon}"
-  wave-spawn-set: "&aĐã thêm vị trí spawn cho đợt {wave}, ải {stage} của phó bản {dungeon}."
+  dungeon-created: "&aĐã tạo phó bản mới với tên &e{dungeon}&a."
+  dungeon-deleted: "&aĐã xóa phó bản &e{dungeon}&a."
+  dungeon-already-exists: "&cPhó bản với tên này đã tồn tại."
+  stage-added: "&aĐã thêm ải &e{stage} &avào phó bản &e{dungeon}&a."
+  stage-not-exist: "&cẢi này không tồn tại."
+  wave-added: "&aĐã thêm đợt quái vào ải &e{stage}&a."
+  wave-not-exist: "&cĐợt &e{wave} &ckhông tồn tại trong ải &e{stage}&c."
+  need-min-stages: "&cCần ít nhất 3 ải để có thể khởi tạo phó bản."
+  setspawn: "&aĐã đặt điểm xuất hiện cho phó bản &e{dungeon}&a."
+  setlobby: "&aĐã đặt điểm phòng chờ cho phó bản &e{dungeon}&a."
+  setend: "&aĐã đặt điểm kết thúc cho phó bản &e{dungeon}&a."
+  wave-spawn-set: "&aĐã thêm vị trí xuất hiện cho đợt &e{wave}&a, ải &e{stage} &acủa phó bản &e{dungeon}&a."
   rewards-saved: "&aĐã lưu phần thưởng thành công!"
-  type-score: "&eNhập điểm số yêu cầu trong chat (hoặc 'cancel' để hủy):"
-  command-prompt: "&eNhập lệnh command reward (hoặc 'cancel' để hủy):"
+  type-score: "&eNhập điểm số yêu cầu trong khung chat (hoặc nhập 'cancel' để hủy):"
+  command-prompt: "&eNhập lệnh phần thưởng trong khung chat (hoặc nhập 'cancel' để hủy):"
   command-added: "&aĐã thêm lệnh: &e{command}"
   command-removed: "&cĐã xóa lệnh: &e{command}"
-  command-cancelled: "&cĐã hủy thao tác!"
-  score-tier-prompt: "&eNhập điểm số yêu cầu (hoặc 'cancel' để hủy):"
-  score-tier-added: "&aĐã thêm mức điểm: &e{score}"
-  score-tier-removed: "&cĐã xóa mức điểm: &e{score}"
-  score-tier-exists: "&cMức điểm &e{score} &cđã tồn tại!"
-  invalid-arguments: "&cTham số không hợp lệ!"
-  invalid-number: "&cSố không hợp lệ!"
+  command-cancelled: "&cĐã hủy thao tác."
+  score-tier-prompt: "&eNhập mốc điểm yêu cầu (hoặc nhập 'cancel' để hủy):"
+  score-tier-added: "&aĐã thêm mốc điểm: &e{score}"
+  score-tier-removed: "&cĐã xóa mốc điểm: &e{score}"
+  score-tier-exists: "&cMốc điểm &e{score} &cđã tồn tại."
+  invalid-arguments: "&cCác tham số không hợp lệ."
 
-  # Usage messages for admin commands
+  # Hướng dẫn sử dụng lệnh admin
   usage:
     create: "&cSử dụng: /dgadmin create <tên>"
     delete: "&cSử dụng: /dgadmin delete <tên>"
@@ -88,32 +109,36 @@ admin:
     setwavespawn: "&cSử dụng: /dgadmin setwavespawn <dungeon> <ải> <đợt>"
     setend: "&cSử dụng: /dgadmin setend <dungeon>"
 
-# Leaderboard
+# --------------------------------------------------------------------------------------------------
+# Tin nhắn bảng xếp hạng (Leaderboard)
+# --------------------------------------------------------------------------------------------------
 leaderboard:
   title: "&6&l=== Bảng Xếp Hạng {dungeon} ==="
   entry: "&e#{rank} &f{player} &7- &a{score} điểm"
-  no-data: "&cChưa có dữ liệu!"
+  no-data: "&cChưa có dữ liệu cho bảng xếp hạng này."
   your-rank: "&aXếp hạng của bạn: &e#{rank} &7- &a{score} điểm"
 
-# GUI Messages
+# --------------------------------------------------------------------------------------------------
+# Tin nhắn giao diện (GUI)
+# --------------------------------------------------------------------------------------------------
 gui:
   main-menu:
-    title: "&6&lMENU CHÍNH"
+    title: "&8▎ &6&lMENU CHÍNH"
     dungeon-list: "&6&lDanh Sách Phó Bản"
     my-stats: "&6&lThống Kê Của Tôi"
     leaderboard: "&6&lBảng Xếp Hạng"
     settings: "&6&lCài Đặt"
 
   dungeon-list:
-    title: "&6&lDanh Sách Phó Bản"
+    title: "&8▎ &6&lDanh Sách Phó Bản"
     entries-remaining: "&7Lượt còn lại: {entries}"
     high-score: "&7Điểm cao nhất: {score}"
-    click-join: "&a▶ Click trái: Tham gia"
-    click-info: "&e▶ Click phải: Xem chi tiết"
+    click-join: "&a▶ Click trái để tham gia"
+    click-info: "&e▶ Click phải để xem chi tiết"
     no-entries: "&c✖ Hết lượt chơi!"
 
   dungeon-info:
-    title: "&6&lThông Tin Phó Bản"
+    title: "&8▎ &6&lThông Tin Phó Bản"
     general-info: "&6&lThông Tin Chung"
     your-stats: "&6&lThống Kê Của Bạn"
     top-players: "&6&lTop Người Chơi"
@@ -122,32 +147,32 @@ gui:
     no-entries-button: "&c&l✖ HẾT LƯỢT"
 
   leaderboard:
-    title: "&6&lBảng Xếp Hạng"
+    title: "&8▎ &6&lBảng Xếp Hạng"
     your-rank: "&6&lXếp Hạng Của Bạn"
     not-ranked: "&7Chưa có xếp hạng"
 
   stats:
-    title: "&6&lThống Kê Của Tôi"
+    title: "&8▎ &6&lThống Kê Của Tôi"
     overview: "&7Thống kê tổng quan"
 
   settings:
-    title: "&6&lCài Đặt"
-    particles: "&6&lHiệu Ứng Particles"
+    title: "&8▎ &6&lCài Đặt"
+    particles: "&6&lHiệu Ứng"
     sounds: "&6&lÂm Thanh"
     notifications: "&6&lThông Báo"
-    coming-soon: "&e🔧 Đang phát triển..."
+    coming-soon: "&e🔧 Tính năng đang được phát triển..."
 
   rewards:
-    title: "&6&lQuản Lý Phần Thưởng"
+    title: "&8▎ &6&lQuản Lý Phần Thưởng"
     completion: "&6&lPhần Thưởng Hoàn Thành"
     score-based: "&6&lPhần Thưởng Theo Điểm"
     preview: "&6&lXem Trước Phần Thưởng"
     no-space: "&cKhông còn chỗ trống để thêm phần thưởng."
-    preview-coming-soon: "&7Tính năng xem trước phần thưởng đang được phát triển!"
-    score-tier-coming-soon: "&eTính năng này đang được hoàn thiện. Vui lòng sử dụng config file để thêm score tier mới."
+    preview-coming-soon: "&7Tính năng xem trước phần thưởng đang được phát triển."
+    score-tier-coming-soon: "&eTính năng này đang được hoàn thiện. Vui lòng sử dụng file config để thêm mốc điểm mới."
 
   settings-coming-soon: "&eTính năng này đang được phát triển!"
-  top-players-hint: "&7Sử dụng &e/dungeon top <tên> &7để xem bảng xếp hạng"
+  top-players-hint: "&7Sử dụng lệnh &e/dungeon top <tên_phó_bản> &7để xem bảng xếp hạng."
 
   common:
     back: "&c&lQuay Lại"
@@ -157,32 +182,34 @@ gui:
     save: "&a&l✔ LƯU"
     cancel: "&c&l✖ HỦY"
 
-# Help
+# --------------------------------------------------------------------------------------------------
+# Tin nhắn trợ giúp (Help)
+# --------------------------------------------------------------------------------------------------
 help:
   player:
     - "&6&l=== ParaDungeon - Hướng Dẫn ==="
-    - "&e/dungeon &7hoặc &e/dg &7- Mở menu chính"
-    - "&e/dungeon gui &7- Mở giao diện"
-    - "&e/dungeon list &7- Xem danh sách phó bản"
-    - "&e/dungeon join <tên> &7- Tham gia phó bản"
-    - "&e/dungeon leave &7- Rời phó bản"
-    - "&e/dungeon top <tên> &7- Xem bảng xếp hạng"
-    - "&e/dungeon info <tên> &7- Thông tin phó bản"
-    - "&e/dungeon stats &7- Xem thống kê của bạn"
-    - "&e/dungeon settings &7- Cài đặt"
+    - "&e/dungeon &7hoặc &e/dg &7- Mở menu chính."
+    - "&e/dungeon list &7- Xem danh sách phó bản."
+    - "&e/dungeon join <tên> &7- Tham gia phó bản."
+    - "&e/dungeon leave &7- Rời phó bản/phòng chờ."
+    - "&e/dungeon top <tên> &7- Xem bảng xếp hạng."
+    - "&e/dungeon info <tên> &7- Xem thông tin phó bản."
+    - "&e/dungeon stats &7- Xem thống kê cá nhân."
   admin:
-    - "&6&l=== ParaDungeon Admin ==="
-    - "&c/dgadmin create <tên> &7- Tạo phó bản mới"
-    - "&c/dgadmin delete <tên> &7- Xóa phó bản"
-    - "&c/dgadmin addstage <tên> <số> [NORMAL|BOSS] &7- Thêm ải"
-    - "&c/dgadmin addwave <tên> <stage> <đợt> <mob> <số lượng> &7- Thêm đợt quái"
-    - "&c/dgadmin setspawn <tên> &7- Đặt điểm spawn"
-    - "&c/dgadmin setlobby <tên> &7- Đặt điểm lobby"
-    - "&c/dgadmin setend <tên> &7- Đặt điểm kết thúc"
-    - "&c/dgadmin setwavespawn <dungeon> <ải> <đợt> &7- Thêm điểm spawn cho wave"
-    - "&c/dgadmin reload &7- Tải lại config"
+    - "&c&l=== ParaDungeon - Quản Trị Viên ==="
+    - "&c/dgadmin create <tên> &7- Tạo phó bản mới."
+    - "&c/dgadmin delete <tên> &7- Xóa phó bản."
+    - "&c/dgadmin addstage <tên> <số> [NORMAL|BOSS] &7- Thêm ải mới."
+    - "&c/dgadmin addwave <tên> <ải> <đợt> <mob> <số_lượng> &7- Thêm đợt quái."
+    - "&c/dgadmin setspawn <tên> &7- Đặt điểm xuất hiện trong phó bản."
+    - "&c/dgadmin setlobby <tên> &7- Đặt điểm phòng chờ."
+    - "&c/dgadmin setend <tên> &7- Đặt điểm kết thúc."
+    - "&c/dgadmin setwavespawn <dungeon> <ải> <đợt> &7- Thêm điểm xuất hiện cho đợt quái."
+    - "&c/dgadmin reload &7- Tải lại toàn bộ cấu hình."
 
-# Effects Messages (for titles and actionbar)
+# --------------------------------------------------------------------------------------------------
+# Hiệu ứng (Titles và Actionbar)
+# --------------------------------------------------------------------------------------------------
 effects:
   countdown:
     title: "&6&l{time}"
@@ -203,4 +230,4 @@ effects:
     subtitle: "&eHoàn thành phó bản"
   defeat:
     title: "&c&l✖ THẤT BẠI"
-    subtitle: "&7Hãy thử lại!"
+    subtitle: "&7Hãy thử lại lần sau!"

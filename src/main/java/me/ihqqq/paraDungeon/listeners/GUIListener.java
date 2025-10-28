@@ -4,6 +4,7 @@ import me.ihqqq.paraDungeon.ParaDungeon;
 import me.ihqqq.paraDungeon.gui.GUIManager;
 import me.ihqqq.paraDungeon.models.Dungeon;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -97,6 +98,14 @@ public class GUIListener implements Listener {
         if (dungeon == null) return;
 
         if (isLeftClick) {
+            // SỬA LỖI: Thêm kiểm tra lượt chơi trước khi thực hiện lệnh
+            if (!plugin.getPlayerDataManager().hasAvailableEntries(player, dungeonId)) {
+                player.sendMessage(plugin.getConfigManager().getMessage("lobby.no-entries"));
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                // Cập nhật lại GUI để hiển thị đúng trạng thái (nút đỏ)
+                plugin.getGUIManager().openDungeonList(player);
+                return;
+            }
             player.closeInventory();
             player.performCommand("dungeon join " + dungeonId);
         } else {
@@ -143,8 +152,16 @@ public class GUIListener implements Listener {
 
     private void handleLeaderboard(Player player, ItemStack item, ItemMeta meta) {
         if (item.getType() == Material.ARROW) {
-            player.closeInventory();
-            plugin.getGUIManager().openDungeonList(player);
+            String dungeonId = meta.getPersistentDataContainer().get(plugin.getDungeonKey(), PersistentDataType.STRING);
+            if(dungeonId != null){
+                Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+                if (dungeon != null) {
+                    plugin.getGUIManager().openDungeonInfo(player, dungeon);
+                }
+            } else {
+                plugin.getGUIManager().openMainMenu(player);
+            }
+
         }
     }
 

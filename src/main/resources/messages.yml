@@ -54,8 +54,11 @@ rewards:
 admin:
   dungeon-created: "&aĐã tạo phó bản: &e{dungeon}"
   dungeon-deleted: "&aĐã xóa phó bản: &e{dungeon}"
+  dungeon-already-exists: "&cPhó bản đã tồn tại!"
   stage-added: "&aĐã thêm ải &e{stage} &avào phó bản &e{dungeon}"
+  stage-not-exist: "&cẢi không tồn tại!"
   wave-added: "&aĐã thêm đợt quái vào ải &e{stage}"
+  wave-not-exist: "&cĐợt {wave} không tồn tại trong ải {stage}!"
   need-min-stages: "&cCần ít nhất 3 ải để có thể khởi tạo phó bản!"
   setspawn: "&aĐã đặt điểm spawn cho phó bản &e{dungeon}"
   setlobby: "&aĐã đặt điểm lobby cho phó bản &e{dungeon}"
@@ -71,6 +74,19 @@ admin:
   score-tier-added: "&aĐã thêm mức điểm: &e{score}"
   score-tier-removed: "&cĐã xóa mức điểm: &e{score}"
   score-tier-exists: "&cMức điểm &e{score} &cđã tồn tại!"
+  invalid-arguments: "&cTham số không hợp lệ!"
+  invalid-number: "&cSố không hợp lệ!"
+
+  # Usage messages for admin commands
+  usage:
+    create: "&cSử dụng: /dgadmin create <tên>"
+    delete: "&cSử dụng: /dgadmin delete <tên>"
+    addstage: "&cSử dụng: /dgadmin addstage <dungeon> <số_ải> [NORMAL|BOSS]"
+    addwave: "&cSử dụng: /dgadmin addwave <dungeon> <ải> <đợt> <mob_id> <số_lượng>"
+    setspawn: "&cSử dụng: /dgadmin setspawn <dungeon>"
+    setlobby: "&cSử dụng: /dgadmin setlobby <dungeon>"
+    setwavespawn: "&cSử dụng: /dgadmin setwavespawn <dungeon> <ải> <đợt>"
+    setend: "&cSử dụng: /dgadmin setend <dungeon>"
 
 # Leaderboard
 leaderboard:

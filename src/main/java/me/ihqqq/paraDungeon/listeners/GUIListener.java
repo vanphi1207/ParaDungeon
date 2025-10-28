@@ -135,7 +135,7 @@ public class GUIListener implements Listener {
                 if (player.hasPermission("paradungeon.admin")) {
                     plugin.getGUIManager().getRewardEditorGUI().openRewardMenu(player, dungeon);
                 } else {
-                    player.sendMessage(plugin.getConfigManager().getMessage("gui.rewards-preview-coming-soon"));
+                    player.sendMessage(plugin.getConfigManager().getMessage("general.no-permission"));
                 }
             }
         }

@@ -102,7 +102,6 @@ public class PlayerListener implements Listener {
             List<String> blockedCmds = plugin.getConfig().getStringList("settings.dungeon-restrictions.blocked-cmds");
             if (blockedCmds.stream().anyMatch(blockedCmd -> command.equalsIgnoreCase(blockedCmd))) {
                 event.setCancelled(true);
-                // SỬA LỖI: Gọi trực tiếp message, không ghép prefix
                 player.sendMessage(plugin.getConfigManager().getMessage("dungeon.command-blocked"));
             }
         }

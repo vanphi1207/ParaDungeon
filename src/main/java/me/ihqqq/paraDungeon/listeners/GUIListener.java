@@ -129,6 +129,13 @@ public class GUIListener implements Listener {
             return;
         }
 
+        // Open leaderboard for this dungeon when clicking Top Players item
+        if (data.startsWith("leaderboard_")) {
+            String dungeonId = data.substring("leaderboard_".length());
+            plugin.getGUIManager().openLeaderboard(player, dungeonId);
+            return;
+        }
+
         if ("hint_top_players".equals(data)) {
             player.sendMessage(plugin.getConfigManager().getMessage("prefix") +
                     plugin.getConfigManager().getMessageRaw("gui.top-players-hint"));

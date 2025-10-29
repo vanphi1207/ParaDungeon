@@ -9,6 +9,7 @@ import me.ihqqq.paraDungeon.models.Wave;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import io.lumine.mythic.core.mobs.ActiveMob;
@@ -310,12 +311,12 @@ public class RoomManager {
         World world = location.getWorld();
         if (world == null) return;
 
-        Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
+        new BukkitRunnable() {
             int ticks = 0;
             @Override
             public void run() {
                 if (ticks >= 20) {
-                    Bukkit.getScheduler().cancelTask(this.hashCode());
+                    cancel();
                     return;
                 }
 
@@ -334,7 +335,7 @@ public class RoomManager {
                 }
                 ticks++;
             }
-        }, 0L, 1L);
+        }.runTaskTimer(plugin, 0L, 1L);
     }
 
     private void spawnPostSpawnParticles(Location location) {

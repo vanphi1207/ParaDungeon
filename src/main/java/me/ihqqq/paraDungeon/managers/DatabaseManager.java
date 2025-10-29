@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import java.io.File;
 import java.sql.*;
 import java.util.*;
+import java.util.logging.Level;
 
 public class DatabaseManager {
     
@@ -28,8 +29,7 @@ public class DatabaseManager {
             
             createTables();
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to initialize database: " + e.getMessage());
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Failed to initialize database", e);
         }
     }
     
@@ -50,11 +50,15 @@ public class DatabaseManager {
         String username = plugin.getConfig().getString("database.mysql.username");
         String password = plugin.getConfig().getString("database.mysql.password");
         
-        String url = "jdbc:mysql://" + host + ":" + port + "/" + database;
+        String url = "jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=false&serverTimezone=UTC&characterEncoding=utf8";
         connection = DriverManager.getConnection(url, username, password);
     }
     
     private void createTables() throws SQLException {
+        if (!hasValidConnection()) {
+            plugin.getLogger().severe("Database connection is not available; cannot create tables.");
+            return;
+        }
         String createPlayerData = "CREATE TABLE IF NOT EXISTS player_data (" +
             "player_id VARCHAR(36) PRIMARY KEY," +
             "last_entry_reset BIGINT" +
@@ -83,6 +87,10 @@ public class DatabaseManager {
     }
     
     public PlayerData loadPlayerData(UUID playerId) {
+        if (!hasValidConnection()) {
+            plugin.getLogger().severe("Database connection is not available; cannot load player data for " + playerId);
+            return null;
+        }
         try {
             String query = "SELECT * FROM player_data WHERE player_id = ?";
             try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -138,6 +146,10 @@ public class DatabaseManager {
     }
     
     public void savePlayerData(PlayerData data) {
+        if (!hasValidConnection()) {
+            plugin.getLogger().severe("Database connection is not available; cannot save player data for " + data.getPlayerId());
+            return;
+        }
         try {
             // Save basic data
             String query = "INSERT OR REPLACE INTO player_data (player_id, last_entry_reset) VALUES (?, ?)";
@@ -167,6 +179,9 @@ public class DatabaseManager {
     }
     
     private void savePlayerEntries(PlayerData data) throws SQLException {
+        if (!hasValidConnection()) {
+            return;
+        }
         // Clear old entries
         String delete = "DELETE FROM dungeon_entries WHERE player_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(delete)) {
@@ -190,6 +205,9 @@ public class DatabaseManager {
     }
     
     private void savePlayerScores(PlayerData data) throws SQLException {
+        if (!hasValidConnection()) {
+            return;
+        }
         String playerName = Bukkit.getOfflinePlayer(data.getPlayerId()).getName();
         
         for (Map.Entry<String, Integer> entry : data.getAllScores().entrySet()) {
@@ -216,6 +234,11 @@ public class DatabaseManager {
     public List<LeaderboardManager.LeaderboardEntry> getTopScores(String dungeonId, int limit) {
         List<LeaderboardManager.LeaderboardEntry> entries = new ArrayList<>();
         
+        if (!hasValidConnection()) {
+            plugin.getLogger().severe("Database connection is not available; cannot load leaderboard for " + dungeonId);
+            return entries;
+        }
+
         try {
             String query = "SELECT player_id, player_name, score FROM dungeon_scores " +
                           "WHERE dungeon_id = ? ORDER BY score DESC LIMIT ?";
@@ -247,6 +270,14 @@ public class DatabaseManager {
             }
         } catch (SQLException e) {
             plugin.getLogger().severe("Failed to close database connection: " + e.getMessage());
+        }
+    }
+
+    private boolean hasValidConnection() {
+        try {
+            return connection != null && !connection.isClosed();
+        } catch (SQLException e) {
+            return false;
         }
     }
 }

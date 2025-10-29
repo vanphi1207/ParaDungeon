@@ -13,6 +13,7 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.*;
+import java.util.logging.Level;
 
 public class DungeonManager {
 
@@ -39,8 +40,7 @@ public class DungeonManager {
                     plugin.getLogger().info("Loaded dungeon: " + dungeonId);
                 }
             } catch (Exception e) {
-                plugin.getLogger().severe("Failed to load dungeon " + dungeonId + ": " + e.getMessage());
-                e.printStackTrace();
+                plugin.getLogger().log(Level.SEVERE, "Failed to load dungeon " + dungeonId, e);
             }
         }
         plugin.getLogger().info("Loaded " + dungeons.size() + " dungeon(s)");
@@ -169,7 +169,21 @@ public class DungeonManager {
     private Location mapToLocation(Map<?, ?> map) {
         World world = Bukkit.getWorld((String) map.get("world"));
         if (world == null) return null;
-        return new Location(world, (Double) map.get("x"), (Double) map.get("y"), (Double) map.get("z"), ((Number) map.get("yaw")).floatValue(), ((Number) map.get("pitch")).floatValue());
+        Number xNum = (Number) map.get("x");
+        Number yNum = (Number) map.get("y");
+        Number zNum = (Number) map.get("z");
+        Object yawObj = map.get("yaw");
+        Object pitchObj = map.get("pitch");
+        Number yawNum = (yawObj instanceof Number) ? (Number) yawObj : Double.valueOf(0.0);
+        Number pitchNum = (pitchObj instanceof Number) ? (Number) pitchObj : Double.valueOf(0.0);
+        return new Location(
+                world,
+                xNum != null ? xNum.doubleValue() : 0.0,
+                yNum != null ? yNum.doubleValue() : 0.0,
+                zNum != null ? zNum.doubleValue() : 0.0,
+                yawNum.floatValue(),
+                pitchNum.floatValue()
+        );
     }
 
     public Dungeon getDungeon(String id) {
@@ -330,13 +344,9 @@ public class DungeonManager {
      * Convert ItemStack to Base64 string
      */
     private String itemStackToBase64(ItemStack item) {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream)) {
             dataOutput.writeObject(item);
-            dataOutput.close();
-
             return Base64.getEncoder().encodeToString(outputStream.toByteArray());
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to encode ItemStack: " + e.getMessage());
@@ -348,14 +358,9 @@ public class DungeonManager {
      * Convert Base64 string to ItemStack
      */
     private ItemStack itemStackFromBase64(String data) {
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-
-            ItemStack item = (ItemStack) dataInput.readObject();
-            dataInput.close();
-
-            return item;
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data));
+             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
+            return (ItemStack) dataInput.readObject();
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to decode ItemStack: " + e.getMessage());
             return null;

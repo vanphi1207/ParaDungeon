@@ -482,4 +482,19 @@ public class GUIManager {
             return hours + " giờ nữa";
         }
     }
+
+    /**
+     * Get the appropriate icon material for a dungeon based on player data
+     */
+    private Material getDungeonIcon(Dungeon dungeon, PlayerData data) {
+        int entries = data.getDungeonEntries(dungeon.getId());
+        if (entries <= 0) {
+            return Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-list.icons.no-entries"));
+        }
+        boolean hasBoss = dungeon.getStages().values().stream().anyMatch(Stage::isBoss);
+        if (hasBoss) {
+            return Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-list.icons.has-boss"));
+        }
+        return Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-list.icons.has-entries"));
+    }
 }

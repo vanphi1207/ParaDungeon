@@ -19,6 +19,19 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RoomManager {
 
+    // Constants
+    private static final int DEFAULT_SCORE_PER_KILL = 10;
+    private static final int DEFAULT_PROGRESS_BAR_LENGTH = 15;
+    private static final int DEFAULT_COUNTDOWN_BAR_LENGTH = 20;
+    private static final int MOB_SPAWN_DELAY_TICKS = 5;
+    private static final int PARTICLE_ANIMATION_TICKS = 20;
+    private static final int PARTICLE_CIRCLE_SEGMENTS = 4;
+    private static final double PARTICLE_RADIUS = 1.0;
+    private static final int COMPLETION_DELAY_TICKS = 200;
+    private static final int FAILURE_DELAY_TICKS = 100;
+    private static final float DEFAULT_SOUND_VOLUME = 1.0f;
+    private static final float DEFAULT_SOUND_PITCH = 1.0f;
+
     private final ParaDungeon plugin;
     private final Map<String, DungeonRoom> rooms;
     private final Map<UUID, String> playerRooms;
@@ -31,21 +44,39 @@ public class RoomManager {
     }
 
     public DungeonRoom createRoom(Dungeon dungeon) {
+        if (dungeon == null) {
+            plugin.getLogger().severe("Cannot create room: dungeon is null");
+            return null;
+        }
         String roomId = UUID.randomUUID().toString();
         DungeonRoom room = new DungeonRoom(roomId, dungeon);
         rooms.put(roomId, room);
+        plugin.getLogger().info("Created room " + roomId + " for dungeon " + dungeon.getId());
         return room;
     }
 
     public void joinRoom(Player player, DungeonRoom room) {
+        if (player == null || room == null) {
+            plugin.getLogger().warning("Cannot join room: player or room is null");
+            return;
+        }
+        if (!player.isOnline()) {
+            plugin.getLogger().warning("Cannot join room: player is not online");
+            return;
+        }
+        
         room.addPlayer(player.getUniqueId());
         playerRooms.put(player.getUniqueId(), room.getRoomId());
-        if (room.getDungeon().getLobbyPoint() != null) {
-            player.teleport(room.getDungeon().getLobbyPoint());
+        
+        Location lobbyPoint = room.getDungeon().getLobbyPoint();
+        if (lobbyPoint != null) {
+            player.teleport(lobbyPoint);
+        } else {
+            plugin.getLogger().warning("Lobby point is not set for dungeon " + room.getDungeon().getId());
         }
+        
         player.sendMessage(plugin.getConfigManager().getMessage("lobby.joined", "dungeon", room.getDungeon().getDisplayName()));
-
-        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.5f);
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, DEFAULT_SOUND_VOLUME, 1.5f);
 
         if (room.hasMinPlayers() && room.getStatus() == DungeonRoom.RoomStatus.WAITING) {
             startCountdown(room);
@@ -95,7 +126,7 @@ public class RoomManager {
                                 5, 20, 5
                         );
 
-                        String progressBar = createProgressBar(countdownTime - timeLeft, countdownTime, 20);
+                        String progressBar = createProgressBar(countdownTime - timeLeft, countdownTime, DEFAULT_COUNTDOWN_BAR_LENGTH);
                         p.spigot().sendMessage(ChatMessageType.ACTION_BAR,
                                 new TextComponent(ChatColor.YELLOW + "Đếm ngược: " + progressBar + ChatColor.GOLD + " " + timeLeft + "s"));
 
@@ -133,6 +164,15 @@ public class RoomManager {
     }
 
     public void startDungeon(DungeonRoom room) {
+        if (room == null) {
+            plugin.getLogger().severe("Cannot start dungeon: room is null");
+            return;
+        }
+        if (room.getDungeon() == null) {
+            plugin.getLogger().severe("Cannot start dungeon: dungeon is null");
+            return;
+        }
+        
         room.setStatus(DungeonRoom.RoomStatus.ACTIVE);
         room.setStartTime(System.currentTimeMillis());
         broadcastToRoom(room, plugin.getConfigManager().getMessage("lobby.starting"));
@@ -160,8 +200,14 @@ public class RoomManager {
     }
 
     public void startStage(DungeonRoom room, int stageNum) {
+        if (room == null || room.getDungeon() == null) {
+            plugin.getLogger().severe("Cannot start stage: room or dungeon is null");
+            return;
+        }
+        
         Stage stage = room.getDungeon().getStage(stageNum);
         if (stage == null) {
+            plugin.getLogger().info("No more stages for dungeon " + room.getDungeon().getId() + ". Completing dungeon.");
             completeDungeon(room);
             return;
         }
@@ -197,14 +243,26 @@ public class RoomManager {
     }
 
     public void startWave(DungeonRoom room, int stageNum, int waveNum) {
-        Wave wave = room.getDungeon().getStage(stageNum).getWave(waveNum);
+        if (room == null || room.getDungeon() == null) {
+            plugin.getLogger().severe("Cannot start wave: room or dungeon is null");
+            return;
+        }
+        
+        Stage stage = room.getDungeon().getStage(stageNum);
+        if (stage == null) {
+            plugin.getLogger().warning("Stage " + stageNum + " not found for dungeon " + room.getDungeon().getId());
+            startStage(room, stageNum + 1);
+            return;
+        }
+        
+        Wave wave = stage.getWave(waveNum);
         if (wave == null) {
+            plugin.getLogger().info("No more waves for stage " + stageNum + ". Moving to next stage.");
             startStage(room, stageNum + 1);
             return;
         }
         room.setCurrentWave(waveNum);
 
-        Stage stage = room.getDungeon().getStage(stageNum);
         int totalWaves = stage.getTotalWaves();
 
         for (UUID uuid : room.getPlayers()) {
@@ -274,7 +332,7 @@ public class RoomManager {
                     } else {
                         plugin.getLogger().warning("Invalid mob type or failed to spawn: " + mobSpawn.getMobId());
                     }
-                }, i * 5L);
+                }, i * MOB_SPAWN_DELAY_TICKS);
             }
         }
     }
@@ -314,14 +372,14 @@ public class RoomManager {
             int ticks = 0;
             @Override
             public void run() {
-                if (ticks >= 20) {
+                if (ticks >= PARTICLE_ANIMATION_TICKS) {
                     Bukkit.getScheduler().cancelTask(this.hashCode());
                     return;
                 }
 
-                double radius = 1.0;
+                double radius = PARTICLE_RADIUS;
                 double y = ticks * 0.1;
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < PARTICLE_CIRCLE_SEGMENTS; i++) {
                     double angle = (ticks * 18 + i * 90) * Math.PI / 180;
                     double x = location.getX() + radius * Math.cos(angle);
                     double z = location.getZ() + radius * Math.sin(angle);
@@ -356,11 +414,11 @@ public class RoomManager {
 
     public void onMobKilled(DungeonRoom room, @Nullable Player killer) {
         if (killer != null && room.getPlayers().contains(killer.getUniqueId())) {
-            room.addScore(killer.getUniqueId(), 10);
+            room.addScore(killer.getUniqueId(), DEFAULT_SCORE_PER_KILL);
 
             int score = room.getPlayerScore(killer.getUniqueId());
             killer.spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                    new TextComponent(ChatColor.GOLD + "+" + ChatColor.YELLOW + "10 " +
+                    new TextComponent(ChatColor.GOLD + "+" + ChatColor.YELLOW + DEFAULT_SCORE_PER_KILL + " " +
                             ChatColor.GRAY + "| " + ChatColor.GOLD + "Tổng: " + ChatColor.YELLOW + score));
 
             killer.playSound(killer.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.5f);
@@ -386,7 +444,7 @@ public class RoomManager {
         int remainingMobs = room.getActiveEntities().size();
         int killedMobs = totalMobs - remainingMobs;
 
-        String progressBar = createProgressBar(killedMobs, totalMobs, 15);
+        String progressBar = createProgressBar(killedMobs, totalMobs, DEFAULT_PROGRESS_BAR_LENGTH);
 
         for (UUID uuid : room.getPlayers()) {
             Player p = Bukkit.getPlayer(uuid);
@@ -450,7 +508,7 @@ public class RoomManager {
         });
 
         plugin.getLeaderboardManager().updateLeaderboard(room.getDungeon().getId());
-        Bukkit.getScheduler().runTaskLater(plugin, () -> deleteRoom(room), 200L);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> deleteRoom(room), COMPLETION_DELAY_TICKS);
     }
 
     public void failDungeon(DungeonRoom room) {
@@ -470,7 +528,7 @@ public class RoomManager {
         }
 
         broadcastToRoom(room, plugin.getConfigManager().getMessage("dungeon.defeat"));
-        Bukkit.getScheduler().runTaskLater(plugin, () -> deleteRoom(room), 100L);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> deleteRoom(room), FAILURE_DELAY_TICKS);
     }
 
     private void deleteRoom(DungeonRoom room) {
@@ -541,9 +599,15 @@ public class RoomManager {
     }
 
     private void broadcastToRoom(DungeonRoom room, String message) {
+        if (room == null || message == null) {
+            plugin.getLogger().warning("Cannot broadcast to room: room or message is null");
+            return;
+        }
         room.getPlayers().forEach(uuid -> {
             Player p = Bukkit.getPlayer(uuid);
-            if (p != null) p.sendMessage(message);
+            if (p != null && p.isOnline()) {
+                p.sendMessage(message);
+            }
         });
     }
 

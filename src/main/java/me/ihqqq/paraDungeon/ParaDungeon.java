@@ -77,20 +77,57 @@ public final class ParaDungeon extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        getLogger().info("Disabling ParaDungeon...");
+        
+        // Cancel scheduled tasks
         if (actionBarTask != null) {
-            actionBarTask.cancel();
+            try {
+                actionBarTask.cancel();
+                getLogger().info("ActionBar task cancelled");
+            } catch (Exception e) {
+                getLogger().warning("Error cancelling ActionBar task: " + e.getMessage());
+            }
+        }
+        
+        // Cancel all Bukkit tasks
+        try {
+            Bukkit.getScheduler().cancelTasks(this);
+            getLogger().info("All scheduled tasks cancelled");
+        } catch (Exception e) {
+            getLogger().warning("Error cancelling scheduled tasks: " + e.getMessage());
         }
 
+        // Save all player data
         if (playerDataManager != null) {
-            playerDataManager.saveAllPlayerData();
+            try {
+                playerDataManager.saveAllPlayerData();
+                getLogger().info("All player data saved");
+            } catch (Exception e) {
+                getLogger().severe("Error saving player data: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
 
-        if (databaseManager != null) {
-            databaseManager.close();
-        }
-
+        // Clear and cleanup all active dungeon rooms
         if (roomManager != null) {
-            roomManager.clearAllRooms();
+            try {
+                roomManager.clearAllRooms();
+                getLogger().info("All dungeon rooms cleared");
+            } catch (Exception e) {
+                getLogger().severe("Error clearing rooms: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        // Close database connection
+        if (databaseManager != null) {
+            try {
+                databaseManager.close();
+                getLogger().info("Database connection closed");
+            } catch (Exception e) {
+                getLogger().severe("Error closing database: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         getLogger().info("ParaDungeon has been disabled!");

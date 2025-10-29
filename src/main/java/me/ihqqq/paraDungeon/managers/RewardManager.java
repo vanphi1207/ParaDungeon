@@ -10,6 +10,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Manages dungeon rewards including items and commands
+ */
 public class RewardManager {
 
     private final ParaDungeon plugin;
@@ -18,9 +21,28 @@ public class RewardManager {
         this.plugin = plugin;
     }
 
+    /**
+     * Give rewards to a player based on dungeon completion and score
+     * 
+     * @param player Player to give rewards to
+     * @param dungeon Completed dungeon
+     * @param score Player's score
+     */
     public void giveRewards(Player player, Dungeon dungeon, int score) {
+        if (player == null || !player.isOnline()) {
+            plugin.getLogger().warning("Cannot give rewards: player is null or offline");
+            return;
+        }
+        if (dungeon == null) {
+            plugin.getLogger().warning("Cannot give rewards: dungeon is null");
+            return;
+        }
+        
         DungeonRewards rewards = dungeon.getRewards();
-        if (rewards == null) return;
+        if (rewards == null) {
+            plugin.getLogger().info("No rewards configured for dungeon " + dungeon.getId());
+            return;
+        }
 
         List<String> receivedRewards = new ArrayList<>();
 

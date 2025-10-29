@@ -7,6 +7,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Manages plugin configuration files including messages and GUI configs
+ */
 public class ConfigManager {
 
     private final ParaDungeon plugin;

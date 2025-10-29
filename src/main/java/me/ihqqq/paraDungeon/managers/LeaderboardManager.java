@@ -4,6 +4,9 @@ import me.ihqqq.paraDungeon.ParaDungeon;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Manages dungeon leaderboards and player rankings
+ */
 public class LeaderboardManager {
     
     private final ParaDungeon plugin;
@@ -14,18 +17,42 @@ public class LeaderboardManager {
         this.leaderboards = new ConcurrentHashMap<>();
     }
     
+    /**
+     * Update all dungeon leaderboards from database
+     */
     public void updateLeaderboards() {
+        int count = 0;
         for (String dungeonId : plugin.getDungeonManager().getAllDungeons().stream()
                 .map(d -> d.getId()).toList()) {
-            updateLeaderboard(dungeonId);
+            try {
+                updateLeaderboard(dungeonId);
+                count++;
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to update leaderboard for " + dungeonId + ": " + e.getMessage());
+            }
         }
+        plugin.getLogger().info("Updated " + count + " leaderboard(s)");
     }
     
+    /**
+     * Update leaderboard for a specific dungeon
+     * 
+     * @param dungeonId ID of the dungeon
+     */
     public void updateLeaderboard(String dungeonId) {
-        List<LeaderboardEntry> entries = plugin.getDatabaseManager().getTopScores(dungeonId, 
-            plugin.getConfig().getInt("settings.leaderboard.top-players", 10));
+        if (dungeonId == null || dungeonId.isEmpty()) {
+            plugin.getLogger().warning("Cannot update leaderboard: dungeonId is null or empty");
+            return;
+        }
         
-        leaderboards.put(dungeonId, entries);
+        try {
+            List<LeaderboardEntry> entries = plugin.getDatabaseManager().getTopScores(dungeonId, 
+                plugin.getConfig().getInt("settings.leaderboard.top-players", 10));
+            leaderboards.put(dungeonId, entries);
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to update leaderboard for " + dungeonId + ": " + e.getMessage());
+            leaderboards.put(dungeonId, new ArrayList<>());
+        }
     }
     
     public List<LeaderboardEntry> getLeaderboard(String dungeonId) {

@@ -6,6 +6,9 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Manages player data including entries, scores, and statistics
+ */
 public class PlayerDataManager {
 
     private final ParaDungeon plugin;
@@ -16,11 +19,22 @@ public class PlayerDataManager {
         this.playerDataMap = new ConcurrentHashMap<>();
     }
 
+    /**
+     * Get player data for a specific player, loading from database if not cached
+     * 
+     * @param playerId UUID of the player
+     * @return PlayerData object for the player
+     */
     public PlayerData getPlayerData(UUID playerId) {
+        if (playerId == null) {
+            plugin.getLogger().warning("Attempted to get player data with null UUID");
+            return null;
+        }
         return playerDataMap.computeIfAbsent(playerId, id -> {
             PlayerData data = plugin.getDatabaseManager().loadPlayerData(id);
             if (data == null) {
                 data = new PlayerData(id);
+                plugin.getLogger().info("Created new player data for " + id);
             }
             return data;
         });
@@ -33,10 +47,20 @@ public class PlayerDataManager {
         }
     }
 
+    /**
+     * Save all currently loaded player data to database
+     */
     public void saveAllPlayerData() {
+        int count = 0;
         for (PlayerData data : playerDataMap.values()) {
-            plugin.getDatabaseManager().savePlayerData(data);
+            try {
+                plugin.getDatabaseManager().savePlayerData(data);
+                count++;
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to save player data for " + data.getPlayerId() + ": " + e.getMessage());
+            }
         }
+        plugin.getLogger().info("Saved data for " + count + " player(s)");
     }
 
     public void checkEntryReset() {

@@ -47,7 +47,14 @@ public class DungeonManager {
     }
 
     private Dungeon loadDungeon(String id, ConfigurationSection section) {
-        if (section == null) return null;
+        if (section == null) {
+            plugin.getLogger().warning("Configuration section is null for dungeon: " + id);
+            return null;
+        }
+        if (id == null || id.isEmpty()) {
+            plugin.getLogger().warning("Dungeon ID is null or empty");
+            return null;
+        }
         Dungeon dungeon = new Dungeon(id);
         dungeon.setDisplayName(section.getString("display-name", id));
         dungeon.setDescription(section.getStringList("description"));
@@ -141,6 +148,14 @@ public class DungeonManager {
     }
 
     private void saveLocation(ConfigurationSection section, Location loc) {
+        if (section == null || loc == null) {
+            plugin.getLogger().warning("Cannot save location: section or location is null");
+            return;
+        }
+        if (loc.getWorld() == null) {
+            plugin.getLogger().warning("Cannot save location: world is null");
+            return;
+        }
         section.set("world", loc.getWorld().getName());
         section.set("x", loc.getX());
         section.set("y", loc.getY());
@@ -150,13 +165,29 @@ public class DungeonManager {
     }
 
     private Location loadLocation(ConfigurationSection section) {
-        World world = Bukkit.getWorld(section.getString("world"));
-        if (world == null) return null;
+        if (section == null) {
+            plugin.getLogger().warning("Cannot load location: section is null");
+            return null;
+        }
+        String worldName = section.getString("world");
+        if (worldName == null) {
+            plugin.getLogger().warning("Cannot load location: world name is null");
+            return null;
+        }
+        World world = Bukkit.getWorld(worldName);
+        if (world == null) {
+            plugin.getLogger().warning("Cannot load location: world '" + worldName + "' not found");
+            return null;
+        }
         return new Location(world, section.getDouble("x"), section.getDouble("y"), section.getDouble("z"), (float) section.getDouble("yaw"), (float) section.getDouble("pitch"));
     }
 
     private Map<String, Object> locationToMap(Location loc) {
         Map<String, Object> map = new LinkedHashMap<>();
+        if (loc == null || loc.getWorld() == null) {
+            plugin.getLogger().warning("Cannot convert location to map: location or world is null");
+            return map;
+        }
         map.put("world", loc.getWorld().getName());
         map.put("x", loc.getX());
         map.put("y", loc.getY());
@@ -167,9 +198,27 @@ public class DungeonManager {
     }
 
     private Location mapToLocation(Map<?, ?> map) {
-        World world = Bukkit.getWorld((String) map.get("world"));
-        if (world == null) return null;
-        return new Location(world, (Double) map.get("x"), (Double) map.get("y"), (Double) map.get("z"), ((Number) map.get("yaw")).floatValue(), ((Number) map.get("pitch")).floatValue());
+        if (map == null || !map.containsKey("world")) {
+            plugin.getLogger().warning("Cannot convert map to location: map is null or missing world key");
+            return null;
+        }
+        String worldName = (String) map.get("world");
+        World world = Bukkit.getWorld(worldName);
+        if (world == null) {
+            plugin.getLogger().warning("Cannot convert map to location: world '" + worldName + "' not found");
+            return null;
+        }
+        try {
+            double x = map.get("x") instanceof Number ? ((Number) map.get("x")).doubleValue() : 0.0;
+            double y = map.get("y") instanceof Number ? ((Number) map.get("y")).doubleValue() : 0.0;
+            double z = map.get("z") instanceof Number ? ((Number) map.get("z")).doubleValue() : 0.0;
+            float yaw = map.get("yaw") instanceof Number ? ((Number) map.get("yaw")).floatValue() : 0.0f;
+            float pitch = map.get("pitch") instanceof Number ? ((Number) map.get("pitch")).floatValue() : 0.0f;
+            return new Location(world, x, y, z, yaw, pitch);
+        } catch (ClassCastException e) {
+            plugin.getLogger().warning("Cannot convert map to location: invalid data types - " + e.getMessage());
+            return null;
+        }
     }
 
     public Dungeon getDungeon(String id) {

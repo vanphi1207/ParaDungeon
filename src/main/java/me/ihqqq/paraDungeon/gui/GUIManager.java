@@ -22,13 +22,6 @@ public class GUIManager {
     private final RewardEditorGUI rewardEditorGUI;
     private final CommandRewardGUI commandRewardGUI;
 
-    public static final String MAIN_MENU_TITLE = "§8▎ §6§lParaDungeon Menu";
-    public static final String DUNGEON_LIST_TITLE = "§8▎ §6§lChọn Phó Bản";
-    public static final String DUNGEON_INFO_TITLE = "§8▎ §6§lThông Tin Phó Bản";
-    public static final String LEADERBOARD_TITLE = "§8▎ §6§lBảng Xếp Hạng";
-    public static final String STATS_TITLE = "§8▎ §6§lThống Kê Của Bạn";
-    public static final String SETTINGS_TITLE = "§8▎ §6§lCài Đặt";
-
     public GUIManager(ParaDungeon plugin) {
         this.plugin = plugin;
         this.rewardEditorGUI = new RewardEditorGUI(plugin);
@@ -44,58 +37,52 @@ public class GUIManager {
     }
 
     public void openMainMenu(Player player) {
-        Inventory gui = Bukkit.createInventory(null, 45, MAIN_MENU_TITLE);
+        String title = plugin.getConfigManager().getGUITitle("main-menu.title");
+        int size = plugin.getConfigManager().getGUISize("main-menu.size");
+        Inventory gui = Bukkit.createInventory(null, size, title);
 
         ItemStack dungeonList = createItem(
-                Material.DIAMOND_SWORD,
-                "§6§lDanh Sách Phó Bản",
-                "§7Xem tất cả các phó bản",
-                "§7có thể tham gia",
-                "",
-                "§e▶ Nhấp để xem!"
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("main-menu.items.dungeon-list.material")),
+                plugin.getConfigManager().getGUIItemName("main-menu.items.dungeon-list.name"),
+                plugin.getConfigManager().getGUIItemLore("main-menu.items.dungeon-list.lore").toArray(new String[0])
         );
-        gui.setItem(11, dungeonList);
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("main-menu.items.dungeon-list.slot"), dungeonList);
 
         ItemStack stats = createItem(
-                Material.BOOK,
-                "§6§lThống Kê Của Tôi",
-                "§7Xem điểm số và xếp hạng",
-                "§7của bạn",
-                "",
-                "§e▶ Nhấp để xem!"
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("main-menu.items.my-stats.material")),
+                plugin.getConfigManager().getGUIItemName("main-menu.items.my-stats.name"),
+                plugin.getConfigManager().getGUIItemLore("main-menu.items.my-stats.lore").toArray(new String[0])
         );
-        gui.setItem(13, stats);
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("main-menu.items.my-stats.slot"), stats);
 
         ItemStack leaderboard = createItem(
-                Material.GOLDEN_HELMET,
-                "§6§lBảng Xếp Hạng",
-                "§7Top người chơi xuất sắc",
-                "§7nhất server",
-                "",
-                "§e▶ Nhấp để xem!"
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("main-menu.items.leaderboard.material")),
+                plugin.getConfigManager().getGUIItemName("main-menu.items.leaderboard.name"),
+                plugin.getConfigManager().getGUIItemLore("main-menu.items.leaderboard.lore").toArray(new String[0])
         );
-        gui.setItem(15, leaderboard);
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("main-menu.items.leaderboard.slot"), leaderboard);
 
         ItemStack settings = createItem(
-                Material.REDSTONE,
-                "§6§lCài Đặt",
-                "§7Tùy chỉnh trải nghiệm",
-                "§7của bạn",
-                "",
-                "§e▶ Nhấp để xem!"
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("main-menu.items.settings.material")),
+                plugin.getConfigManager().getGUIItemName("main-menu.items.settings.name"),
+                plugin.getConfigManager().getGUIItemLore("main-menu.items.settings.lore").toArray(new String[0])
         );
-        gui.setItem(31, settings);
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("main-menu.items.settings.slot"), settings);
 
-        fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
+        if (plugin.getConfigManager().isGUIFillerEnabled("main-menu.filler")) {
+            fillEmptySlots(gui, Material.valueOf(plugin.getConfigManager().getGUIFillerMaterial("main-menu.filler")));
+        }
         player.openInventory(gui);
     }
 
     public void openDungeonList(Player player) {
         List<Dungeon> dungeons = new ArrayList<>(plugin.getDungeonManager().getAllDungeons());
+        int minSize = plugin.getConfigManager().getGUISize("dungeon-list.min-size");
         int size = Math.min(54, ((dungeons.size() + 8) / 9) * 9);
-        if (size < 27) size = 27;
+        if (size < minSize) size = minSize;
 
-        Inventory gui = Bukkit.createInventory(null, size, DUNGEON_LIST_TITLE);
+        String title = plugin.getConfigManager().getGUITitle("dungeon-list.title");
+        Inventory gui = Bukkit.createInventory(null, size, title);
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player.getUniqueId());
 
         for (int i = 0; i < dungeons.size() && i < 45; i++) {
@@ -138,120 +125,212 @@ public class GUIManager {
         }
 
         if (size > 27) {
-            ItemStack back = createItem(Material.ARROW, "§c§lQuay Lại", "§7Về menu chính");
-            gui.setItem(size - 5, back);
+            ItemStack back = createItem(
+                    Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-list.back-button.material")),
+                    plugin.getConfigManager().getGUIItemName("dungeon-list.back-button.name"),
+                    plugin.getConfigManager().getGUIItemLore("dungeon-list.back-button.lore").toArray(new String[0])
+            );
+            int backSlot = plugin.getConfigManager().getGUIItemSlot("dungeon-list.back-button.slot");
+            gui.setItem(backSlot < 0 ? size + backSlot : backSlot, back);
         }
-        fillEmptySlots(gui, Material.BLACK_STAINED_GLASS_PANE);
+        if (plugin.getConfigManager().isGUIFillerEnabled("dungeon-list.filler")) {
+            fillEmptySlots(gui, Material.valueOf(plugin.getConfigManager().getGUIFillerMaterial("dungeon-list.filler")));
+        }
         player.openInventory(gui);
     }
 
     public void openDungeonInfo(Player player, Dungeon dungeon) {
-        Inventory gui = Bukkit.createInventory(null, 54, DUNGEON_INFO_TITLE);
+        String title = plugin.getConfigManager().getGUITitle("dungeon-info.title");
+        int size = plugin.getConfigManager().getGUISize("dungeon-info.size");
+        Inventory gui = Bukkit.createInventory(null, size, title);
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player.getUniqueId());
 
         ItemStack dungeonIcon = createItem(getDungeonIcon(dungeon, data), dungeon.getDisplayName().replace("&", "§"),
                 dungeon.getDescription().stream().map(s -> "§7" + s.replace("&", "§")).toArray(String[]::new));
-        gui.setItem(4, dungeonIcon);
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("dungeon-info.items.dungeon-icon.slot"), dungeonIcon);
 
-        ItemStack generalInfo = createItem(Material.BOOK, "§6§lThông Tin Chung",
-                "§7Người chơi: §e" + dungeon.getMinPlayers() + "-" + dungeon.getMaxPlayers(),
-                "§7Số ải: §e" + dungeon.getTotalStages(), "§7Số mạng: §e" + dungeon.getRespawnLives(),
-                "§7Lượt/ngày: §e" + dungeon.getEntriesPerReset());
-        gui.setItem(19, generalInfo);
+        List<String> generalInfoLore = plugin.getConfigManager().getGUIItemLore("dungeon-info.items.general-info.lore");
+        generalInfoLore.replaceAll(line -> line
+                .replace("{min_players}", String.valueOf(dungeon.getMinPlayers()))
+                .replace("{max_players}", String.valueOf(dungeon.getMaxPlayers()))
+                .replace("{total_stages}", String.valueOf(dungeon.getTotalStages()))
+                .replace("{respawn_lives}", String.valueOf(dungeon.getRespawnLives()))
+                .replace("{entries_per_reset}", String.valueOf(dungeon.getEntriesPerReset())));
+        ItemStack generalInfo = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-info.items.general-info.material")),
+                plugin.getConfigManager().getGUIItemName("dungeon-info.items.general-info.name"),
+                generalInfoLore.toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("dungeon-info.items.general-info.slot"), generalInfo);
 
         int entries = data.getDungeonEntries(dungeon.getId());
         int highScore = data.getDungeonScore(dungeon.getId());
         int rank = plugin.getLeaderboardManager().getPlayerRank(dungeon.getId(), player.getUniqueId());
 
-        ItemStack yourStats = createItem(Material.PLAYER_HEAD, "§6§lThống Kê Của Bạn",
-                "§7Lượt còn lại: " + getEntriesColor(entries) + entries, "§7Điểm cao nhất: §6" + highScore,
-                rank != -1 ? "§7Xếp hạng: §e#" + rank : "§7Chưa có xếp hạng");
-        gui.setItem(21, yourStats);
+        List<String> yourStatsLore = plugin.getConfigManager().getGUIItemLore("dungeon-info.items.your-stats.lore");
+        yourStatsLore.replaceAll(line -> line
+                .replace("{entries_color}", getEntriesColor(entries))
+                .replace("{entries}", String.valueOf(entries))
+                .replace("{high_score}", String.valueOf(highScore))
+                .replace("{rank_line}", rank != -1 ? "§7Xếp hạng: §e#" + rank : "§7Chưa có xếp hạng"));
+        ItemStack yourStats = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-info.items.your-stats.material")),
+                plugin.getConfigManager().getGUIItemName("dungeon-info.items.your-stats.name"),
+                yourStatsLore.toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("dungeon-info.items.your-stats.slot"), yourStats);
 
-        ItemStack topPlayers = createItem(Material.GOLDEN_HELMET, "§6§lTop Người Chơi", "§7Xem bảng xếp hạng", "", "§e▶ Click để xem!");
-        gui.setItem(23, topPlayers);
+        ItemStack topPlayers = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-info.items.top-players.material")),
+                plugin.getConfigManager().getGUIItemName("dungeon-info.items.top-players.name"),
+                plugin.getConfigManager().getGUIItemLore("dungeon-info.items.top-players.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("dungeon-info.items.top-players.slot"), topPlayers);
 
-        ItemStack rewards = createItemWithData(Material.CHEST, "§6§lPhần Thưởng", "rewards_" + dungeon.getId(),
-                "§7Hoàn thành phó bản để", "§7nhận phần thưởng hấp dẫn!", "", "§e⭐ Điểm càng cao,",
-                "§e⭐ thưởng càng nhiều!", "", player.hasPermission("paradungeon.admin") ? "§c▶ Click để quản lý!" : "§e▶ Click để xem!");
-        gui.setItem(25, rewards);
+        List<String> rewardsLore = player.hasPermission("paradungeon.admin") ?
+                plugin.getConfigManager().getGUIItemLore("dungeon-info.items.rewards.lore-admin") :
+                plugin.getConfigManager().getGUIItemLore("dungeon-info.items.rewards.lore-player");
+        ItemStack rewards = createItemWithData(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-info.items.rewards.material")),
+                plugin.getConfigManager().getGUIItemName("dungeon-info.items.rewards.name"),
+                "rewards_" + dungeon.getId(),
+                rewardsLore.toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("dungeon-info.items.rewards.slot"), rewards);
 
         if (entries > 0) {
-            ItemStack joinBtn = createItemWithData(Material.LIME_WOOL, "§a§l✔ THAM GIA", "join_" + dungeon.getId(),
-                    "§7Click để tham gia phó bản!", "", "§aLượt còn lại: §e" + entries);
-            gui.setItem(49, joinBtn);
+            List<String> joinLore = plugin.getConfigManager().getGUIItemLore("dungeon-info.items.join-button.lore");
+            joinLore.replaceAll(line -> line.replace("{entries}", String.valueOf(entries)));
+            ItemStack joinBtn = createItemWithData(
+                    Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-info.items.join-button.material")),
+                    plugin.getConfigManager().getGUIItemName("dungeon-info.items.join-button.name"),
+                    "join_" + dungeon.getId(),
+                    joinLore.toArray(new String[0])
+            );
+            gui.setItem(plugin.getConfigManager().getGUIItemSlot("dungeon-info.items.join-button.slot"), joinBtn);
         } else {
-            ItemStack noEntries = createItem(Material.RED_WOOL, "§c§l✖ HẾT LƯỢT", "§7Bạn đã hết lượt chơi!",
-                    "§7Lượt chơi sẽ reset vào:", "§e" + getResetTimeString());
-            gui.setItem(49, noEntries);
+            List<String> noEntriesLore = plugin.getConfigManager().getGUIItemLore("dungeon-info.items.no-entries-button.lore");
+            noEntriesLore.replaceAll(line -> line.replace("{reset_time}", getResetTimeString()));
+            ItemStack noEntries = createItem(
+                    Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-info.items.no-entries-button.material")),
+                    plugin.getConfigManager().getGUIItemName("dungeon-info.items.no-entries-button.name"),
+                    noEntriesLore.toArray(new String[0])
+            );
+            gui.setItem(plugin.getConfigManager().getGUIItemSlot("dungeon-info.items.no-entries-button.slot"), noEntries);
         }
 
-        ItemStack back = createItem(Material.ARROW, "§c§lQuay Lại", "§7Về danh sách phó bản");
-        gui.setItem(45, back);
-        fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
+        ItemStack back = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-info.items.back-button.material")),
+                plugin.getConfigManager().getGUIItemName("dungeon-info.items.back-button.name"),
+                plugin.getConfigManager().getGUIItemLore("dungeon-info.items.back-button.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("dungeon-info.items.back-button.slot"), back);
+        
+        if (plugin.getConfigManager().isGUIFillerEnabled("dungeon-info.filler")) {
+            fillEmptySlots(gui, Material.valueOf(plugin.getConfigManager().getGUIFillerMaterial("dungeon-info.filler")));
+        }
         player.openInventory(gui);
     }
 
     public void openLeaderboard(Player player, String dungeonId) {
-        Inventory gui = Bukkit.createInventory(null, 54, LEADERBOARD_TITLE);
+        String title = plugin.getConfigManager().getGUITitle("leaderboard.title");
+        int size = plugin.getConfigManager().getGUISize("leaderboard.size");
+        Inventory gui = Bukkit.createInventory(null, size, title);
         Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
         if (dungeon == null) return;
 
         var leaderboard = plugin.getLeaderboardManager().getLeaderboard(dungeonId);
-        ItemStack title = createItem(Material.GOLDEN_HELMET, "§6§lBảng Xếp Hạng",
-                "§e" + dungeon.getDisplayName().replace("&", "§"), "", "§7Top " + leaderboard.size() + " người chơi");
-        gui.setItem(4, title);
+        List<String> titleLore = plugin.getConfigManager().getGUIItemLore("leaderboard.items.title.lore");
+        titleLore.replaceAll(line -> line
+                .replace("{dungeon_name}", dungeon.getDisplayName().replace("&", "§"))
+                .replace("{total}", String.valueOf(leaderboard.size())));
+        ItemStack titleItem = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("leaderboard.items.title.material")),
+                plugin.getConfigManager().getGUIItemName("leaderboard.items.title.name"),
+                titleLore.toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("leaderboard.items.title.slot"), titleItem);
 
-        int slot = 18;
+        int slot = plugin.getConfigManager().getGUIInt("leaderboard.rank-display.start-slot", 18);
         for (int i = 0; i < Math.min(leaderboard.size(), 21); i++) {
             var entry = leaderboard.get(i);
             int rank = i + 1;
             Material material = getRankMaterial(rank);
             String rankColor = getRankColor(rank);
+            String specialLine = rank <= 3 ? plugin.getConfigManager().getGUIString("leaderboard.rank-display.rank-" + rank + ".special", "") : "";
 
+            List<String> lore = plugin.getConfigManager().getGUIItemLore("leaderboard.rank-display.lore-template");
+            lore.replaceAll(line -> line
+                    .replace("{score}", String.valueOf(entry.getScore()))
+                    .replace("{special_line}", specialLine));
+            
             ItemStack item = createItem(material, rankColor + "#" + rank + " §f" + entry.getPlayerName(),
-                    "§7Điểm số: §6" + entry.getScore(), "", rank <= 3 ? "§e⭐ Top " + rank + "!" : "");
+                    lore.toArray(new String[0]));
             gui.setItem(slot++, item);
             if ((slot + 1) % 9 == 0) slot += 2;
         }
 
         int playerRank = plugin.getLeaderboardManager().getPlayerRank(dungeonId, player.getUniqueId());
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player.getUniqueId());
-        ItemStack yourRank = createItem(Material.PLAYER_HEAD, "§6§lXếp Hạng Của Bạn",
-                playerRank != -1 ? "§7Hạng: §e#" + playerRank : "§7Chưa có xếp hạng",
-                "§7Điểm: §6" + data.getDungeonScore(dungeonId));
-        gui.setItem(49, yourRank);
+        List<String> yourRankLore = playerRank != -1 ?
+                plugin.getConfigManager().getGUIItemLore("leaderboard.items.your-rank.lore-ranked") :
+                plugin.getConfigManager().getGUIItemLore("leaderboard.items.your-rank.lore-unranked");
+        yourRankLore.replaceAll(line -> line
+                .replace("{rank}", String.valueOf(playerRank))
+                .replace("{score}", String.valueOf(data.getDungeonScore(dungeonId))));
+        ItemStack yourRank = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("leaderboard.items.your-rank.material")),
+                plugin.getConfigManager().getGUIItemName("leaderboard.items.your-rank.name"),
+                yourRankLore.toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("leaderboard.items.your-rank.slot"), yourRank);
 
-        ItemStack back = createItem(Material.ARROW, "§c§lQuay Lại", "§7Về thông tin phó bản");
-        gui.setItem(45, back);
-        fillEmptySlots(gui, Material.BLACK_STAINED_GLASS_PANE);
+        ItemStack back = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("leaderboard.items.back-button.material")),
+                plugin.getConfigManager().getGUIItemName("leaderboard.items.back-button.name"),
+                plugin.getConfigManager().getGUIItemLore("leaderboard.items.back-button.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("leaderboard.items.back-button.slot"), back);
+        
+        if (plugin.getConfigManager().isGUIFillerEnabled("leaderboard.filler")) {
+            fillEmptySlots(gui, Material.valueOf(plugin.getConfigManager().getGUIFillerMaterial("leaderboard.filler")));
+        }
         player.openInventory(gui);
     }
 
     public void openPlayerStats(Player player) {
-        Inventory gui = Bukkit.createInventory(null, 54, STATS_TITLE);
+        String title = plugin.getConfigManager().getGUITitle("player-stats.title");
+        int size = plugin.getConfigManager().getGUISize("player-stats.size");
+        Inventory gui = Bukkit.createInventory(null, size, title);
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player.getUniqueId());
 
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
         if (skullMeta != null) {
             skullMeta.setOwningPlayer(player);
-            skullMeta.setDisplayName("§6§l" + player.getName());
-            List<String> lore = new ArrayList<>();
-            lore.add("§7Thống kê tổng quan");
-            skullMeta.setLore(lore);
+            String headName = plugin.getConfigManager().getGUIItemName("player-stats.items.player-head.name");
+            skullMeta.setDisplayName(headName.replace("{player_name}", player.getName()));
+            skullMeta.setLore(plugin.getConfigManager().getGUIItemLore("player-stats.items.player-head.lore"));
             head.setItemMeta(skullMeta);
         }
-        gui.setItem(4, head);
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("player-stats.items.player-head.slot"), head);
 
-        int slot = 18;
+        int slot = plugin.getConfigManager().getGUIInt("player-stats.items.dungeon-stats.start-slot", 18);
+        int maxSlot = plugin.getConfigManager().getGUIInt("player-stats.items.dungeon-stats.max-slot", 44);
         for (Dungeon dungeon : plugin.getDungeonManager().getAllDungeons()) {
             int entries = data.getDungeonEntries(dungeon.getId());
             int score = data.getDungeonScore(dungeon.getId());
             int rank = plugin.getLeaderboardManager().getPlayerRank(dungeon.getId(), player.getUniqueId());
+            
+            List<String> statsLore = plugin.getConfigManager().getGUIItemLore("player-stats.items.dungeon-stats.lore");
+            statsLore.replaceAll(line -> line
+                    .replace("{entries_color}", getEntriesColor(entries))
+                    .replace("{entries}", String.valueOf(entries))
+                    .replace("{score}", String.valueOf(score))
+                    .replace("{rank_line}", rank != -1 ? "§7Xếp hạng: §e#" + rank : "§7Chưa có xếp hạng"));
+            
             ItemStack item = createItem(getDungeonIcon(dungeon, data), dungeon.getDisplayName().replace("&", "§"),
-                    "§7Lượt còn lại: " + getEntriesColor(entries) + entries, "§7Điểm cao nhất: §6" + score,
-                    rank != -1 ? "§7Xếp hạng: §e#" + rank : "§7Chưa có xếp hạng", "", "§e▶ Click để xem chi tiết!");
+                    statsLore.toArray(new String[0]));
 
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
@@ -259,30 +338,58 @@ public class GUIManager {
                 item.setItemMeta(meta);
             }
             gui.setItem(slot++, item);
-            if (slot >= 44) break;
+            if (slot >= maxSlot) break;
         }
 
-        ItemStack back = createItem(Material.ARROW, "§c§lQuay Lại", "§7Về menu chính");
-        gui.setItem(49, back);
-        fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
+        ItemStack back = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("player-stats.items.back-button.material")),
+                plugin.getConfigManager().getGUIItemName("player-stats.items.back-button.name"),
+                plugin.getConfigManager().getGUIItemLore("player-stats.items.back-button.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("player-stats.items.back-button.slot"), back);
+        
+        if (plugin.getConfigManager().isGUIFillerEnabled("player-stats.filler")) {
+            fillEmptySlots(gui, Material.valueOf(plugin.getConfigManager().getGUIFillerMaterial("player-stats.filler")));
+        }
         player.openInventory(gui);
     }
 
     public void openSettings(Player player) {
-        Inventory gui = Bukkit.createInventory(null, 27, SETTINGS_TITLE);
-        // Implement settings toggles here based on PlayerData
-        ItemStack particles = createItem(Material.BLAZE_POWDER, "§6§lHiệu Ứng Particles", "§7Bật/tắt hiệu ứng hạt", "", "§eComing soon...");
-        gui.setItem(11, particles);
+        String title = plugin.getConfigManager().getGUITitle("settings.title");
+        int size = plugin.getConfigManager().getGUISize("settings.size");
+        Inventory gui = Bukkit.createInventory(null, size, title);
+        
+        ItemStack particles = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("settings.items.particles.material")),
+                plugin.getConfigManager().getGUIItemName("settings.items.particles.name"),
+                plugin.getConfigManager().getGUIItemLore("settings.items.particles.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("settings.items.particles.slot"), particles);
 
-        ItemStack sounds = createItem(Material.NOTE_BLOCK, "§6§lÂm Thanh", "§7Bật/tắt âm thanh", "", "§eComing soon...");
-        gui.setItem(13, sounds);
+        ItemStack sounds = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("settings.items.sounds.material")),
+                plugin.getConfigManager().getGUIItemName("settings.items.sounds.name"),
+                plugin.getConfigManager().getGUIItemLore("settings.items.sounds.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("settings.items.sounds.slot"), sounds);
 
-        ItemStack notifications = createItem(Material.BELL, "§6§lThông Báo", "§7Tùy chỉnh thông báo", "", "§eComing soon...");
-        gui.setItem(15, notifications);
+        ItemStack notifications = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("settings.items.notifications.material")),
+                plugin.getConfigManager().getGUIItemName("settings.items.notifications.name"),
+                plugin.getConfigManager().getGUIItemLore("settings.items.notifications.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("settings.items.notifications.slot"), notifications);
 
-        ItemStack back = createItem(Material.ARROW, "§c§lQuay Lại", "§7Về menu chính");
-        gui.setItem(22, back);
-        fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
+        ItemStack back = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("settings.items.back-button.material")),
+                plugin.getConfigManager().getGUIItemName("settings.items.back-button.name"),
+                plugin.getConfigManager().getGUIItemLore("settings.items.back-button.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("settings.items.back-button.slot"), back);
+        
+        if (plugin.getConfigManager().isGUIFillerEnabled("settings.filler")) {
+            fillEmptySlots(gui, Material.valueOf(plugin.getConfigManager().getGUIFillerMaterial("settings.filler")));
+        }
         player.openInventory(gui);
     }
 
@@ -329,34 +436,38 @@ public class GUIManager {
 
     private Material getDungeonIcon(Dungeon dungeon, PlayerData data) {
         int entries = data.getDungeonEntries(dungeon.getId());
-        if (entries <= 0) return Material.RED_WOOL;
+        if (entries <= 0) {
+            return Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-list.icons.no-entries"));
+        }
         boolean hasBoss = dungeon.getStages().values().stream().anyMatch(Stage::isBoss);
-        if (hasBoss) return Material.NETHERITE_SWORD;
-        return Material.DIAMOND_SWORD;
+        if (hasBoss) {
+            return Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-list.icons.has-boss"));
+        }
+        return Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-list.icons.has-entries"));
     }
 
     private String getEntriesColor(int entries) {
-        if (entries >= 3) return "§a";
-        if (entries == 2) return "§e";
-        if (entries == 1) return "§c";
-        return "§4";
+        if (entries >= 3) return plugin.getConfigManager().getGUIString("dungeon-list.entries-colors.high", "§a");
+        if (entries == 2) return plugin.getConfigManager().getGUIString("dungeon-list.entries-colors.medium", "§e");
+        if (entries == 1) return plugin.getConfigManager().getGUIString("dungeon-list.entries-colors.low", "§c");
+        return plugin.getConfigManager().getGUIString("dungeon-list.entries-colors.none", "§4");
     }
 
     private Material getRankMaterial(int rank) {
         return switch (rank) {
-            case 1 -> Material.GOLD_BLOCK;
-            case 2 -> Material.IRON_BLOCK;
-            case 3 -> Material.COPPER_BLOCK;
-            default -> Material.COAL_BLOCK;
+            case 1 -> Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("leaderboard.rank-display.rank-1.material"));
+            case 2 -> Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("leaderboard.rank-display.rank-2.material"));
+            case 3 -> Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("leaderboard.rank-display.rank-3.material"));
+            default -> Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("leaderboard.rank-display.default.material"));
         };
     }
 
     private String getRankColor(int rank) {
         return switch (rank) {
-            case 1 -> "§6§l";
-            case 2 -> "§7§l";
-            case 3 -> "§c§l";
-            default -> "§f";
+            case 1 -> plugin.getConfigManager().getGUIString("leaderboard.rank-display.rank-1.color", "§6§l");
+            case 2 -> plugin.getConfigManager().getGUIString("leaderboard.rank-display.rank-2.color", "§7§l");
+            case 3 -> plugin.getConfigManager().getGUIString("leaderboard.rank-display.rank-3.color", "§c§l");
+            default -> plugin.getConfigManager().getGUIString("leaderboard.rank-display.default.color", "§f");
         };
     }
 

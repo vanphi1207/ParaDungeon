@@ -87,9 +87,10 @@ public class GUIManager {
 
         for (int i = 0; i < dungeons.size() && i < 45; i++) {
             Dungeon dungeon = dungeons.get(i);
-            Material icon = getDungeonIcon(dungeon, data);
+            Material icon = getConfiguredDungeonIcon(dungeon, data);
             List<String> lore = new ArrayList<>();
-            dungeon.getDescription().forEach(line -> lore.add("§7" + line.replace("&", "§")));
+            String prefix = plugin.getGUIConfigManager().getColoredString("dungeon_list.item.lore_prefix_desc", "§7");
+            dungeon.getDescription().forEach(line -> lore.add(prefix + line.replace("&", "§")));
             lore.add("");
             lore.add("§8▎ §7Người chơi: §e" + dungeon.getMinPlayers() + "-" + dungeon.getMaxPlayers());
             lore.add("§8▎ §7Số ải: §e" + dungeon.getTotalStages());
@@ -100,27 +101,28 @@ public class GUIManager {
             int highScore = data.getDungeonScore(dungeon.getId());
             int rank = plugin.getLeaderboardManager().getPlayerRank(dungeon.getId(), player.getUniqueId());
 
-            lore.add("§8▎ §6§lThống Kê Của Bạn:");
-            lore.add("  §7Lượt còn lại: " + getEntriesColor(entries) + entries);
-            lore.add("  §7Điểm cao nhất: §6" + highScore);
+            lore.add(plugin.getGUIConfigManager().color("&8▎ &6&lThống Kê Của Bạn:"));
+            lore.add(plugin.getGUIConfigManager().getColoredString("dungeon_list.labels.entries", "&7Lượt còn lại: {color}{entries}")
+                    .replace("{color}", getEntriesColor(entries))
+                    .replace("{entries}", String.valueOf(entries)));
+            lore.add(plugin.getGUIConfigManager().getColoredString("dungeon_list.labels.high_score", "&7Điểm cao nhất: &6{highScore}")
+                    .replace("{highScore}", String.valueOf(highScore)));
             if (rank != -1) {
-                lore.add("  §7Xếp hạng: §e#" + rank);
+                lore.add(plugin.getGUIConfigManager().getColoredString("dungeon_list.labels.rank", "&7Xếp hạng: &e#{rank}")
+                        .replace("{rank}", String.valueOf(rank)));
             }
             lore.add("");
 
             if (entries > 0) {
-                lore.add("§a§l▶ Click trái: §aTham gia");
+                lore.add(plugin.getGUIConfigManager().getColoredString("dungeon_list.labels.join_left", "&a&l▶ Click trái: &aTham gia"));
             } else {
-                lore.add("§c§l✖ Hết lượt chơi!");
+                lore.add(plugin.getGUIConfigManager().getColoredString("dungeon_list.labels.no_entries", "&c&l✖ Hết lượt chơi!"));
             }
-            lore.add("§e§l▶ Click phải: §eXem chi tiết");
+            lore.add(plugin.getGUIConfigManager().getColoredString("dungeon_list.labels.detail_right", "&e&l▶ Click phải: &eXem chi tiết"));
 
-            ItemStack item = createItemWithData(
-                    icon,
-                    dungeon.getDisplayName().replace("&", "§"),
-                    dungeon.getId(),
-                    lore.toArray(new String[0])
-            );
+            String nameFormat = plugin.getGUIConfigManager().getColoredString("dungeon_list.item.name_format", "{displayName}");
+            String name = nameFormat.replace("{displayName}", dungeon.getDisplayName().replace("&", "§"));
+            ItemStack item = createItemWithData(icon, name, dungeon.getId(), lore.toArray(new String[0]));
             gui.setItem(i, item);
         }
 
@@ -434,7 +436,7 @@ public class GUIManager {
         }
     }
 
-    private Material getDungeonIcon(Dungeon dungeon, PlayerData data) {
+    private Material getConfiguredDungeonIcon(Dungeon dungeon, PlayerData data) {
         int entries = data.getDungeonEntries(dungeon.getId());
         if (entries <= 0) {
             return Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-list.icons.no-entries"));

@@ -39,51 +39,52 @@ public class GUIListener implements Listener {
         ItemMeta meta = clickedItem.getItemMeta();
         if (meta == null) return;
 
-        switch (title) {
-            case GUIManager.MAIN_MENU_TITLE:
-                handleMainMenu(player, clickedItem, meta);
-                break;
-            case GUIManager.DUNGEON_LIST_TITLE:
-                handleDungeonList(player, clickedItem, meta, event.isLeftClick());
-                break;
-            case GUIManager.DUNGEON_INFO_TITLE:
-                handleDungeonInfo(player, clickedItem, meta);
-                break;
-            case GUIManager.LEADERBOARD_TITLE:
-                handleLeaderboard(player, clickedItem, meta);
-                break;
-            case GUIManager.STATS_TITLE:
-                handleStats(player, clickedItem, meta);
-                break;
-            case GUIManager.SETTINGS_TITLE:
-                handleSettings(player, clickedItem, meta);
-                break;
+        String mainTitle = plugin.getGUIConfigManager().titleMainMenu();
+        String listTitle = plugin.getGUIConfigManager().titleDungeonList();
+        String infoTitle = plugin.getGUIConfigManager().titleDungeonInfo();
+        String lbTitle = plugin.getGUIConfigManager().titleLeaderboard();
+        String statsTitle = plugin.getGUIConfigManager().titleStats();
+        String settingsTitle = plugin.getGUIConfigManager().titleSettings();
+
+        if (title.equals(mainTitle)) {
+            handleMainMenu(player, clickedItem, meta);
+        } else if (title.equals(listTitle)) {
+            handleDungeonList(player, clickedItem, meta, event.isLeftClick());
+        } else if (title.equals(infoTitle)) {
+            handleDungeonInfo(player, clickedItem, meta);
+        } else if (title.equals(lbTitle)) {
+            handleLeaderboard(player, clickedItem, meta);
+        } else if (title.equals(statsTitle)) {
+            handleStats(player, clickedItem, meta);
+        } else if (title.equals(settingsTitle)) {
+            handleSettings(player, clickedItem, meta);
         }
     }
 
     private boolean isPluginGUI(String title) {
-        return title.equals(GUIManager.MAIN_MENU_TITLE) ||
-                title.equals(GUIManager.DUNGEON_LIST_TITLE) ||
-                title.equals(GUIManager.DUNGEON_INFO_TITLE) ||
-                title.equals(GUIManager.LEADERBOARD_TITLE) ||
-                title.equals(GUIManager.STATS_TITLE) ||
-                title.equals(GUIManager.SETTINGS_TITLE);
+        return plugin.getGUIConfigManager().isAnyKnownTitle(title);
     }
 
     private void handleMainMenu(Player player, ItemStack item, ItemMeta meta) {
-        String displayName = meta.getDisplayName();
-        if (displayName.contains("Danh Sách Phó Bản")) {
-            plugin.getGUIManager().openDungeonList(player);
-        } else if (displayName.contains("Thống Kê Của Tôi")) {
-            plugin.getGUIManager().openPlayerStats(player);
-        } else if (displayName.contains("Bảng Xếp Hạng")) {
-            var dungeons = plugin.getDungeonManager().getAllDungeons();
-            if (!dungeons.isEmpty()) {
-                String firstDungeonId = dungeons.iterator().next().getId();
-                plugin.getGUIManager().openLeaderboard(player, firstDungeonId);
-            }
-        } else if (displayName.contains("Cài Đặt")) {
-            plugin.getGUIManager().openSettings(player);
+        String data = meta.getPersistentDataContainer().get(plugin.getDungeonKey(), org.bukkit.persistence.PersistentDataType.STRING);
+        if (data == null || !data.startsWith("action:")) return;
+        switch (data) {
+            case "action:open_dungeon_list":
+                plugin.getGUIManager().openDungeonList(player);
+                break;
+            case "action:open_player_stats":
+                plugin.getGUIManager().openPlayerStats(player);
+                break;
+            case "action:open_leaderboard":
+                var dungeons = plugin.getDungeonManager().getAllDungeons();
+                if (!dungeons.isEmpty()) {
+                    String firstDungeonId = dungeons.iterator().next().getId();
+                    plugin.getGUIManager().openLeaderboard(player, firstDungeonId);
+                }
+                break;
+            case "action:open_settings":
+                plugin.getGUIManager().openSettings(player);
+                break;
         }
     }
 
@@ -114,7 +115,6 @@ public class GUIListener implements Listener {
     }
 
     private void handleDungeonInfo(Player player, ItemStack item, ItemMeta meta) {
-        String displayName = meta.getDisplayName();
         if (item.getType() == Material.ARROW) {
             plugin.getGUIManager().openDungeonList(player);
             return;
@@ -122,16 +122,14 @@ public class GUIListener implements Listener {
         String data = meta.getPersistentDataContainer().get(plugin.getDungeonKey(), PersistentDataType.STRING);
         if (data == null) return;
 
-        if (displayName.contains("THAM GIA")) {
-            if (data.startsWith("join_")) {
-                String dungeonId = data.substring(5);
-                player.closeInventory();
-                player.performCommand("dungeon join " + dungeonId);
-            }
+        if (data.startsWith("join_")) {
+            String dungeonId = data.substring(5);
+            player.closeInventory();
+            player.performCommand("dungeon join " + dungeonId);
             return;
         }
 
-        if (displayName.contains("Top Người Chơi")) {
+        if ("hint_top_players".equals(data)) {
             player.sendMessage(plugin.getConfigManager().getMessage("prefix") +
                     plugin.getConfigManager().getMessageRaw("gui.top-players-hint"));
             return;

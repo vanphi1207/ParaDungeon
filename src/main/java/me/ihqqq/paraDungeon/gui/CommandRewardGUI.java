@@ -16,7 +16,6 @@ import java.util.*;
 public class CommandRewardGUI {
 
     private final ParaDungeon plugin;
-    // Titles now provided via gui.yml
     private final Map<UUID, PendingCommandInput> pendingInputs;
     private final Map<UUID, PendingScoreTierInput> pendingScoreTierInputs;
 
@@ -27,7 +26,9 @@ public class CommandRewardGUI {
     }
 
     public void openCompletionCommands(Player player, Dungeon dungeon) {
-        Inventory gui = Bukkit.createInventory(null, 54, plugin.getGUIConfigManager().titleCompletionCommands());
+        String title = plugin.getConfigManager().getGUITitle("command-rewards.completion.title");
+        int size = plugin.getConfigManager().getGUISize("command-rewards.completion.size");
+        Inventory gui = Bukkit.createInventory(null, size, title);
 
         DungeonRewards rewards = dungeon.getRewards();
         if (rewards == null) {
@@ -35,73 +36,65 @@ public class CommandRewardGUI {
             dungeon.setRewards(rewards);
         }
 
-        {
-            String path = "command_rewards.completion.info";
-            ItemStack info = createItem(
-                    plugin.getGUIConfigManager().getMaterial(path + ".material", "PAPER"),
-                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lHướng Dẫn Lệnh"),
-                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
-            );
-            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 4), info);
-        }
+        ItemStack info = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("command-rewards.completion.items.info.material")),
+                plugin.getConfigManager().getGUIItemName("command-rewards.completion.items.info.name"),
+                plugin.getConfigManager().getGUIItemLore("command-rewards.completion.items.info.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("command-rewards.completion.items.info.slot"), info);
 
-        {
-            String path = "command_rewards.completion.add";
-            ItemStack addCmd = createItemWithData(
-                    plugin.getGUIConfigManager().getMaterial(path + ".material", "WRITABLE_BOOK"),
-                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&a&l+ THÊM LỆNH"),
-                    "add_cmd_completion_" + dungeon.getId(),
-                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
-            );
-            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 8), addCmd);
-        }
+        ItemStack addCmd = createItemWithData(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("command-rewards.completion.items.add-command.material")),
+                plugin.getConfigManager().getGUIItemName("command-rewards.completion.items.add-command.name"),
+                "add_cmd_completion_" + dungeon.getId(),
+                plugin.getConfigManager().getGUIItemLore("command-rewards.completion.items.add-command.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("command-rewards.completion.items.add-command.slot"), addCmd);
 
         List<String> commands = rewards.getCompletionCommands();
-        int slot = 18;
-        for (int i = 0; i < commands.size() && slot < 45; i++) {
+        int slot = plugin.getConfigManager().getGUIInt("command-rewards.completion.items.command-display.start-slot", 18);
+        int endSlot = plugin.getConfigManager().getGUIInt("command-rewards.completion.items.command-display.end-slot", 44);
+        for (int i = 0; i < commands.size() && slot <= endSlot; i++) {
             String cmd = commands.get(i);
-            String itemPath = "command_rewards.completion.list_item";
-            String name = plugin.getGUIConfigManager().getColoredString(itemPath + ".name_format", "&6Lệnh #{index}").replace("{index}", String.valueOf(i + 1));
-            java.util.List<String> loreFmt = plugin.getGUIConfigManager().getColoredStringList(itemPath + ".lore_format");
-            java.util.List<String> lore = new java.util.ArrayList<>();
-            for (String line : loreFmt) lore.add(line.replace("{command}", cmd));
+            List<String> cmdLore = new ArrayList<>(plugin.getConfigManager().getGUIItemLore("command-rewards.completion.items.command-display.lore"));
+            cmdLore.replaceAll(line -> line.replace("{command}", cmd));
+            String cmdName = plugin.getConfigManager().getGUIItemName("command-rewards.completion.items.command-display.name")
+                    .replace("{index}", String.valueOf(i + 1));
             ItemStack cmdItem = createItemWithData(
-                    plugin.getGUIConfigManager().getMaterial(itemPath + ".material", "COMMAND_BLOCK"),
-                    name,
+                    Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("command-rewards.completion.items.command-display.material")),
+                    cmdName,
                     "cmd_completion_" + dungeon.getId() + "_" + i,
-                    lore.toArray(new String[0])
+                    cmdLore.toArray(new String[0])
             );
             gui.setItem(slot++, cmdItem);
         }
 
-        {
-            String path = "command_rewards.completion.back";
-            ItemStack back = createItemWithData(
-                    plugin.getGUIConfigManager().getMaterial(path + ".material", "ARROW"),
-                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&c&lQuay Lại"),
-                    "back_reward_" + dungeon.getId(),
-                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
-            );
-            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 45), back);
-        }
+        ItemStack back = createItemWithData(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("command-rewards.completion.items.back-button.material")),
+                plugin.getConfigManager().getGUIItemName("command-rewards.completion.items.back-button.name"),
+                "back_reward_" + dungeon.getId(),
+                plugin.getConfigManager().getGUIItemLore("command-rewards.completion.items.back-button.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("command-rewards.completion.items.back-button.slot"), back);
 
-        {
-            String path = "command_rewards.completion.save_and_close";
-            ItemStack save = createItemWithData(
-                    plugin.getGUIConfigManager().getMaterial(path + ".material", "LIME_WOOL"),
-                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&a&l✔ LƯU VÀ ĐÓNG"),
-                    "save_close_commands_" + dungeon.getId(),
-                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
-            );
-            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 49), save);
-        }
+        ItemStack save = createItemWithData(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("command-rewards.completion.items.save-close-button.material")),
+                plugin.getConfigManager().getGUIItemName("command-rewards.completion.items.save-close-button.name"),
+                "save_close_commands_" + dungeon.getId(),
+                plugin.getConfigManager().getGUIItemLore("command-rewards.completion.items.save-close-button.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("command-rewards.completion.items.save-close-button.slot"), save);
 
-        fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
+        if (plugin.getConfigManager().isGUIFillerEnabled("command-rewards.completion.filler")) {
+            fillEmptySlots(gui, Material.valueOf(plugin.getConfigManager().getGUIFillerMaterial("command-rewards.completion.filler")));
+        }
         player.openInventory(gui);
     }
 
     public void openScoreTierCommands(Player player, Dungeon dungeon, int score) {
-        Inventory gui = Bukkit.createInventory(null, 54, plugin.getGUIConfigManager().titleScoreCommands());
+        String title = plugin.getConfigManager().getGUITitle("command-rewards.score-tier.title");
+        int size = plugin.getConfigManager().getGUISize("command-rewards.score-tier.size");
+        Inventory gui = Bukkit.createInventory(null, size, title);
 
         DungeonRewards rewards = dungeon.getRewards();
         if (rewards == null) return;
@@ -112,45 +105,39 @@ public class CommandRewardGUI {
             rewards.addScoreReward(score, scoreReward);
         }
 
-        {
-            String path = "command_rewards.score.info";
-            java.util.List<String> lore = plugin.getGUIConfigManager().getColoredStringList(path + ".lore");
-            java.util.List<String> replaced = new java.util.ArrayList<>();
-            for (String line : lore) replaced.add(line.replace("{score}", String.valueOf(score)));
-            ItemStack info = createItem(
-                    plugin.getGUIConfigManager().getMaterial(path + ".material", "PAPER"),
-                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lLệnh Cho {score} Điểm").replace("{score}", String.valueOf(score)),
-                    replaced.toArray(new String[0])
-            );
-            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 4), info);
-        }
+        List<String> infoLore = new ArrayList<>(plugin.getConfigManager().getGUIItemLore("command-rewards.score-tier.items.info.lore"));
+        infoLore.replaceAll(line -> line.replace("{score}", String.valueOf(score)));
+        String infoName = plugin.getConfigManager().getGUIItemName("command-rewards.score-tier.items.info.name")
+                .replace("{score}", String.valueOf(score));
+        ItemStack info = createItem(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("command-rewards.score-tier.items.info.material")),
+                infoName,
+                infoLore.toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("command-rewards.score-tier.items.info.slot"), info);
 
-        // ✅ FIX: Đổi prefix thành "add_command_tier_"
-        {
-            String path = "command_rewards.score.add";
-            ItemStack addCmd = createItemWithData(
-                    plugin.getGUIConfigManager().getMaterial(path + ".material", "WRITABLE_BOOK"),
-                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&a&l+ THÊM LỆNH"),
-                    "add_command_tier_" + dungeon.getId() + "_" + score,
-                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
-            );
-            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 8), addCmd);
-        }
+        ItemStack addCmd = createItemWithData(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("command-rewards.score-tier.items.add-command.material")),
+                plugin.getConfigManager().getGUIItemName("command-rewards.score-tier.items.add-command.name"),
+                "add_command_tier_" + dungeon.getId() + "_" + score,
+                plugin.getConfigManager().getGUIItemLore("command-rewards.score-tier.items.add-command.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("command-rewards.score-tier.items.add-command.slot"), addCmd);
 
-        List<String> commands2 = scoreReward.getCommands();
-        int slot2 = 18;
-        for (int i = 0; i < commands2.size() && slot2 < 45; i++) {
-            String cmd = commands2.get(i);
-            String itemPath = "command_rewards.score.list_item";
-            String name = plugin.getGUIConfigManager().getColoredString(itemPath + ".name_format", "&6Lệnh #{index}").replace("{index}", String.valueOf(i + 1));
-            java.util.List<String> loreFmt = plugin.getGUIConfigManager().getColoredStringList(itemPath + ".lore_format");
-            java.util.List<String> lore = new java.util.ArrayList<>();
-            for (String line : loreFmt) lore.add(line.replace("{command}", cmd));
+        List<String> commands = scoreReward.getCommands();
+        int slot = plugin.getConfigManager().getGUIInt("command-rewards.score-tier.items.command-display.start-slot", 18);
+        int endSlot = plugin.getConfigManager().getGUIInt("command-rewards.score-tier.items.command-display.end-slot", 44);
+        for (int i = 0; i < commands.size() && slot <= endSlot; i++) {
+            String cmd = commands.get(i);
+            List<String> cmdLore = new ArrayList<>(plugin.getConfigManager().getGUIItemLore("command-rewards.score-tier.items.command-display.lore"));
+            cmdLore.replaceAll(line -> line.replace("{command}", cmd));
+            String cmdName = plugin.getConfigManager().getGUIItemName("command-rewards.score-tier.items.command-display.name")
+                    .replace("{index}", String.valueOf(i + 1));
             ItemStack cmdItem = createItemWithData(
-                    plugin.getGUIConfigManager().getMaterial(itemPath + ".material", "COMMAND_BLOCK"),
-                    name,
+                    Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("command-rewards.score-tier.items.command-display.material")),
+                    cmdName,
                     "cmd_tier_" + dungeon.getId() + "_" + score + "_" + i,
-                    lore.toArray(new String[0])
+                    cmdLore.toArray(new String[0])
             );
             gui.setItem(slot2++, cmdItem);
         }
@@ -166,18 +153,25 @@ public class CommandRewardGUI {
             gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 45), back);
         }
 
-        {
-            String path = "command_rewards.score.save_and_close";
-            ItemStack save = createItemWithData(
-                    plugin.getGUIConfigManager().getMaterial(path + ".material", "LIME_WOOL"),
-                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&a&l✔ LƯU VÀ ĐÓNG"),
-                    "save_close_tier_commands_" + dungeon.getId() + "_" + score,
-                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
-            );
-            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 49), save);
-        }
+        ItemStack back = createItemWithData(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("command-rewards.score-tier.items.back-button.material")),
+                plugin.getConfigManager().getGUIItemName("command-rewards.score-tier.items.back-button.name"),
+                "back_tier_editor_" + dungeon.getId() + "_" + score,
+                plugin.getConfigManager().getGUIItemLore("command-rewards.score-tier.items.back-button.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("command-rewards.score-tier.items.back-button.slot"), back);
 
-        fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
+        ItemStack save = createItemWithData(
+                Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("command-rewards.score-tier.items.save-close-button.material")),
+                plugin.getConfigManager().getGUIItemName("command-rewards.score-tier.items.save-close-button.name"),
+                "save_close_tier_commands_" + dungeon.getId() + "_" + score,
+                plugin.getConfigManager().getGUIItemLore("command-rewards.score-tier.items.save-close-button.lore").toArray(new String[0])
+        );
+        gui.setItem(plugin.getConfigManager().getGUIItemSlot("command-rewards.score-tier.items.save-close-button.slot"), save);
+
+        if (plugin.getConfigManager().isGUIFillerEnabled("command-rewards.score-tier.filler")) {
+            fillEmptySlots(gui, Material.valueOf(plugin.getConfigManager().getGUIFillerMaterial("command-rewards.score-tier.filler")));
+        }
         player.openInventory(gui);
     }
 

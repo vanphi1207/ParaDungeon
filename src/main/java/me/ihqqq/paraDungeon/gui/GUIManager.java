@@ -186,9 +186,10 @@ public class GUIManager {
         );
         gui.setItem(plugin.getConfigManager().getGUIItemSlot("dungeon-info.items.your-stats.slot"), yourStats);
 
-        ItemStack topPlayers = createItem(
+        ItemStack topPlayers = createItemWithData(
                 Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("dungeon-info.items.top-players.material")),
                 plugin.getConfigManager().getGUIItemName("dungeon-info.items.top-players.name"),
+                "leaderboard_" + dungeon.getId(),
                 plugin.getConfigManager().getGUIItemLore("dungeon-info.items.top-players.lore").toArray(new String[0])
         );
         gui.setItem(plugin.getConfigManager().getGUIItemSlot("dungeon-info.items.top-players.slot"), topPlayers);

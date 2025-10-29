@@ -129,9 +129,9 @@ public class GUIListener implements Listener {
             return;
         }
 
-        if ("hint_top_players".equals(data)) {
-            player.sendMessage(plugin.getConfigManager().getMessage("prefix") +
-                    plugin.getConfigManager().getMessageRaw("gui.top-players-hint"));
+        if (data.startsWith("leaderboard_")) {
+            String dungeonId = data.substring(12);
+            plugin.getGUIManager().openLeaderboard(player, dungeonId);
             return;
         }
 

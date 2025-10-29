@@ -41,30 +41,34 @@ public class GUIManager {
         int size = plugin.getConfigManager().getGUISize("main-menu.size");
         Inventory gui = Bukkit.createInventory(null, size, title);
 
-        ItemStack dungeonList = createItem(
+        ItemStack dungeonList = createItemWithData(
                 Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("main-menu.items.dungeon-list.material")),
                 plugin.getConfigManager().getGUIItemName("main-menu.items.dungeon-list.name"),
+                "action:open_dungeon_list",
                 plugin.getConfigManager().getGUIItemLore("main-menu.items.dungeon-list.lore").toArray(new String[0])
         );
         gui.setItem(plugin.getConfigManager().getGUIItemSlot("main-menu.items.dungeon-list.slot"), dungeonList);
 
-        ItemStack stats = createItem(
+        ItemStack stats = createItemWithData(
                 Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("main-menu.items.my-stats.material")),
                 plugin.getConfigManager().getGUIItemName("main-menu.items.my-stats.name"),
+                "action:open_player_stats",
                 plugin.getConfigManager().getGUIItemLore("main-menu.items.my-stats.lore").toArray(new String[0])
         );
         gui.setItem(plugin.getConfigManager().getGUIItemSlot("main-menu.items.my-stats.slot"), stats);
 
-        ItemStack leaderboard = createItem(
+        ItemStack leaderboard = createItemWithData(
                 Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("main-menu.items.leaderboard.material")),
                 plugin.getConfigManager().getGUIItemName("main-menu.items.leaderboard.name"),
+                "action:open_leaderboard",
                 plugin.getConfigManager().getGUIItemLore("main-menu.items.leaderboard.lore").toArray(new String[0])
         );
         gui.setItem(plugin.getConfigManager().getGUIItemSlot("main-menu.items.leaderboard.slot"), leaderboard);
 
-        ItemStack settings = createItem(
+        ItemStack settings = createItemWithData(
                 Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("main-menu.items.settings.material")),
                 plugin.getConfigManager().getGUIItemName("main-menu.items.settings.name"),
+                "action:open_settings",
                 plugin.getConfigManager().getGUIItemLore("main-menu.items.settings.lore").toArray(new String[0])
         );
         gui.setItem(plugin.getConfigManager().getGUIItemSlot("main-menu.items.settings.slot"), settings);
@@ -147,7 +151,7 @@ public class GUIManager {
         Inventory gui = Bukkit.createInventory(null, size, title);
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player.getUniqueId());
 
-        ItemStack dungeonIcon = createItem(getDungeonIcon(dungeon, data), dungeon.getDisplayName().replace("&", "§"),
+        ItemStack dungeonIcon = createItem(getConfiguredDungeonIcon(dungeon, data), dungeon.getDisplayName().replace("&", "§"),
                 dungeon.getDescription().stream().map(s -> "§7" + s.replace("&", "§")).toArray(String[]::new));
         gui.setItem(plugin.getConfigManager().getGUIItemSlot("dungeon-info.items.dungeon-icon.slot"), dungeonIcon);
 
@@ -287,9 +291,10 @@ public class GUIManager {
         );
         gui.setItem(plugin.getConfigManager().getGUIItemSlot("leaderboard.items.your-rank.slot"), yourRank);
 
-        ItemStack back = createItem(
+        ItemStack back = createItemWithData(
                 Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("leaderboard.items.back-button.material")),
                 plugin.getConfigManager().getGUIItemName("leaderboard.items.back-button.name"),
+                dungeonId,
                 plugin.getConfigManager().getGUIItemLore("leaderboard.items.back-button.lore").toArray(new String[0])
         );
         gui.setItem(plugin.getConfigManager().getGUIItemSlot("leaderboard.items.back-button.slot"), back);
@@ -331,7 +336,7 @@ public class GUIManager {
                     .replace("{score}", String.valueOf(score))
                     .replace("{rank_line}", rank != -1 ? "§7Xếp hạng: §e#" + rank : "§7Chưa có xếp hạng"));
             
-            ItemStack item = createItem(getDungeonIcon(dungeon, data), dungeon.getDisplayName().replace("&", "§"),
+            ItemStack item = createItem(getConfiguredDungeonIcon(dungeon, data), dungeon.getDisplayName().replace("&", "§"),
                     statsLore.toArray(new String[0]));
 
             ItemMeta meta = item.getItemMeta();

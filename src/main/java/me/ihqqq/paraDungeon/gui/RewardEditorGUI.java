@@ -89,7 +89,8 @@ public class RewardEditorGUI {
         gui.setItem(plugin.getConfigManager().getGUIItemSlot("reward-editor.completion-rewards.items.info.slot"), info);
 
         List<String> cmdLore = new ArrayList<>(plugin.getConfigManager().getGUIItemLore("reward-editor.completion-rewards.items.command-info.lore"));
-        cmdLore.replaceAll(line -> line.replace("{count}", String.valueOf(rewards.getCompletionCommands().size())));
+        final int completionCmdCount = rewards.getCompletionCommands().size();
+        cmdLore.replaceAll(line -> line.replace("{count}", String.valueOf(completionCmdCount)));
         ItemStack cmdInfo = createItemWithData(
                 Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("reward-editor.completion-rewards.items.command-info.material")),
                 plugin.getConfigManager().getGUIItemName("reward-editor.completion-rewards.items.command-info.name"),
@@ -233,7 +234,8 @@ public class RewardEditorGUI {
         gui.setItem(plugin.getConfigManager().getGUIItemSlot("reward-editor.score-tier-editor.items.info.slot"), info);
 
         List<String> cmdLore = new ArrayList<>(plugin.getConfigManager().getGUIItemLore("reward-editor.score-tier-editor.items.command-info.lore"));
-        cmdLore.replaceAll(line -> line.replace("{count}", String.valueOf(scoreReward.getCommands().size())));
+        final int scoreTierCmdCount = scoreReward.getCommands().size();
+        cmdLore.replaceAll(line -> line.replace("{count}", String.valueOf(scoreTierCmdCount)));
         ItemStack cmdInfo = createItemWithData(
                 Material.valueOf(plugin.getConfigManager().getGUIItemMaterial("reward-editor.score-tier-editor.items.command-info.material")),
                 plugin.getConfigManager().getGUIItemName("reward-editor.score-tier-editor.items.command-info.name"),

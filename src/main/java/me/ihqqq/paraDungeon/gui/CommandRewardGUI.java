@@ -139,18 +139,7 @@ public class CommandRewardGUI {
                     "cmd_tier_" + dungeon.getId() + "_" + score + "_" + i,
                     cmdLore.toArray(new String[0])
             );
-            gui.setItem(slot2++, cmdItem);
-        }
-
-        {
-            String path = "command_rewards.score.back";
-            ItemStack back = createItemWithData(
-                    plugin.getGUIConfigManager().getMaterial(path + ".material", "ARROW"),
-                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&c&lQuay Lại"),
-                    "back_tier_editor_" + dungeon.getId() + "_" + score,
-                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
-            );
-            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 45), back);
+            gui.setItem(slot++, cmdItem);
         }
 
         ItemStack back = createItemWithData(

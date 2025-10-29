@@ -1,0 +1,396 @@
+# ParaDungeon GUI Configuration
+#
+# NOTE:
+# - Use Minecraft color codes with & (e.g., &6&l). They will be translated automatically.
+# - Material names must be valid Spigot Material enums.
+# - All inventory sizes must be multiples of 9 (from 9 to 54).
+# - You can safely rename titles; listeners use them dynamically.
+# - For dynamic values in lore, placeholders are provided like {entries}, {rank}, {score}, etc.
+#
+# Quick reload: /dgadmin reload
+
+# ===== Window Titles =====
+# These control the titles for all GUIs.
+# Change freely; make sure they are unique.
+#
+titles:
+  main_menu: "&8▎ &6&lParaDungeon Menu"
+  dungeon_list: "&8▎ &6&lChọn Phó Bản"
+  dungeon_info: "&8▎ &6&lThông Tin Phó Bản"
+  leaderboard: "&8▎ &6&lBảng Xếp Hạng"
+  player_stats: "&8▎ &6&lThống Kê Của Bạn"
+  settings: "&8▎ &6&lCài Đặt"
+  reward_menu: "&8▎ &6&lQuản Lý Phần Thưởng"
+  completion_rewards: "&8▎ &6&lPhần Thưởng Hoàn Thành"
+  score_rewards: "&8▎ &6&lPhần Thưởng Theo Điểm"
+  edit_score_reward: "&8▎ &6&lChỉnh Sửa Phần Thưởng"
+  completion_commands: "&8▎ &6&lLệnh Hoàn Thành"
+  score_commands: "&8▎ &6&lLệnh Theo Điểm"
+
+# ===== Main Menu =====
+main_menu:
+  size: 45
+  filler: GRAY_STAINED_GLASS_PANE
+  items:
+    dungeon_list:
+      slot: 11
+      material: DIAMOND_SWORD
+      name: "&6&lDanh Sách Phó Bản"
+      lore:
+        - "&7Xem tất cả các phó bản"
+        - "&7có thể tham gia"
+        - ""
+        - "&e▶ Nhấp để xem!"
+    stats:
+      slot: 13
+      material: BOOK
+      name: "&6&lThống Kê Của Tôi"
+      lore:
+        - "&7Xem điểm số và xếp hạng"
+        - "&7của bạn"
+        - ""
+        - "&e▶ Nhấp để xem!"
+    leaderboard:
+      slot: 15
+      material: GOLDEN_HELMET
+      name: "&6&lBảng Xếp Hạng"
+      lore:
+        - "&7Top người chơi xuất sắc"
+        - "&7nhất server"
+        - ""
+        - "&e▶ Nhấp để xem!"
+    settings:
+      slot: 31
+      material: REDSTONE
+      name: "&6&lCài Đặt"
+      lore:
+        - "&7Tùy chỉnh trải nghiệm"
+        - "&7của bạn"
+        - ""
+        - "&e▶ Nhấp để xem!"
+
+# ===== Dungeon List =====
+dungeon_list:
+  filler: BLACK_STAINED_GLASS_PANE
+  back:
+    material: ARROW
+    name: "&c&lQuay Lại"
+    lore: ["&7Về menu chính"]
+  labels:
+    your_stats_header: "&8▎ &6&lThống Kê Của Bạn:"
+    entries: "&7Lượt còn lại: {color}{entries}"
+    high_score: "&7Điểm cao nhất: &6{highScore}"
+    rank: "&7Xếp hạng: &e#{rank}"
+    join_left: "&a&l▶ Click trái: &aTham gia"
+    no_entries: "&c&l✖ Hết lượt chơi!"
+    detail_right: "&e&l▶ Click phải: &eXem chi tiết"
+  item:
+    name_format: "{displayName}"
+    lore_prefix_desc: "&7"
+  icon:
+    when_no_entries: RED_WOOL
+    when_has_boss: NETHERITE_SWORD
+    default: DIAMOND_SWORD
+
+# ===== Dungeon Info =====
+dungeon_info:
+  filler: GRAY_STAINED_GLASS_PANE
+  items:
+    general_info:
+      slot: 19
+      material: BOOK
+      name: "&6&lThông Tin Chung"
+      lore:
+        - "&7Người chơi: &e{minPlayers}-{maxPlayers}"
+        - "&7Số ải: &e{totalStages}"
+        - "&7Số mạng: &e{respawnLives}"
+        - "&7Lượt/ngày: &e{entriesPerReset}"
+    your_stats:
+      slot: 21
+      material: PLAYER_HEAD
+      name: "&6&lThống Kê Của Bạn"
+      lore:
+        - "&7Lượt còn lại: {color}{entries}"
+        - "&7Điểm cao nhất: &6{highScore}"
+        - "{rankLine}"
+      rank_line:
+        has_rank: "&7Xếp hạng: &e#{rank}"
+        no_rank: "&7Chưa có xếp hạng"
+    top_players:
+      slot: 23
+      material: GOLDEN_HELMET
+      name: "&6&lTop Người Chơi"
+      lore: ["&7Xem bảng xếp hạng", "", "&e▶ Click để xem!"]
+    rewards:
+      slot: 25
+      material: CHEST
+      name: "&6&lPhần Thưởng"
+      lore:
+        - "&7Hoàn thành phó bản để"
+        - "&7nhận phần thưởng hấp dẫn!"
+        - ""
+        - "&e⭐ Điểm càng cao,"
+        - "&e⭐ thưởng càng nhiều!"
+        - ""
+        - "{adminLine}"
+      admin_line:
+        admin: "&c▶ Click để quản lý!"
+        user: "&e▶ Click để xem!"
+    join_button:
+      slot: 49
+      material: LIME_WOOL
+      name: "&a&l✔ THAM GIA"
+      lore: ["&7Click để tham gia phó bản!", "", "&aLượt còn lại: &e{entries}"]
+    no_entries:
+      slot: 49
+      material: RED_WOOL
+      name: "&c&l✖ HẾT LƯỢT"
+      lore: ["&7Bạn đã hết lượt chơi!", "&7Lượt chơi sẽ reset vào:", "&e{resetTime}"]
+    back:
+      slot: 45
+      material: ARROW
+      name: "&c&lQuay Lại"
+      lore: ["&7Về danh sách phó bản"]
+
+# ===== Leaderboard =====
+leaderboard:
+  filler: BLACK_STAINED_GLASS_PANE
+  items:
+    title:
+      slot: 4
+      material: GOLDEN_HELMET
+      name: "&6&lBảng Xếp Hạng"
+      lore: ["&e{dungeonDisplayName}", "", "&7Top {count} người chơi"]
+    your_rank:
+      slot: 49
+      material: PLAYER_HEAD
+      name: "&6&lXếp Hạng Của Bạn"
+      lore: ["{rankLine}", "&7Điểm: &6{score}"]
+      rank_line:
+        has_rank: "&7Hạng: &e#{rank}"
+        no_rank: "&7Chưa có xếp hạng"
+    back:
+      slot: 45
+      material: ARROW
+      name: "&c&lQuay Lại"
+      lore: ["&7Về thông tin phó bản"]
+  rank_materials:
+    1: GOLD_BLOCK
+    2: IRON_BLOCK
+    3: COPPER_BLOCK
+    default: COAL_BLOCK
+  rank_colors:
+    1: "&6&l"
+    2: "&7&l"
+    3: "&c&l"
+    default: "&f"
+
+# ===== Player Stats =====
+player_stats:
+  filler: GRAY_STAINED_GLASS_PANE
+  back:
+    slot: 49
+    material: ARROW
+    name: "&c&lQuay Lại"
+    lore: ["&7Về menu chính"]
+  item_prompt:
+    click_detail: "&e▶ Click để xem chi tiết!"
+
+# ===== Settings (demo toggles) =====
+settings:
+  size: 27
+  filler: GRAY_STAINED_GLASS_PANE
+  items:
+    particles:
+      slot: 11
+      material: BLAZE_POWDER
+      name: "&6&lHiệu Ứng Particles"
+      lore: ["&7Bật/tắt hiệu ứng hạt", "", "&eComing soon..."]
+    sounds:
+      slot: 13
+      material: NOTE_BLOCK
+      name: "&6&lÂm Thanh"
+      lore: ["&7Bật/tắt âm thanh", "", "&eComing soon..."]
+    notifications:
+      slot: 15
+      material: BELL
+      name: "&6&lThông Báo"
+      lore: ["&7Tùy chỉnh thông báo", "", "&eComing soon..."]
+    back:
+      slot: 22
+      material: ARROW
+      name: "&c&lQuay Lại"
+      lore: ["&7Về menu chính"]
+
+# ===== Reward Editor =====
+reward_editor:
+  filler:
+    default: GRAY_STAINED_GLASS_PANE
+    black: BLACK_STAINED_GLASS_PANE
+  reward_menu:
+    size: 27
+    items:
+      completion:
+        slot: 11
+        material: CHEST
+        name: "&6&lPhần Thưởng Hoàn Thành"
+        lore: ["&7Phần thưởng khi hoàn thành", "&7phó bản (không phụ thuộc điểm)", "", "&e▶ Click để chỉnh sửa!"]
+      score:
+        slot: 13
+        material: NETHER_STAR
+        name: "&6&lPhần Thưởng Theo Điểm"
+        lore: ["&7Phần thưởng dựa trên", "&7điểm số đạt được", "", "&eSố mức: &a{scoreTierCount}", "", "&e▶ Click để chỉnh sửa!"]
+      preview:
+        slot: 15
+        material: BOOK
+        name: "&6&lXem Trước Phần Thưởng"
+        lore: ["&7Xem tất cả phần thưởng", "&7của phó bản này", "", "&e▶ Click để xem!"]
+      back:
+        slot: 22
+        material: ARROW
+        name: "&c&lQuay Lại"
+        lore: ["&7Về thông tin phó bản"]
+  completion_rewards:
+    size: 54
+    info:
+      slot: 4
+      material: PAPER
+      name: "&6&lHướng Dẫn"
+      lore:
+        - "&7Đặt các item phần thưởng vào"
+        - "&7các ô trống phía dưới"
+        - ""
+        - "&e✦ &7Chấp nhận mọi loại item:"
+        - "  &7- Vanilla items"
+        - "  &7- MMOItems"
+        - "  &7- Custom items từ plugin khác"
+        - ""
+        - "&aPhần thưởng sẽ tự động lưu!"
+    add_commands:
+      slot: 8
+      material: COMMAND_BLOCK
+      name: "&6&lCommand Rewards"
+      lore: ["&7Thêm lệnh thực thi khi", "&7người chơi hoàn thành", "", "&eSố lượng: &a{count}", "", "&e▶ Click để quản lý!"]
+    save:
+      slot: 49
+      material: LIME_WOOL
+      name: "&a&l✔ LƯU"
+      lore: ["&7Lưu các phần thưởng", "", "&e▶ Click để lưu!"]
+    back:
+      slot: 45
+      material: ARROW
+      name: "&c&lQuay Lại"
+      lore: ["&7Về menu phần thưởng"]
+    editable_slots: "18-44"
+  score_rewards:
+    size: 54
+    info:
+      slot: 4
+      material: PAPER
+      name: "&6&lHướng Dẫn"
+      lore:
+        - "&7Phần thưởng dựa trên điểm số"
+        - "&7người chơi đạt được"
+        - ""
+        - "&7Ví dụ:"
+        - "  &e1000 điểm: &710 kim cương"
+        - "  &e2000 điểm: &720 kim cương"
+        - ""
+        - "&7Người chơi nhận thưởng cao nhất"
+        - "&7mà họ đạt đủ điểm"
+    add_tier:
+      slot: 8
+      material: EMERALD_BLOCK
+      name: "&a&l+ THÊM MỨC ĐIỂM"
+      lore: ["&7Thêm mức điểm mới", "", "&e▶ Click để thêm!"]
+    back:
+      slot: 45
+      material: ARROW
+      name: "&c&lQuay Lại"
+      lore: ["&7Về menu phần thưởng"]
+  edit_score_tier:
+    size: 54
+    info:
+      slot: 4
+      material: PAPER
+      name: "&6&lPhần Thưởng {score} Điểm"
+      lore: ["&7Đặt các item phần thưởng vào", "&7các ô trống phía dưới", "", "&aPhần thưởng sẽ tự động lưu!"]
+    add_commands:
+      slot: 8
+      material: COMMAND_BLOCK
+      name: "&6&lCommand Rewards"
+      lore: ["&7Thêm lệnh thực thi", "", "&eSố lượng: &a{count}", "", "&e▶ Click để quản lý!"]
+    save:
+      slot: 49
+      material: LIME_WOOL
+      name: "&a&l✔ LƯU"
+      lore: ["&7Lưu phần thưởng", "", "&e▶ Click để lưu!"]
+    back:
+      slot: 45
+      material: ARROW
+      name: "&c&lQuay Lại"
+      lore: ["&7Về danh sách mức điểm"]
+    editable_slots: "18-44"
+
+# ===== Command Reward GUIs =====
+command_rewards:
+  completion:
+    info:
+      slot: 4
+      material: PAPER
+      name: "&6&lHướng Dẫn Lệnh"
+      lore:
+        - "&7Thêm các lệnh sẽ được thực thi"
+        - "&7khi người chơi hoàn thành phó bản"
+        - ""
+        - "&e✦ &7Placeholders:"
+        - "  &e{player} &7- Tên người chơi"
+        - "  &e{score} &7- Điểm số đạt được"
+        - ""
+        - "&7Ví dụ:"
+        - "  &eeco give {player} 1000"
+        - "  &ecrate givekey {player} diamond 1"
+    add:
+      slot: 8
+      material: WRITABLE_BOOK
+      name: "&a&l+ THÊM LỆNH"
+      lore: ["&7Click để thêm lệnh mới", "", "&e▶ Nhập lệnh trong chat!"]
+    list_item:
+      material: COMMAND_BLOCK
+      name_format: "&6Lệnh #{index}"
+      lore_format: ["&e/{command}", "", "&c▶ Click phải để xóa"]
+    back:
+      slot: 45
+      material: ARROW
+      name: "&c&lQuay Lại"
+      lore: ["&7Về menu phần thưởng"]
+    save_and_close:
+      slot: 49
+      material: LIME_WOOL
+      name: "&a&l✔ LƯU VÀ ĐÓNG"
+      lore: ["&7Lưu và đóng menu"]
+  score:
+    info:
+      slot: 4
+      material: PAPER
+      name: "&6&lLệnh Cho {score} Điểm"
+      lore: ["&7Các lệnh sẽ được thực thi", "&7khi đạt {score} điểm", "", "&e✦ &7Placeholders:", "  &e{player} &7- Tên người chơi", "  &e{score} &7- Điểm số đạt được"]
+    add:
+      slot: 8
+      material: WRITABLE_BOOK
+      name: "&a&l+ THÊM LỆNH"
+      lore: ["&7Click để thêm lệnh mới", "", "&e▶ Nhập lệnh trong chat!"]
+    list_item:
+      material: COMMAND_BLOCK
+      name_format: "&6Lệnh #{index}"
+      lore_format: ["&e/{command}", "", "&c▶ Click phải để xóa"]
+    back:
+      slot: 45
+      material: ARROW
+      name: "&c&lQuay Lại"
+      lore: ["&7Về menu phần thưởng"]
+    save_and_close:
+      slot: 49
+      material: LIME_WOOL
+      name: "&a&l✔ LƯU VÀ ĐÓNG"
+      lore: ["&7Lưu và đóng menu"]

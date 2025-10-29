@@ -19,67 +19,79 @@ public class RewardEditorGUI {
 
     private final ParaDungeon plugin;
 
-    public static final String REWARD_MENU_TITLE = "§8▎ §6§lQuản Lý Phần Thưởng";
-    public static final String COMPLETION_REWARDS_TITLE = "§8▎ §6§lPhần Thưởng Hoàn Thành";
-    public static final String SCORE_REWARDS_TITLE = "§8▎ §6§lPhần Thưởng Theo Điểm";
-    public static final String EDIT_SCORE_REWARD_TITLE = "§8▎ §6§lChỉnh Sửa Phần Thưởng";
+    // Titles are now driven by gui.yml via GUIConfigManager
 
     public RewardEditorGUI(ParaDungeon plugin) {
         this.plugin = plugin;
     }
 
     public void openRewardMenu(Player player, Dungeon dungeon) {
-        Inventory gui = Bukkit.createInventory(null, 27, REWARD_MENU_TITLE);
+        int size = plugin.getGUIConfigManager().getInt("reward_editor.reward_menu.size", 27);
+        Inventory gui = Bukkit.createInventory(null, size, plugin.getGUIConfigManager().titleRewardMenu());
 
-        ItemStack completionRewards = createItemWithData(
-                Material.CHEST,
-                "§6§lPhần Thưởng Hoàn Thành",
-                "completion_" + dungeon.getId(),
-                "§7Phần thưởng khi hoàn thành",
-                "§7phó bản (không phụ thuộc điểm)",
-                "",
-                "§e▶ Click để chỉnh sửa!"
-        );
-        gui.setItem(11, completionRewards);
+        // Completion rewards
+        {
+            String path = "reward_editor.reward_menu.items.completion";
+            ItemStack item = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "CHEST"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lPhần Thưởng Hoàn Thành"),
+                    "completion_" + dungeon.getId(),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            int slot = plugin.getGUIConfigManager().getInt(path + ".slot", 11);
+            gui.setItem(slot, item);
+        }
 
-        ItemStack scoreRewards = createItemWithData(
-                Material.NETHER_STAR,
-                "§6§lPhần Thưởng Theo Điểm",
-                "score_" + dungeon.getId(),
-                "§7Phần thưởng dựa trên",
-                "§7điểm số đạt được",
-                "",
-                getScoreRewardInfo(dungeon),
-                "",
-                "§e▶ Click để chỉnh sửa!"
-        );
-        gui.setItem(13, scoreRewards);
+        // Score rewards
+        {
+            String path = "reward_editor.reward_menu.items.score";
+            List<String> lore = plugin.getGUIConfigManager().getColoredStringList(path + ".lore");
+            int tierCount = dungeon.getRewards() == null ? 0 : dungeon.getRewards().getScoreBasedRewards().size();
+            List<String> replaced = new ArrayList<>();
+            for (String line : lore) replaced.add(line.replace("{scoreTierCount}", String.valueOf(tierCount)));
+            ItemStack item = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "NETHER_STAR"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lPhần Thưởng Theo Điểm"),
+                    "score_" + dungeon.getId(),
+                    replaced.toArray(new String[0])
+            );
+            int slot = plugin.getGUIConfigManager().getInt(path + ".slot", 13);
+            gui.setItem(slot, item);
+        }
 
-        ItemStack preview = createItemWithData(
-                Material.BOOK,
-                "§6§lXem Trước Phần Thưởng",
-                "preview_" + dungeon.getId(),
-                "§7Xem tất cả phần thưởng",
-                "§7của phó bản này",
-                "",
-                "§e▶ Click để xem!"
-        );
-        gui.setItem(15, preview);
+        // Preview (placeholder action)
+        {
+            String path = "reward_editor.reward_menu.items.preview";
+            ItemStack item = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "BOOK"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lXem Trước Phần Thưởng"),
+                    "preview_" + dungeon.getId(),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            int slot = plugin.getGUIConfigManager().getInt(path + ".slot", 15);
+            gui.setItem(slot, item);
+        }
 
-        ItemStack back = createItemWithData(
-                Material.ARROW,
-                "§c§lQuay Lại",
-                "back_dungeon_info_" + dungeon.getId(),
-                "§7Về thông tin phó bản"
-        );
-        gui.setItem(22, back);
+        // Back
+        {
+            String path = "reward_editor.reward_menu.items.back";
+            ItemStack item = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "ARROW"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&c&lQuay Lại"),
+                    "back_dungeon_info_" + dungeon.getId(),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            int slot = plugin.getGUIConfigManager().getInt(path + ".slot", 22);
+            gui.setItem(slot, item);
+        }
 
-        fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
+        Material filler = plugin.getGUIConfigManager().getMaterial("reward_editor.filler.default", "GRAY_STAINED_GLASS_PANE");
+        fillEmptySlots(gui, filler);
         player.openInventory(gui);
     }
 
     public void openCompletionRewardsEditor(Player player, Dungeon dungeon) {
-        Inventory gui = Bukkit.createInventory(null, 54, COMPLETION_REWARDS_TITLE);
+        Inventory gui = Bukkit.createInventory(null, 54, plugin.getGUIConfigManager().titleCompletionRewards());
 
         DungeonRewards rewards = dungeon.getRewards();
         if (rewards == null) {
@@ -88,34 +100,30 @@ public class RewardEditorGUI {
         }
 
         // Info panel
-        ItemStack info = createItem(
-                Material.PAPER,
-                "§6§lHướng Dẫn",
-                "§7Đặt các item phần thưởng vào",
-                "§7các ô trống phía dưới",
-                "",
-                "§e✦ §7Chấp nhận mọi loại item:",
-                "  §7- Vanilla items",
-                "  §7- MMOItems",
-                "  §7- Custom items từ plugin khác",
-                "",
-                "§aPhần thưởng sẽ tự động lưu!"
-        );
-        gui.setItem(4, info);
+        {
+            String path = "reward_editor.completion_rewards.info";
+            ItemStack info = createItem(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "PAPER"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lHướng Dẫn"),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 4), info);
+        }
 
         // ✅ FIX: Đổi data key thành "add_cmd_completion_"
-        ItemStack cmdInfo = createItemWithData(
-                Material.COMMAND_BLOCK,
-                "§6§lCommand Rewards",
-                "add_cmd_completion_" + dungeon.getId(),
-                "§7Thêm lệnh thực thi khi",
-                "§7người chơi hoàn thành",
-                "",
-                "§eSố lượng: §a" + rewards.getCompletionCommands().size(),
-                "",
-                "§e▶ Click để quản lý!"
-        );
-        gui.setItem(8, cmdInfo);
+        {
+            String path = "reward_editor.completion_rewards.add_commands";
+            List<String> lore = plugin.getGUIConfigManager().getColoredStringList(path + ".lore");
+            List<String> replaced = new ArrayList<>();
+            for (String line : lore) replaced.add(line.replace("{count}", String.valueOf(rewards.getCompletionCommands().size())));
+            ItemStack cmdInfo = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "COMMAND_BLOCK"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lCommand Rewards"),
+                    "add_cmd_completion_" + dungeon.getId(),
+                    replaced.toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 8), cmdInfo);
+        }
 
         // Load existing rewards (slots 18-44 for items)
         List<ItemStack> currentRewardItems = rewards.getCompletionRewardItems();
@@ -124,31 +132,36 @@ public class RewardEditorGUI {
         }
 
         // Save button
-        ItemStack save = createItemWithData(
-                Material.LIME_WOOL,
-                "§a§l✔ LƯU",
-                "save_completion_" + dungeon.getId(),
-                "§7Lưu các phần thưởng",
-                "",
-                "§e▶ Click để lưu!"
-        );
-        gui.setItem(49, save);
+        {
+            String path = "reward_editor.completion_rewards.save";
+            ItemStack save = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "LIME_WOOL"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&a&l✔ LƯU"),
+                    "save_completion_" + dungeon.getId(),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 49), save);
+        }
 
         // Back button
-        ItemStack back = createItemWithData(
-                Material.ARROW,
-                "§c§lQuay Lại",
-                "back_reward_" + dungeon.getId(),
-                "§7Về menu phần thưởng"
-        );
-        gui.setItem(45, back);
+        {
+            String path = "reward_editor.completion_rewards.back";
+            ItemStack back = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "ARROW"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&c&lQuay Lại"),
+                    "back_reward_" + dungeon.getId(),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 45), back);
+        }
 
-        fillEmptySlots(gui, Material.BLACK_STAINED_GLASS_PANE, 0, 17);
+        Material black = plugin.getGUIConfigManager().getMaterial("reward_editor.filler.black", "BLACK_STAINED_GLASS_PANE");
+        fillEmptySlots(gui, black, 0, 17);
         player.openInventory(gui);
     }
 
     public void openScoreRewardsEditor(Player player, Dungeon dungeon) {
-        Inventory gui = Bukkit.createInventory(null, 54, SCORE_REWARDS_TITLE);
+        Inventory gui = Bukkit.createInventory(null, 54, plugin.getGUIConfigManager().titleScoreRewards());
 
         DungeonRewards rewards = dungeon.getRewards();
         if (rewards == null) {
@@ -156,30 +169,26 @@ public class RewardEditorGUI {
             dungeon.setRewards(rewards);
         }
 
-        ItemStack info = createItem(
-                Material.PAPER,
-                "§6§lHướng Dẫn",
-                "§7Phần thưởng dựa trên điểm số",
-                "§7người chơi đạt được",
-                "",
-                "§7Ví dụ:",
-                "  §e1000 điểm: §710 kim cương",
-                "  §e2000 điểm: §720 kim cương",
-                "",
-                "§7Người chơi nhận thưởng cao nhất",
-                "§7mà họ đạt đủ điểm"
-        );
-        gui.setItem(4, info);
+        {
+            String path = "reward_editor.score_rewards.info";
+            ItemStack info = createItem(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "PAPER"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lHướng Dẫn"),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 4), info);
+        }
 
-        ItemStack addTier = createItemWithData(
-                Material.EMERALD_BLOCK,
-                "§a§l+ THÊM MỨC ĐIỂM",
-                "add_score_tier_" + dungeon.getId(),
-                "§7Thêm mức điểm mới",
-                "",
-                "§e▶ Click để thêm!"
-        );
-        gui.setItem(8, addTier);
+        {
+            String path = "reward_editor.score_rewards.add_tier";
+            ItemStack addTier = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "EMERALD_BLOCK"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&a&l+ THÊM MỨC ĐIỂM"),
+                    "add_score_tier_" + dungeon.getId(),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 8), addTier);
+        }
 
         Map<Integer, DungeonRewards.ScoreReward> scoreRewards = rewards.getScoreBasedRewards();
         int slot = 18;
@@ -214,20 +223,24 @@ public class RewardEditorGUI {
             if (slot >= 44) break;
         }
 
-        ItemStack back = createItemWithData(
-                Material.ARROW,
-                "§c§lQuay Lại",
-                "back_reward_" + dungeon.getId(),
-                "§7Về menu phần thưởng"
-        );
-        gui.setItem(45, back);
+        {
+            String path = "reward_editor.score_rewards.back";
+            ItemStack back = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "ARROW"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&c&lQuay Lại"),
+                    "back_reward_" + dungeon.getId(),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 45), back);
+        }
 
-        fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
+        Material filler = plugin.getGUIConfigManager().getMaterial("reward_editor.filler.default", "GRAY_STAINED_GLASS_PANE");
+        fillEmptySlots(gui, filler);
         player.openInventory(gui);
     }
 
     public void openScoreTierEditor(Player player, Dungeon dungeon, int score) {
-        Inventory gui = Bukkit.createInventory(null, 54, EDIT_SCORE_REWARD_TITLE);
+        Inventory gui = Bukkit.createInventory(null, 54, plugin.getGUIConfigManager().titleEditScoreReward());
 
         DungeonRewards rewards = dungeon.getRewards();
         if (rewards == null) return;
@@ -238,53 +251,64 @@ public class RewardEditorGUI {
             rewards.addScoreReward(score, scoreReward);
         }
 
-        ItemStack info = createItem(
-                Material.PAPER,
-                "§6§lPhần Thưởng " + score + " Điểm",
-                "§7Đặt các item phần thưởng vào",
-                "§7các ô trống phía dưới",
-                "",
-                "§aPhần thưởng sẽ tự động lưu!"
-        );
-        gui.setItem(4, info);
+        {
+            String path = "reward_editor.edit_score_tier.info";
+            List<String> lore = plugin.getGUIConfigManager().getColoredStringList(path + ".lore");
+            String name = plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lPhần Thưởng {score} Điểm").replace("{score}", String.valueOf(score));
+            List<String> replacedLore = new ArrayList<>();
+            for (String line : lore) replacedLore.add(line.replace("{score}", String.valueOf(score)));
+            ItemStack info = createItem(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "PAPER"),
+                    name,
+                    replacedLore.toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 4), info);
+        }
 
         // ✅ FIX: Đổi data key thành "add_cmd_tier_"
-        ItemStack cmdInfo = createItemWithData(
-                Material.COMMAND_BLOCK,
-                "§6§lCommand Rewards",
-                "add_cmd_tier_" + dungeon.getId() + "_" + score,
-                "§7Thêm lệnh thực thi",
-                "",
-                "§eSố lượng: §a" + scoreReward.getCommands().size(),
-                "",
-                "§e▶ Click để quản lý!"
-        );
-        gui.setItem(8, cmdInfo);
+        {
+            String path = "reward_editor.edit_score_tier.add_commands";
+            List<String> lore = plugin.getGUIConfigManager().getColoredStringList(path + ".lore");
+            List<String> replaced = new ArrayList<>();
+            for (String line : lore) replaced.add(line.replace("{count}", String.valueOf(scoreReward.getCommands().size())));
+            ItemStack cmdInfo = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "COMMAND_BLOCK"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lCommand Rewards"),
+                    "add_cmd_tier_" + dungeon.getId() + "_" + score,
+                    replaced.toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 8), cmdInfo);
+        }
 
         List<ItemStack> currentRewardItems = scoreReward.getRewardItems();
         for (int i = 0; i < currentRewardItems.size() && i < 27; i++) {
             gui.setItem(18 + i, currentRewardItems.get(i));
         }
 
-        ItemStack save = createItemWithData(
-                Material.LIME_WOOL,
-                "§a§l✔ LƯU",
-                "save_tier_" + dungeon.getId() + "_" + score,
-                "§7Lưu phần thưởng",
-                "",
-                "§e▶ Click để lưu!"
-        );
-        gui.setItem(49, save);
+        {
+            String path = "reward_editor.edit_score_tier.save";
+            ItemStack save = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "LIME_WOOL"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&a&l✔ LƯU"),
+                    "save_tier_" + dungeon.getId() + "_" + score,
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 49), save);
+        }
 
-        ItemStack back = createItemWithData(
-                Material.ARROW,
-                "§c§lQuay Lại",
-                "back_score_rewards_" + dungeon.getId(),
-                "§7Về danh sách mức điểm"
-        );
-        gui.setItem(45, back);
+        {
+            String path = "reward_editor.edit_score_tier.back";
+            ItemStack back = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "ARROW"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&c&lQuay Lại"),
+                    "back_score_rewards_" + dungeon.getId(),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 45), back);
+        }
 
-        fillEmptySlots(gui, Material.BLACK_STAINED_GLASS_PANE, 0, 17);
+        Material black = plugin.getGUIConfigManager().getMaterial("reward_editor.filler.black", "BLACK_STAINED_GLASS_PANE");
+        fillEmptySlots(gui, black, 0, 17);
         player.openInventory(gui);
     }
 

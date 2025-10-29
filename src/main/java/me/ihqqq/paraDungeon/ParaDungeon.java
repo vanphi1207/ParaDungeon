@@ -22,6 +22,7 @@ public final class ParaDungeon extends JavaPlugin {
     private LeaderboardManager leaderboardManager;
     private RewardManager rewardManager;
     private DatabaseManager databaseManager;
+    private GUIConfigManager guiConfigManager;
 
     private GUIManager guiManager;
     private NamespacedKey dungeonKey;
@@ -39,6 +40,8 @@ public final class ParaDungeon extends JavaPlugin {
         saveDefaultConfig();
         configManager = new ConfigManager(this);
         configManager.loadConfigs();
+        guiConfigManager = new GUIConfigManager(this);
+        guiConfigManager.load();
 
         databaseManager = new DatabaseManager(this);
         databaseManager.initialize();
@@ -130,6 +133,7 @@ public final class ParaDungeon extends JavaPlugin {
 
     public void reload() {
         configManager.loadConfigs();
+        guiConfigManager.reload();
         dungeonManager.loadDungeons();
         leaderboardManager.updateLeaderboards();
     }
@@ -176,5 +180,9 @@ public final class ParaDungeon extends JavaPlugin {
 
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
+    }
+
+    public GUIConfigManager getGUIConfigManager() {
+        return guiConfigManager;
     }
 }

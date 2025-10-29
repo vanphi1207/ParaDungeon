@@ -16,8 +16,7 @@ import java.util.*;
 public class CommandRewardGUI {
 
     private final ParaDungeon plugin;
-    public static final String COMPLETION_COMMANDS_TITLE = "§8▎ §6§lLệnh Hoàn Thành";
-    public static final String SCORE_COMMANDS_TITLE = "§8▎ §6§lLệnh Theo Điểm";
+    // Titles now provided via gui.yml
     private final Map<UUID, PendingCommandInput> pendingInputs;
     private final Map<UUID, PendingScoreTierInput> pendingScoreTierInputs;
 
@@ -28,7 +27,7 @@ public class CommandRewardGUI {
     }
 
     public void openCompletionCommands(Player player, Dungeon dungeon) {
-        Inventory gui = Bukkit.createInventory(null, 54, COMPLETION_COMMANDS_TITLE);
+        Inventory gui = Bukkit.createInventory(null, 54, plugin.getGUIConfigManager().titleCompletionCommands());
 
         DungeonRewards rewards = dungeon.getRewards();
         if (rewards == null) {
@@ -36,69 +35,73 @@ public class CommandRewardGUI {
             dungeon.setRewards(rewards);
         }
 
-        ItemStack info = createItem(
-                Material.PAPER,
-                "§6§lHướng Dẫn Lệnh",
-                "§7Thêm các lệnh sẽ được thực thi",
-                "§7khi người chơi hoàn thành phó bản",
-                "",
-                "§e✦ §7Placeholders:",
-                "  §e{player} §7- Tên người chơi",
-                "  §e{score} §7- Điểm số đạt được",
-                "",
-                "§7Ví dụ:",
-                "  §eeco give {player} 1000",
-                "  §ecrate givekey {player} diamond 1"
-        );
-        gui.setItem(4, info);
+        {
+            String path = "command_rewards.completion.info";
+            ItemStack info = createItem(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "PAPER"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lHướng Dẫn Lệnh"),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 4), info);
+        }
 
-        ItemStack addCmd = createItemWithData(
-                Material.WRITABLE_BOOK,
-                "§a§l+ THÊM LỆNH",
-                "add_cmd_completion_" + dungeon.getId(),
-                "§7Click để thêm lệnh mới",
-                "",
-                "§e▶ Nhập lệnh trong chat!"
-        );
-        gui.setItem(8, addCmd);
+        {
+            String path = "command_rewards.completion.add";
+            ItemStack addCmd = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "WRITABLE_BOOK"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&a&l+ THÊM LỆNH"),
+                    "add_cmd_completion_" + dungeon.getId(),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 8), addCmd);
+        }
 
         List<String> commands = rewards.getCompletionCommands();
         int slot = 18;
         for (int i = 0; i < commands.size() && slot < 45; i++) {
             String cmd = commands.get(i);
+            String itemPath = "command_rewards.completion.list_item";
+            String name = plugin.getGUIConfigManager().getColoredString(itemPath + ".name_format", "&6Lệnh #{index}").replace("{index}", String.valueOf(i + 1));
+            java.util.List<String> loreFmt = plugin.getGUIConfigManager().getColoredStringList(itemPath + ".lore_format");
+            java.util.List<String> lore = new java.util.ArrayList<>();
+            for (String line : loreFmt) lore.add(line.replace("{command}", cmd));
             ItemStack cmdItem = createItemWithData(
-                    Material.COMMAND_BLOCK,
-                    "§6Lệnh #" + (i + 1),
+                    plugin.getGUIConfigManager().getMaterial(itemPath + ".material", "COMMAND_BLOCK"),
+                    name,
                     "cmd_completion_" + dungeon.getId() + "_" + i,
-                    "§e/" + cmd,
-                    "",
-                    "§c▶ Click phải để xóa"
+                    lore.toArray(new String[0])
             );
             gui.setItem(slot++, cmdItem);
         }
 
-        ItemStack back = createItemWithData(
-                Material.ARROW,
-                "§c§lQuay Lại",
-                "back_reward_" + dungeon.getId(),
-                "§7Về menu phần thưởng"
-        );
-        gui.setItem(45, back);
+        {
+            String path = "command_rewards.completion.back";
+            ItemStack back = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "ARROW"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&c&lQuay Lại"),
+                    "back_reward_" + dungeon.getId(),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 45), back);
+        }
 
-        ItemStack save = createItemWithData(
-                Material.LIME_WOOL,
-                "§a§l✔ LƯU VÀ ĐÓNG",
-                "save_close_commands_" + dungeon.getId(),
-                "§7Lưu và đóng menu"
-        );
-        gui.setItem(49, save);
+        {
+            String path = "command_rewards.completion.save_and_close";
+            ItemStack save = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "LIME_WOOL"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&a&l✔ LƯU VÀ ĐÓNG"),
+                    "save_close_commands_" + dungeon.getId(),
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 49), save);
+        }
 
         fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
         player.openInventory(gui);
     }
 
     public void openScoreTierCommands(Player player, Dungeon dungeon, int score) {
-        Inventory gui = Bukkit.createInventory(null, 54, SCORE_COMMANDS_TITLE);
+        Inventory gui = Bukkit.createInventory(null, 54, plugin.getGUIConfigManager().titleScoreCommands());
 
         DungeonRewards rewards = dungeon.getRewards();
         if (rewards == null) return;
@@ -109,59 +112,70 @@ public class CommandRewardGUI {
             rewards.addScoreReward(score, scoreReward);
         }
 
-        ItemStack info = createItem(
-                Material.PAPER,
-                "§6§lLệnh Cho " + score + " Điểm",
-                "§7Các lệnh sẽ được thực thi",
-                "§7khi đạt " + score + " điểm",
-                "",
-                "§e✦ §7Placeholders:",
-                "  §e{player} §7- Tên người chơi",
-                "  §e{score} §7- Điểm số đạt được"
-        );
-        gui.setItem(4, info);
-
-        // ✅ FIX: Đổi prefix thành "add_command_tier_"
-        ItemStack addCmd = createItemWithData(
-                Material.WRITABLE_BOOK,
-                "§a§l+ THÊM LỆNH",
-                "add_command_tier_" + dungeon.getId() + "_" + score,
-                "§7Click để thêm lệnh mới",
-                "",
-                "§e▶ Nhập lệnh trong chat!"
-        );
-        gui.setItem(8, addCmd);
-
-        List<String> commands = scoreReward.getCommands();
-        int slot = 18;
-        for (int i = 0; i < commands.size() && slot < 45; i++) {
-            String cmd = commands.get(i);
-            ItemStack cmdItem = createItemWithData(
-                    Material.COMMAND_BLOCK,
-                    "§6Lệnh #" + (i + 1),
-                    "cmd_tier_" + dungeon.getId() + "_" + score + "_" + i,
-                    "§e/" + cmd,
-                    "",
-                    "§c▶ Click phải để xóa"
+        {
+            String path = "command_rewards.score.info";
+            java.util.List<String> lore = plugin.getGUIConfigManager().getColoredStringList(path + ".lore");
+            java.util.List<String> replaced = new java.util.ArrayList<>();
+            for (String line : lore) replaced.add(line.replace("{score}", String.valueOf(score)));
+            ItemStack info = createItem(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "PAPER"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&6&lLệnh Cho {score} Điểm").replace("{score}", String.valueOf(score)),
+                    replaced.toArray(new String[0])
             );
-            gui.setItem(slot++, cmdItem);
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 4), info);
         }
 
-        ItemStack back = createItemWithData(
-                Material.ARROW,
-                "§c§lQuay Lại",
-                "back_tier_editor_" + dungeon.getId() + "_" + score,
-                "§7Về menu chỉnh sửa phần thưởng"
-        );
-        gui.setItem(45, back);
+        // ✅ FIX: Đổi prefix thành "add_command_tier_"
+        {
+            String path = "command_rewards.score.add";
+            ItemStack addCmd = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "WRITABLE_BOOK"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&a&l+ THÊM LỆNH"),
+                    "add_command_tier_" + dungeon.getId() + "_" + score,
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 8), addCmd);
+        }
 
-        ItemStack save = createItemWithData(
-                Material.LIME_WOOL,
-                "§a§l✔ LƯU VÀ ĐÓNG",
-                "save_close_tier_commands_" + dungeon.getId() + "_" + score,
-                "§7Lưu và đóng menu"
-        );
-        gui.setItem(49, save);
+        List<String> commands2 = scoreReward.getCommands();
+        int slot2 = 18;
+        for (int i = 0; i < commands2.size() && slot2 < 45; i++) {
+            String cmd = commands2.get(i);
+            String itemPath = "command_rewards.score.list_item";
+            String name = plugin.getGUIConfigManager().getColoredString(itemPath + ".name_format", "&6Lệnh #{index}").replace("{index}", String.valueOf(i + 1));
+            java.util.List<String> loreFmt = plugin.getGUIConfigManager().getColoredStringList(itemPath + ".lore_format");
+            java.util.List<String> lore = new java.util.ArrayList<>();
+            for (String line : loreFmt) lore.add(line.replace("{command}", cmd));
+            ItemStack cmdItem = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(itemPath + ".material", "COMMAND_BLOCK"),
+                    name,
+                    "cmd_tier_" + dungeon.getId() + "_" + score + "_" + i,
+                    lore.toArray(new String[0])
+            );
+            gui.setItem(slot2++, cmdItem);
+        }
+
+        {
+            String path = "command_rewards.score.back";
+            ItemStack back = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "ARROW"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&c&lQuay Lại"),
+                    "back_tier_editor_" + dungeon.getId() + "_" + score,
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 45), back);
+        }
+
+        {
+            String path = "command_rewards.score.save_and_close";
+            ItemStack save = createItemWithData(
+                    plugin.getGUIConfigManager().getMaterial(path + ".material", "LIME_WOOL"),
+                    plugin.getGUIConfigManager().getColoredString(path + ".name", "&a&l✔ LƯU VÀ ĐÓNG"),
+                    "save_close_tier_commands_" + dungeon.getId() + "_" + score,
+                    plugin.getGUIConfigManager().getColoredStringList(path + ".lore").toArray(new String[0])
+            );
+            gui.setItem(plugin.getGUIConfigManager().getInt(path + ".slot", 49), save);
+        }
 
         fillEmptySlots(gui, Material.GRAY_STAINED_GLASS_PANE);
         player.openInventory(gui);

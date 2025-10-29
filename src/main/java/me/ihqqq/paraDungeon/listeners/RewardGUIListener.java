@@ -46,8 +46,8 @@ public class RewardGUIListener implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
 
         // ✅ Xử lý reward editor GUIs - cho phép tương tác với slots 18-44
-        if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
-                title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
+        if (title.equals(plugin.getGUIConfigManager().titleCompletionRewards()) ||
+                title.equals(plugin.getGUIConfigManager().titleEditScoreReward())) {
 
             int slot = event.getRawSlot();
 
@@ -102,15 +102,15 @@ public class RewardGUIListener implements Listener {
         if (data == null) return;
 
         // ✅ Phân luồng xử lý theo title
-        if (title.equals(RewardEditorGUI.REWARD_MENU_TITLE)) {
+        if (title.equals(plugin.getGUIConfigManager().titleRewardMenu())) {
             handleRewardMainMenu(player, data);
-        } else if (title.equals(RewardEditorGUI.SCORE_REWARDS_TITLE)) {
+        } else if (title.equals(plugin.getGUIConfigManager().titleScoreRewards())) {
             handleScoreRewardsMenu(player, data, meta, event.isLeftClick());
-        } else if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
-                title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
+        } else if (title.equals(plugin.getGUIConfigManager().titleCompletionRewards()) ||
+                title.equals(plugin.getGUIConfigManager().titleEditScoreReward())) {
             handleRewardEditorClick(player, data, event.getInventory());
-        } else if (title.equals(CommandRewardGUI.COMPLETION_COMMANDS_TITLE) ||
-                title.equals(CommandRewardGUI.SCORE_COMMANDS_TITLE)) {
+        } else if (title.equals(plugin.getGUIConfigManager().titleCompletionCommands()) ||
+                title.equals(plugin.getGUIConfigManager().titleScoreCommands())) {
             handleCommandRewardGUIClick(player, data, event.isRightClick());
         }
     }
@@ -119,8 +119,8 @@ public class RewardGUIListener implements Listener {
     public void onInventoryDrag(InventoryDragEvent event) {
         String title = event.getView().getTitle();
 
-        if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
-                title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
+        if (title.equals(plugin.getGUIConfigManager().titleCompletionRewards()) ||
+                title.equals(plugin.getGUIConfigManager().titleEditScoreReward())) {
 
             // Chỉ cho phép drag trong slots 18-44
             for (int slot : event.getRawSlots()) {
@@ -138,13 +138,13 @@ public class RewardGUIListener implements Listener {
         String title = event.getView().getTitle();
         Player player = (Player) event.getPlayer();
 
-        if (title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE)) {
+        if (title.equals(plugin.getGUIConfigManager().titleCompletionRewards())) {
             String dungeonId = editingSessions.get(player.getName());
             if (dungeonId != null) {
                 saveCompletionRewards(player, event.getInventory(), dungeonId);
                 editingSessions.remove(player.getName());
             }
-        } else if (title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE)) {
+        } else if (title.equals(plugin.getGUIConfigManager().titleEditScoreReward())) {
             String dungeonId = editingSessions.get(player.getName());
             Integer score = editingScores.get(player.getName());
             if (dungeonId != null && score != null) {
@@ -156,12 +156,12 @@ public class RewardGUIListener implements Listener {
     }
 
     private boolean isRewardGUI(String title) {
-        return title.equals(RewardEditorGUI.REWARD_MENU_TITLE) ||
-                title.equals(RewardEditorGUI.COMPLETION_REWARDS_TITLE) ||
-                title.equals(RewardEditorGUI.SCORE_REWARDS_TITLE) ||
-                title.equals(RewardEditorGUI.EDIT_SCORE_REWARD_TITLE) ||
-                title.equals(CommandRewardGUI.COMPLETION_COMMANDS_TITLE) ||
-                title.equals(CommandRewardGUI.SCORE_COMMANDS_TITLE);
+        return title.equals(plugin.getGUIConfigManager().titleRewardMenu()) ||
+                title.equals(plugin.getGUIConfigManager().titleCompletionRewards()) ||
+                title.equals(plugin.getGUIConfigManager().titleScoreRewards()) ||
+                title.equals(plugin.getGUIConfigManager().titleEditScoreReward()) ||
+                title.equals(plugin.getGUIConfigManager().titleCompletionCommands()) ||
+                title.equals(plugin.getGUIConfigManager().titleScoreCommands());
     }
 
     /**

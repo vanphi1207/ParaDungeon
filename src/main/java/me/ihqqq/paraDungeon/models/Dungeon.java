@@ -12,6 +12,7 @@ public class Dungeon {
     private int maxPlayers;
     private int entriesPerReset;
     private int respawnLives;
+    private int autoRenewTime; // Thời gian auto-renew (phút), -1 = sử dụng global config
     private Location spawnPoint;
     private Location lobbyPoint;
     private Location endPoint; // Đã thêm
@@ -22,6 +23,7 @@ public class Dungeon {
         this.id = id;
         this.stages = new HashMap<>();
         this.description = new ArrayList<>();
+        this.autoRenewTime = -1; // Mặc định sử dụng global config
     }
 
     public String getId() {
@@ -74,6 +76,14 @@ public class Dungeon {
 
     public void setRespawnLives(int respawnLives) {
         this.respawnLives = respawnLives;
+    }
+
+    public int getAutoRenewTime() {
+        return autoRenewTime;
+    }
+
+    public void setAutoRenewTime(int autoRenewTime) {
+        this.autoRenewTime = autoRenewTime;
     }
 
     public Location getSpawnPoint() {

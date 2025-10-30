@@ -21,6 +21,11 @@ dungeons:
     # Lượt hồi sinh
     respawn-lives: 3
     
+    # Thời gian tự động làm mới phòng (phút)
+    # Nếu không set hoặc set -1 sẽ sử dụng giá trị mặc định trong config.yml
+    # Ví dụ: auto-renew-time: 15 (15 phút)
+    # auto-renew-time: -1
+    
     # Điểm spawn (set bằng command)
     spawn-point:
       world: world

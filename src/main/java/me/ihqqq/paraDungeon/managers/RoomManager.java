@@ -529,19 +529,25 @@ public class RoomManager {
     }
 
     public void checkAutoRenew() {
-        long autoRenewTime = plugin.getConfig().getLong("settings.auto-renew-time", 10) * 60000;
+        long globalAutoRenewTime = plugin.getConfig().getLong("settings.auto-renew-time", 10);
+        
         rooms.values().stream()
-                .filter(r -> r.getStatus() == DungeonRoom.RoomStatus.WAITING &&
-                        System.currentTimeMillis() - r.getCreationTime() > autoRenewTime)
+                .filter(r -> r.getStatus() == DungeonRoom.RoomStatus.WAITING)
                 .forEach(room -> {
-                    broadcastToRoom(room, plugin.getConfigManager().getMessage(
-                            "lobby.auto-renew",
-                            "time", String.valueOf(autoRenewTime / 60000)
-                    ));
-                    new HashSet<>(room.getPlayers()).forEach(uuid -> {
-                        Player p = Bukkit.getPlayer(uuid);
-                        if(p != null) leaveRoom(p);
-                    });
+                    // Lấy thời gian auto-renew của dungeon, nếu không có thì dùng global
+                    long dungeonAutoRenewTime = room.getDungeon().getAutoRenewTime();
+                    long autoRenewTime = (dungeonAutoRenewTime > 0 ? dungeonAutoRenewTime : globalAutoRenewTime) * 60000;
+                    
+                    if (System.currentTimeMillis() - room.getCreationTime() > autoRenewTime) {
+                        broadcastToRoom(room, plugin.getConfigManager().getMessage(
+                                "lobby.auto-renew",
+                                "time", String.valueOf(autoRenewTime / 60000)
+                        ));
+                        new HashSet<>(room.getPlayers()).forEach(uuid -> {
+                            Player p = Bukkit.getPlayer(uuid);
+                            if(p != null) leaveRoom(p);
+                        });
+                    }
                 });
     }
 

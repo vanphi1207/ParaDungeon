@@ -89,7 +89,7 @@ public class GUIListener implements Listener {
     }
 
     private void handleDungeonList(Player player, ItemStack item, ItemMeta meta, boolean isLeftClick) {
-        if (item.getType() == Material.ARROW) {
+        if (item.getType() == Material.BARRIER) {
             plugin.getGUIManager().openMainMenu(player);
             return;
         }
@@ -115,7 +115,7 @@ public class GUIListener implements Listener {
     }
 
     private void handleDungeonInfo(Player player, ItemStack item, ItemMeta meta) {
-        if (item.getType() == Material.ARROW) {
+        if (item.getType() == Material.BARRIER) {
             plugin.getGUIManager().openDungeonList(player);
             return;
         }
@@ -156,7 +156,7 @@ public class GUIListener implements Listener {
     }
 
     private void handleLeaderboard(Player player, ItemStack item, ItemMeta meta) {
-        if (item.getType() == Material.ARROW) {
+        if (item.getType() == Material.BARRIER) {
             String dungeonId = meta.getPersistentDataContainer().get(plugin.getDungeonKey(), PersistentDataType.STRING);
             if(dungeonId != null){
                 Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
@@ -171,7 +171,7 @@ public class GUIListener implements Listener {
     }
 
     private void handleStats(Player player, ItemStack item, ItemMeta meta) {
-        if (item.getType() == Material.ARROW) {
+        if (item.getType() == Material.BARRIER) {
             plugin.getGUIManager().openMainMenu(player);
             return;
         }
@@ -185,7 +185,7 @@ public class GUIListener implements Listener {
     }
 
     private void handleSettings(Player player, ItemStack item, ItemMeta meta) {
-        if (item.getType() == Material.ARROW) {
+        if (item.getType() == Material.BARRIER) {
             plugin.getGUIManager().openMainMenu(player);
             return;
         }

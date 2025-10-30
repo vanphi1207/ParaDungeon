@@ -66,19 +66,19 @@ public class GUIConfigManager {
         return input == null ? null : input.replace("&", "§");
     }
 
-    // Titles helpers
-    public String titleMainMenu() { return getColoredString("titles.main_menu", "§8▎ §6§lParaDungeon Menu"); }
-    public String titleDungeonList() { return getColoredString("titles.dungeon_list", "§8▎ §6§lChọn Phó Bản"); }
-    public String titleDungeonInfo() { return getColoredString("titles.dungeon_info", "§8▎ §6§lThông Tin Phó Bản"); }
-    public String titleLeaderboard() { return getColoredString("titles.leaderboard", "§8▎ §6§lBảng Xếp Hạng"); }
-    public String titleStats() { return getColoredString("titles.player_stats", "§8▎ §6§lThống Kê Của Bạn"); }
-    public String titleSettings() { return getColoredString("titles.settings", "§8▎ §6§lCài Đặt"); }
-    public String titleRewardMenu() { return getColoredString("titles.reward_menu", "§8▎ §6§lQuản Lý Phần Thưởng"); }
-    public String titleCompletionRewards() { return getColoredString("titles.completion_rewards", "§8▎ §6§lPhần Thưởng Hoàn Thành"); }
-    public String titleScoreRewards() { return getColoredString("titles.score_rewards", "§8▎ §6§lPhần Thưởng Theo Điểm"); }
-    public String titleEditScoreReward() { return getColoredString("titles.edit_score_reward", "§8▎ §6§lChỉnh Sửa Phần Thưởng"); }
-    public String titleCompletionCommands() { return getColoredString("titles.completion_commands", "§8▎ §6§lLệnh Hoàn Thành"); }
-    public String titleScoreCommands() { return getColoredString("titles.score_commands", "§8▎ §6§lLệnh Theo Điểm"); }
+    // Titles helpers - Updated to match new gui.yml structure
+    public String titleMainMenu() { return getColoredString("main-menu.title", "§8[ §6§lPHÓ BẢN §8] §7Menu Chính"); }
+    public String titleDungeonList() { return getColoredString("dungeon-list.title", "§8[ §6§lPHÓ BẢN §8] §7Chọn Phó Bản"); }
+    public String titleDungeonInfo() { return getColoredString("dungeon-info.title", "§8[ §6§lPHÓ BẢN §8] §7Thông Tin"); }
+    public String titleLeaderboard() { return getColoredString("leaderboard.title", "§8[ §6§lPHÓ BẢN §8] §7Bảng Xếp Hạng"); }
+    public String titleStats() { return getColoredString("player-stats.title", "§8[ §6§lPHÓ BẢN §8] §7Thống Kê"); }
+    public String titleSettings() { return getColoredString("settings.title", "§8[ §6§lPHÓ BẢN §8] §7Cài Đặt"); }
+    public String titleRewardMenu() { return getColoredString("reward-editor.main.title", "§8[ §6§lPHÓ BẢN §8] §cQuản Lý Thưởng"); }
+    public String titleCompletionRewards() { return getColoredString("reward-editor.completion-rewards.title", "§8[ §6§lPHÓ BẢN §8] §aThưởng Hoàn Thành"); }
+    public String titleScoreRewards() { return getColoredString("reward-editor.score-rewards.title", "§8[ §6§lPHÓ BẢN §8] §eThưởng Theo Điểm"); }
+    public String titleEditScoreReward() { return getColoredString("reward-editor.score-tier-editor.title", "§8[ §6§lPHÓ BẢN §8] §eChỉnh Sửa Mức"); }
+    public String titleCompletionCommands() { return getColoredString("command-rewards.completion.title", "§8[ §6§lPHÓ BẢN §8] §aLệnh Hoàn Thành"); }
+    public String titleScoreCommands() { return getColoredString("command-rewards.score-tier.title", "§8[ §6§lPHÓ BẢN §8] §eLệnh Theo Điểm"); }
 
     public boolean isAnyKnownTitle(String title) {
         return title.equals(titleMainMenu()) ||

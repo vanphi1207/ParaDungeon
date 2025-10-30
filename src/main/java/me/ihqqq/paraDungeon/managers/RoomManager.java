@@ -134,6 +134,12 @@ public class RoomManager {
     }
 
     public void startDungeon(DungeonRoom room) {
+        // Cancel countdown if running
+        if (room.getCountdownTask() != -1) {
+            Bukkit.getScheduler().cancelTask(room.getCountdownTask());
+            room.setCountdownTask(-1);
+        }
+        
         room.setStatus(DungeonRoom.RoomStatus.ACTIVE);
         room.setStartTime(System.currentTimeMillis());
         broadcastToRoom(room, plugin.getConfigManager().getMessage("lobby.starting"));
@@ -158,6 +164,23 @@ public class RoomManager {
         }
 
         startStage(room, 1);
+    }
+
+    public boolean forceStartRoom(String dungeonId) {
+        for (DungeonRoom room : rooms.values()) {
+            if (room.getDungeon().getId().equals(dungeonId) && 
+                (room.getStatus() == DungeonRoom.RoomStatus.WAITING || 
+                 room.getStatus() == DungeonRoom.RoomStatus.COUNTDOWN)) {
+                
+                if (room.getPlayerCount() == 0) {
+                    return false;
+                }
+                
+                startDungeon(room);
+                return true;
+            }
+        }
+        return false;
     }
 
     public void startStage(DungeonRoom room, int stageNum) {

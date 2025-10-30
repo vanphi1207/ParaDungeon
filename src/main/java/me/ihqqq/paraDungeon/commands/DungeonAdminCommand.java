@@ -104,6 +104,13 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
                 }
                 setEnd((Player) sender, args[1]);
                 break;
+            case "forcestart":
+                if (args.length < 2) {
+                    sender.sendMessage("§cUsage: /dgadmin forcestart <dungeon>");
+                    return true;
+                }
+                forceStart(sender, args[1]);
+                break;
             case "reload":
                 plugin.reload();
                 sender.sendMessage(plugin.getConfigManager().getMessage("general.reload-success"));
@@ -251,10 +258,24 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(plugin.getConfigManager().getMessage("admin.setend", "dungeon", dungeonId));
     }
 
+    private void forceStart(CommandSender sender, String dungeonId) {
+        Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+        if (dungeon == null) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("general.dungeon-not-found", "dungeon", dungeonId));
+            return;
+        }
+        
+        if (plugin.getRoomManager().forceStartRoom(dungeonId)) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("admin.force-start-success", "dungeon", dungeonId));
+        } else {
+            sender.sendMessage(plugin.getConfigManager().getMessage("admin.force-start-failed", "dungeon", dungeonId));
+        }
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("create", "delete", "addstage", "addwave", "setspawn", "setlobby", "setwavespawn", "setend", "reload")
+            return Arrays.asList("create", "delete", "addstage", "addwave", "setspawn", "setlobby", "setwavespawn", "setend", "forcestart", "reload")
                     .stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
         }
         if (args.length == 2 && !args[0].equalsIgnoreCase("create") && !args[0].equalsIgnoreCase("reload")) {

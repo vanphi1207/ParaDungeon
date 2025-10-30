@@ -17,11 +17,13 @@ public class Dungeon {
     private Location endPoint; // Đã thêm
     private Map<Integer, Stage> stages;
     private DungeonRewards rewards;
+    private int autoRenewTime; // Thời gian auto renew riêng cho phó bản (phút), -1 = dùng global
 
     public Dungeon(String id) {
         this.id = id;
         this.stages = new HashMap<>();
         this.description = new ArrayList<>();
+        this.autoRenewTime = -1; // Default: use global setting
     }
 
     public String getId() {
@@ -127,5 +129,13 @@ public class Dungeon {
 
     public void setRewards(DungeonRewards rewards) {
         this.rewards = rewards;
+    }
+
+    public int getAutoRenewTime() {
+        return autoRenewTime;
+    }
+
+    public void setAutoRenewTime(int autoRenewTime) {
+        this.autoRenewTime = autoRenewTime;
     }
 }

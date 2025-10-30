@@ -529,19 +529,32 @@ public class RoomManager {
     }
 
     public void checkAutoRenew() {
-        long autoRenewTime = plugin.getConfig().getLong("settings.auto-renew-time", 10) * 60000;
+        long globalAutoRenewTime = plugin.getConfig().getLong("settings.auto-renew-time", 10) * 60000;
         rooms.values().stream()
-                .filter(r -> r.getStatus() == DungeonRoom.RoomStatus.WAITING &&
-                        System.currentTimeMillis() - r.getCreationTime() > autoRenewTime)
+                .filter(r -> r.getStatus() == DungeonRoom.RoomStatus.WAITING)
                 .forEach(room -> {
-                    broadcastToRoom(room, plugin.getConfigManager().getMessage(
-                            "lobby.auto-renew",
-                            "time", String.valueOf(autoRenewTime / 60000)
-                    ));
-                    new HashSet<>(room.getPlayers()).forEach(uuid -> {
-                        Player p = Bukkit.getPlayer(uuid);
-                        if(p != null) leaveRoom(p);
-                    });
+                    // Get auto-renew time for this dungeon (use dungeon-specific or global)
+                    long autoRenewTime;
+                    int dungeonAutoRenew = room.getDungeon().getAutoRenewTime();
+                    if (dungeonAutoRenew == -1) {
+                        // Use global setting
+                        autoRenewTime = globalAutoRenewTime;
+                    } else {
+                        // Use dungeon-specific setting
+                        autoRenewTime = dungeonAutoRenew * 60000L;
+                    }
+                    
+                    // Check if room exceeded auto-renew time
+                    if (System.currentTimeMillis() - room.getCreationTime() > autoRenewTime) {
+                        broadcastToRoom(room, plugin.getConfigManager().getMessage(
+                                "lobby.auto-renew",
+                                "time", String.valueOf(autoRenewTime / 60000)
+                        ));
+                        new HashSet<>(room.getPlayers()).forEach(uuid -> {
+                            Player p = Bukkit.getPlayer(uuid);
+                            if(p != null) leaveRoom(p);
+                        });
+                    }
                 });
     }
 

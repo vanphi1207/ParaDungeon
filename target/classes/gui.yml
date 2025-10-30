@@ -15,59 +15,74 @@
 # MAIN MENU - Menu Chính
 # ─────────────────────────────────────────────────────────────────────────────
 main-menu:
-  title: "&8▎ &6&lParaDungeon Menu"
-  size: 45
+  title: "&8[ &6&lPHÓ BẢN &8] &7Menu Chính"
+  size: 54
   filler:
     enabled: true
-    material: GRAY_STAINED_GLASS_PANE
+    material: BLACK_STAINED_GLASS_PANE
   
   items:
     dungeon-list:
-      slot: 11
-      material: DIAMOND_SWORD
-      name: "&6&lDanh Sách Phó Bản"
+      slot: 20
+      material: NETHERITE_SWORD
+      name: "&e&l⚔ &6&lDanh Sách Phó Bản &e&l⚔"
       lore:
-        - "&7Xem tất cả các phó bản"
-        - "&7có thể tham gia"
         - ""
-        - "&e▶ Nhấp để xem!"
+        - "&7Khám phá các phó bản"
+        - "&7đầy thử thách đang chờ bạn!"
+        - ""
+        - "&8▸ &eSố phó bản: &a{total}"
+        - ""
+        - "&a&l➥ &fNhấp để xem danh sách!"
+        - ""
     
     my-stats:
-      slot: 13
-      material: BOOK
-      name: "&6&lThống Kê Của Tôi"
+      slot: 22
+      material: WRITABLE_BOOK
+      name: "&e&l📊 &6&lThống Kê Của Tôi &e&l📊"
       lore:
-        - "&7Xem điểm số và xếp hạng"
-        - "&7của bạn"
         - ""
-        - "&e▶ Nhấp để xem!"
+        - "&7Xem thành tích và điểm số"
+        - "&7của bạn trong các phó bản"
+        - ""
+        - "&8▸ &eTổng điểm: &6{total_score}"
+        - "&8▸ &ePhó bản hoàn thành: &a{completed}"
+        - ""
+        - "&a&l➥ &fNhấp để xem chi tiết!"
+        - ""
     
     leaderboard:
-      slot: 15
+      slot: 24
       material: GOLDEN_HELMET
-      name: "&6&lBảng Xếp Hạng"
+      name: "&e&l👑 &6&lBảng Xếp Hạng &e&l👑"
       lore:
-        - "&7Top người chơi xuất sắc"
-        - "&7nhất server"
         - ""
-        - "&e▶ Nhấp để xem!"
+        - "&7Danh sách những người chơi"
+        - "&7xuất sắc nhất server!"
+        - ""
+        - "&8▸ &eTop 1: &6{top_player}"
+        - ""
+        - "&a&l➥ &fNhấp để xem bảng xếp hạng!"
+        - ""
     
     settings:
-      slot: 31
-      material: REDSTONE
-      name: "&6&lCài Đặt"
+      slot: 40
+      material: COMPARATOR
+      name: "&e&l⚙ &6&lCài Đặt &e&l⚙"
       lore:
-        - "&7Tùy chỉnh trải nghiệm"
-        - "&7của bạn"
         - ""
-        - "&e▶ Nhấp để xem!"
+        - "&7Tùy chỉnh hiệu ứng và"
+        - "&7trải nghiệm của bạn"
+        - ""
+        - "&a&l➥ &fNhấp để cài đặt!"
+        - ""
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DUNGEON LIST - Danh Sách Phó Bản
 # ─────────────────────────────────────────────────────────────────────────────
 dungeon-list:
-  title: "&8▎ &6&lChọn Phó Bản"
-  min-size: 27
+  title: "&8[ &6&lPHÓ BẢN &8] &7Chọn Phó Bản"
+  min-size: 54
   filler:
     enabled: true
     material: BLACK_STAINED_GLASS_PANE
@@ -76,139 +91,166 @@ dungeon-list:
   icons:
     has-entries: DIAMOND_SWORD      # Còn lượt chơi
     has-boss: NETHERITE_SWORD        # Phó bản có boss
-    no-entries: RED_WOOL             # Hết lượt chơi
+    no-entries: BARRIER             # Hết lượt chơi
   
   # Màu sắc hiển thị số lượt
   entries-colors:
-    high: "&a"      # >= 3 lượt
-    medium: "&e"    # 2 lượt
-    low: "&c"       # 1 lượt
-    none: "&4"      # 0 lượt
+    high: "&a&l"      # >= 3 lượt
+    medium: "&e&l"    # 2 lượt
+    low: "&c&l"       # 1 lượt
+    none: "&4&l"      # 0 lượt
   
   # Lore template cho từng dungeon
   lore-template:
+    - ""
     - "&7{description}"
     - ""
-    - "&8▎ &7Người chơi: &e{min_players}-{max_players}"
-    - "&8▎ &7Số ải: &e{total_stages}"
-    - "&8▎ &7Số mạng: &e{respawn_lives}"
+    - "&8┃ &7Người chơi: &f{min_players} &7- &f{max_players} &aNgười"
+    - "&8┃ &7Số ải: &f{total_stages} &eẢi"
+    - "&8┃ &7Số mạng: &f{respawn_lives} &cMạng"
     - ""
-    - "&8▎ &6&lThống Kê Của Bạn:"
-    - "  &7Lượt còn lại: {entries_color}{entries}"
-    - "  &7Điểm cao nhất: &6{high_score}"
+    - "&e&l━━━━━━━━━━━━━━━━━━━"
+    - "&6&l ⚡ THỐNG KÊ CỦA BẠN"
+    - "&e&l━━━━━━━━━━━━━━━━━━━"
+    - ""
+    - "&8▸ &7Lượt còn lại: {entries_color}{entries}"
+    - "&8▸ &7Điểm cao nhất: &6&l{high_score} &eĐiểm"
     - "{rank_line}"
     - ""
     - "{action_lines}"
+    - ""
   
   # Các dòng action dựa trên trạng thái
   action-with-entries:
-    - "&a&l▶ Click trái: &aTham gia"
-    - "&e&l▶ Click phải: &eXem chi tiết"
+    - "&a&l➤ CHUỘT TRÁI &f▸ &aTham Gia Ngay"
+    - "&e&l➤ CHUỘT PHẢI &f▸ &eXem Chi Tiết"
   
   action-no-entries:
-    - "&c&l✖ Hết lượt chơi!"
-    - "&e&l▶ Click phải: &eXem chi tiết"
+    - "&c&l✖ HẾT LƯỢT CHƠI HÔM NAY!"
+    - "&e&l➤ CHUỘT PHẢI &f▸ &eXem Chi Tiết"
   
   back-button:
-    slot: -5  # Tính từ cuối GUI (size - 5)
-    material: ARROW
-    name: "&c&lQuay Lại"
+    slot: 49  # Slot cố định ở giữa dưới
+    material: BARRIER
+    name: "&c&l⬅ Quay Lại"
     lore:
-      - "&7Về menu chính"
+      - ""
+      - "&7Quay về menu chính"
+      - ""
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DUNGEON INFO - Thông Tin Phó Bản
 # ─────────────────────────────────────────────────────────────────────────────
 dungeon-info:
-  title: "&8▎ &6&lThông Tin Phó Bản"
+  title: "&8[ &6&lPHÓ BẢN &8] &7Thông Tin"
   size: 54
   filler:
     enabled: true
-    material: GRAY_STAINED_GLASS_PANE
+    material: BLACK_STAINED_GLASS_PANE
   
   items:
     dungeon-icon:
-      slot: 4
+      slot: 13
     
     general-info:
-      slot: 19
-      material: BOOK
-      name: "&6&lThông Tin Chung"
+      slot: 29
+      material: WRITABLE_BOOK
+      name: "&e&l📋 &6&lThông Tin Chung"
       lore:
-        - "&7Người chơi: &e{min_players}-{max_players}"
-        - "&7Số ải: &e{total_stages}"
-        - "&7Số mạng: &e{respawn_lives}"
-        - "&7Lượt/ngày: &e{entries_per_reset}"
+        - ""
+        - "&8▸ &7Người chơi: &f{min_players} &7- &f{max_players} &aNgười"
+        - "&8▸ &7Số ải: &f{total_stages} &eẢi"
+        - "&8▸ &7Số mạng: &f{respawn_lives} &cMạng"
+        - "&8▸ &7Lượt/ngày: &f{entries_per_reset} &bLượt"
+        - ""
     
     your-stats:
-      slot: 21
+      slot: 31
       material: PLAYER_HEAD
-      name: "&6&lThống Kê Của Bạn"
+      name: "&e&l📊 &6&lThống Kê Của Bạn"
       lore:
-        - "&7Lượt còn lại: {entries_color}{entries}"
-        - "&7Điểm cao nhất: &6{high_score}"
+        - ""
+        - "&8▸ &7Lượt còn lại: {entries_color}{entries}"
+        - "&8▸ &7Điểm cao nhất: &6&l{high_score} &eĐiểm"
         - "{rank_line}"
+        - ""
     
     top-players:
-      slot: 23
+      slot: 33
       material: GOLDEN_HELMET
-      name: "&6&lTop Người Chơi"
+      name: "&e&l👑 &6&lTop Người Chơi"
       lore:
-        - "&7Xem bảng xếp hạng"
         - ""
-        - "&e▶ Click để xem!"
+        - "&7Xem bảng xếp hạng"
+        - "&7của phó bản này"
+        - ""
+        - "&a&l➥ &fNhấp để xem!"
+        - ""
     
     rewards:
       slot: 25
       material: CHEST
-      name: "&6&lPhần Thưởng"
+      name: "&e&l💎 &6&lPhần Thưởng"
       lore-player:
+        - ""
         - "&7Hoàn thành phó bản để"
         - "&7nhận phần thưởng hấp dẫn!"
         - ""
-        - "&e⭐ Điểm càng cao,"
-        - "&e⭐ thưởng càng nhiều!"
+        - "&e⭐ &7Điểm càng cao"
+        - "&e⭐ &7Thưởng càng nhiều!"
         - ""
-        - "&e▶ Click để xem!"
+        - "&a&l➥ &fNhấp để xem!"
+        - ""
       lore-admin:
+        - ""
         - "&7Hoàn thành phó bản để"
         - "&7nhận phần thưởng hấp dẫn!"
         - ""
-        - "&e⭐ Điểm càng cao,"
-        - "&e⭐ thưởng càng nhiều!"
+        - "&e⭐ &7Điểm càng cao"
+        - "&e⭐ &7Thưởng càng nhiều!"
         - ""
-        - "&c▶ Click để quản lý!"
+        - "&c&l➥ &fNhấp để quản lý!"
+        - ""
     
     join-button:
       slot: 49
-      material: LIME_WOOL
-      name: "&a&l✔ THAM GIA"
+      material: LIME_CONCRETE
+      name: "&a&l✔ THAM GIA PHÓ BẢN"
       lore:
-        - "&7Click để tham gia phó bản!"
         - ""
-        - "&aLượt còn lại: &e{entries}"
+        - "&7Nhấp để tham gia phó bản này!"
+        - ""
+        - "&8▸ &aLượt còn lại: &e&l{entries}"
+        - ""
+        - "&a&l➤ &fCHUỘT TRÁI ĐỂ THAM GIA"
+        - ""
     
     no-entries-button:
       slot: 49
-      material: RED_WOOL
-      name: "&c&l✖ HẾT LƯỢT"
+      material: RED_CONCRETE
+      name: "&c&l✖ HẾT LƯỢT CHƠI"
       lore:
-        - "&7Bạn đã hết lượt chơi!"
+        - ""
+        - "&cBạn đã hết lượt chơi hôm nay!"
+        - ""
         - "&7Lượt chơi sẽ reset vào:"
         - "&e{reset_time}"
+        - ""
     
     back-button:
       slot: 45
-      material: ARROW
-      name: "&c&lQuay Lại"
+      material: BARRIER
+      name: "&c&l⬅ Quay Lại"
       lore:
-        - "&7Về danh sách phó bản"
+        - ""
+        - "&7Quay về danh sách phó bản"
+        - ""
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LEADERBOARD - Bảng Xếp Hạng
 # ─────────────────────────────────────────────────────────────────────────────
 leaderboard:
-  title: "&8▎ &6&lBảng Xếp Hạng"
+  title: "&8[ &6&lPHÓ BẢN &8] &7Bảng Xếp Hạng"
   size: 54
   filler:
     enabled: true
@@ -217,30 +259,38 @@ leaderboard:
   items:
     title:
       slot: 4
-      material: GOLDEN_HELMET
-      name: "&6&lBảng Xếp Hạng"
+      material: NETHER_STAR
+      name: "&e&l👑 &6&lBẢNG XẾP HẠNG &e&l👑"
       lore:
-        - "&e{dungeon_name}"
         - ""
-        - "&7Top {total} người chơi"
+        - "&6&l{dungeon_name}"
+        - ""
+        - "&7Top &e{total} &7người chơi xuất sắc nhất"
+        - ""
     
     your-rank:
       slot: 49
       material: PLAYER_HEAD
-      name: "&6&lXếp Hạng Của Bạn"
+      name: "&e&l📊 &6&lXếp Hạng Của Bạn"
       lore-ranked:
-        - "&7Hạng: &e#{rank}"
-        - "&7Điểm: &6{score}"
+        - ""
+        - "&8▸ &7Hạng: &e&l#{rank}"
+        - "&8▸ &7Điểm: &6&l{score} &eĐiểm"
+        - ""
       lore-unranked:
-        - "&7Chưa có xếp hạng"
-        - "&7Điểm: &6{score}"
+        - ""
+        - "&7Bạn chưa có xếp hạng"
+        - "&8▸ &7Điểm hiện tại: &6&l{score} &eĐiểm"
+        - ""
     
     back-button:
       slot: 45
-      material: ARROW
-      name: "&c&lQuay Lại"
+      material: BARRIER
+      name: "&c&l⬅ Quay Lại"
       lore:
-        - "&7Về thông tin phó bản"
+        - ""
+        - "&7Quay về thông tin phó bản"
+        - ""
   
   # Cấu hình hiển thị rank
   rank-display:
@@ -250,104 +300,123 @@ leaderboard:
     rank-1:
       material: GOLD_BLOCK
       color: "&6&l"
-      special: "&e⭐ Top 1!"
+      special: "&e&l⭐⭐⭐ &6TOP 1 &e&l⭐⭐⭐"
     rank-2:
       material: IRON_BLOCK
-      color: "&7&l"
-      special: "&e⭐ Top 2!"
+      color: "&f&l"
+      special: "&e&l⭐⭐ &fTOP 2 &e&l⭐⭐"
     rank-3:
       material: COPPER_BLOCK
       color: "&c&l"
-      special: "&e⭐ Top 3!"
+      special: "&e&l⭐ &cTOP 3 &e&l⭐"
     default:
       material: COAL_BLOCK
-      color: "&f"
+      color: "&7"
     
     # Template lore cho mỗi rank
     lore-template:
-      - "&7Điểm số: &6{score}"
+      - ""
+      - "&8▸ &7Điểm số: &6&l{score} &eĐiểm"
       - ""
       - "{special_line}"
+      - ""
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PLAYER STATS - Thống Kê Người Chơi
 # ─────────────────────────────────────────────────────────────────────────────
 player-stats:
-  title: "&8▎ &6&lThống Kê Của Bạn"
+  title: "&8[ &6&lPHÓ BẢN &8] &7Thống Kê"
   size: 54
   filler:
     enabled: true
-    material: GRAY_STAINED_GLASS_PANE
+    material: BLACK_STAINED_GLASS_PANE
   
   items:
     player-head:
       slot: 4
       material: PLAYER_HEAD
-      name: "&6&l{player_name}"
+      name: "&e&l📊 &6&l{player_name}"
       lore:
-        - "&7Thống kê tổng quan"
+        - ""
+        - "&7Thống kê tổng quan các phó bản"
+        - ""
     
     dungeon-stats:
       start-slot: 18
       max-slot: 44
       lore:
-        - "&7Lượt còn lại: {entries_color}{entries}"
-        - "&7Điểm cao nhất: &6{score}"
+        - ""
+        - "&8▸ &7Lượt còn lại: {entries_color}{entries}"
+        - "&8▸ &7Điểm cao nhất: &6&l{score} &eĐiểm"
         - "{rank_line}"
         - ""
-        - "&e▶ Click để xem chi tiết!"
+        - "&a&l➥ &fNhấp để xem chi tiết!"
+        - ""
     
     back-button:
       slot: 49
-      material: ARROW
-      name: "&c&lQuay Lại"
+      material: BARRIER
+      name: "&c&l⬅ Quay Lại"
       lore:
-        - "&7Về menu chính"
+        - ""
+        - "&7Quay về menu chính"
+        - ""
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SETTINGS - Cài Đặt
 # ─────────────────────────────────────────────────────────────────────────────
 settings:
-  title: "&8▎ &6&lCài Đặt"
-  size: 27
+  title: "&8[ &6&lPHÓ BẢN &8] &7Cài Đặt"
+  size: 54
   filler:
     enabled: true
-    material: GRAY_STAINED_GLASS_PANE
+    material: BLACK_STAINED_GLASS_PANE
   
   items:
     particles:
-      slot: 11
+      slot: 20
       material: BLAZE_POWDER
-      name: "&6&lHiệu Ứng Particles"
+      name: "&e&l✨ &6&lHiệu Ứng Particles"
       lore:
-        - "&7Bật/tắt hiệu ứng hạt"
         - ""
-        - "&eComing soon..."
+        - "&7Bật/tắt hiệu ứng hạt"
+        - "&7trong phó bản"
+        - ""
+        - "&e🔧 Đang phát triển..."
+        - ""
     
     sounds:
-      slot: 13
+      slot: 22
       material: NOTE_BLOCK
-      name: "&6&lÂm Thanh"
+      name: "&e&l🔊 &6&lÂm Thanh"
       lore:
-        - "&7Bật/tắt âm thanh"
         - ""
-        - "&eComing soon..."
+        - "&7Bật/tắt âm thanh"
+        - "&7hiệu ứng trong game"
+        - ""
+        - "&e🔧 Đang phát triển..."
+        - ""
     
     notifications:
-      slot: 15
+      slot: 24
       material: BELL
-      name: "&6&lThông Báo"
+      name: "&e&l🔔 &6&lThông Báo"
       lore:
-        - "&7Tùy chỉnh thông báo"
         - ""
-        - "&eComing soon..."
+        - "&7Tùy chỉnh thông báo"
+        - "&7trong phó bản"
+        - ""
+        - "&e🔧 Đang phát triển..."
+        - ""
     
     back-button:
-      slot: 22
-      material: ARROW
-      name: "&c&lQuay Lại"
+      slot: 49
+      material: BARRIER
+      name: "&c&l⬅ Quay Lại"
       lore:
-        - "&7Về menu chính"
+        - ""
+        - "&7Quay về menu chính"
+        - ""
 
 # ─────────────────────────────────────────────────────────────────────────────
 # REWARD EDITOR - Chỉnh Sửa Phần Thưởng (Admin)
@@ -355,91 +424,105 @@ settings:
 reward-editor:
   # Menu chính quản lý phần thưởng
   main:
-    title: "&8▎ &6&lQuản Lý Phần Thưởng"
-    size: 27
-    filler:
-      enabled: true
-      material: GRAY_STAINED_GLASS_PANE
-    
-    items:
-      completion-rewards:
-        slot: 11
-        material: CHEST
-        name: "&6&lPhần Thưởng Hoàn Thành"
-        lore:
-          - "&7Phần thưởng khi hoàn thành"
-          - "&7phó bản (không phụ thuộc điểm)"
-          - ""
-          - "&e▶ Click để chỉnh sửa!"
-      
-      score-rewards:
-        slot: 13
-        material: NETHER_STAR
-        name: "&6&lPhần Thưởng Theo Điểm"
-        lore:
-          - "&7Phần thưởng dựa trên"
-          - "&7điểm số đạt được"
-          - ""
-          - "{score_info}"
-          - ""
-          - "&e▶ Click để chỉnh sửa!"
-        score-info-empty: "&7Chưa có mức điểm nào"
-        score-info-has: "&eSố mức: &a{count}"
-      
-      preview:
-        slot: 15
-        material: BOOK
-        name: "&6&lXem Trước Phần Thưởng"
-        lore:
-          - "&7Xem tất cả phần thưởng"
-          - "&7của phó bản này"
-          - ""
-          - "&e▶ Click để xem!"
-      
-      back-button:
-        slot: 22
-        material: ARROW
-        name: "&c&lQuay Lại"
-        lore:
-          - "&7Về thông tin phó bản"
-  
-  # Chỉnh sửa phần thưởng hoàn thành
-  completion-rewards:
-    title: "&8▎ &6&lPhần Thưởng Hoàn Thành"
+    title: "&8[ &6&lPHÓ BẢN &8] &cQuản Lý Thưởng"
     size: 54
     filler:
       enabled: true
       material: BLACK_STAINED_GLASS_PANE
+    
+    items:
+      completion-rewards:
+        slot: 20
+        material: CHEST
+        name: "&e&l🎁 &6&lPhần Thưởng Hoàn Thành"
+        lore:
+          - ""
+          - "&7Phần thưởng khi hoàn thành"
+          - "&7phó bản (không phụ thuộc điểm)"
+          - ""
+          - "&8▸ &7Tự động nhận khi hoàn thành"
+          - ""
+          - "&a&l➥ &fNhấp để chỉnh sửa!"
+          - ""
+      
+      score-rewards:
+        slot: 22
+        material: NETHER_STAR
+        name: "&e&l⭐ &6&lPhần Thưởng Theo Điểm"
+        lore:
+          - ""
+          - "&7Phần thưởng dựa trên"
+          - "&7điểm số đạt được"
+          - ""
+          - "&8▸ {score_info}"
+          - ""
+          - "&a&l➥ &fNhấp để chỉnh sửa!"
+          - ""
+        score-info-empty: "&7Chưa có mức điểm nào"
+        score-info-has: "&eSố mức: &a&l{count}"
+      
+      preview:
+        slot: 24
+        material: ENCHANTED_BOOK
+        name: "&e&l📖 &6&lXem Trước Phần Thưởng"
+        lore:
+          - ""
+          - "&7Xem tất cả phần thưởng"
+          - "&7của phó bản này"
+          - ""
+          - "&a&l➥ &fNhấp để xem!"
+          - ""
+      
+      back-button:
+        slot: 49
+        material: BARRIER
+        name: "&c&l⬅ Quay Lại"
+        lore:
+          - ""
+          - "&7Quay về thông tin phó bản"
+          - ""
+  
+  # Chỉnh sửa phần thưởng hoàn thành
+  completion-rewards:
+    title: "&8[ &6&lPHÓ BẢN &8] &aTh­ưởng Hoàn Thành"
+    size: 54
+    filler:
+      enabled: true
+      material: GRAY_STAINED_GLASS_PANE
       start-slot: 0
       end-slot: 17
     
     items:
       info:
         slot: 4
-        material: PAPER
-        name: "&6&lHướng Dẫn"
+        material: WRITABLE_BOOK
+        name: "&e&l📋 &6&lHƯỚNG DẪN"
         lore:
+          - ""
           - "&7Đặt các item phần thưởng vào"
-          - "&7các ô trống phía dưới"
+          - "&7các ô trống bên dưới"
           - ""
-          - "&e✦ &7Chấp nhận mọi loại item:"
-          - "  &7- Vanilla items"
-          - "  &7- MMOItems"
-          - "  &7- Custom items từ plugin khác"
+          - "&e&l✦ &7Hỗ trợ mọi loại item:"
+          - "  &8▸ &fVanilla items"
+          - "  &8▸ &fMMOItems"
+          - "  &8▸ &fCustom items từ plugin khác"
           - ""
-          - "&aPhần thưởng sẽ tự động lưu!"
+          - "&a&l✔ Phần thưởng tự động lưu!"
+          - ""
       
       command-info:
         slot: 8
         material: COMMAND_BLOCK
-        name: "&6&lCommand Rewards"
+        name: "&e&l⚙ &6&lLệnh Phần Thưởng"
         lore:
+          - ""
           - "&7Thêm lệnh thực thi khi"
           - "&7người chơi hoàn thành"
           - ""
-          - "&eSố lượng: &a{count}"
+          - "&8▸ &eSố lượng: &a&l{count} &elệnh"
           - ""
-          - "&e▶ Click để quản lý!"
+          - "&a&l➥ &fNhấp để quản lý!"
+          - ""
       
       reward-slots:
         start: 18
@@ -447,105 +530,123 @@ reward-editor:
       
       save-button:
         slot: 49
-        material: LIME_WOOL
-        name: "&a&l✔ LƯU"
+        material: LIME_CONCRETE
+        name: "&a&l✔ LƯU PHẦN THƯỞNG"
         lore:
-          - "&7Lưu các phần thưởng"
           - ""
-          - "&e▶ Click để lưu!"
+          - "&7Lưu tất cả phần thưởng"
+          - ""
+          - "&a&l➤ &fNHẤP ĐỂ LƯU"
+          - ""
       
       back-button:
         slot: 45
-        material: ARROW
-        name: "&c&lQuay Lại"
+        material: BARRIER
+        name: "&c&l⬅ Quay Lại"
         lore:
-          - "&7Về menu phần thưởng"
+          - ""
+          - "&7Quay về menu phần thưởng"
+          - ""
   
   # Chỉnh sửa phần thưởng theo điểm
   score-rewards:
-    title: "&8▎ &6&lPhần Thưởng Theo Điểm"
+    title: "&8[ &6&lPHÓ BẢN &8] &eThưởng Theo Điểm"
     size: 54
     filler:
       enabled: true
-      material: GRAY_STAINED_GLASS_PANE
+      material: BLACK_STAINED_GLASS_PANE
     
     items:
       info:
         slot: 4
-        material: PAPER
-        name: "&6&lHướng Dẫn"
+        material: WRITABLE_BOOK
+        name: "&e&l📋 &6&lHƯỚNG DẪN"
         lore:
+          - ""
           - "&7Phần thưởng dựa trên điểm số"
           - "&7người chơi đạt được"
           - ""
-          - "&7Ví dụ:"
-          - "  &e1000 điểm: &710 kim cương"
-          - "  &e2000 điểm: &720 kim cương"
+          - "&e&lVÍ DỤ:"
+          - "  &8▸ &61000 điểm: &710 kim cương"
+          - "  &8▸ &62000 điểm: &720 kim cương"
           - ""
           - "&7Người chơi nhận thưởng cao nhất"
           - "&7mà họ đạt đủ điểm"
+          - ""
       
       add-tier:
         slot: 8
         material: EMERALD_BLOCK
-        name: "&a&l+ THÊM MỨC ĐIỂM"
+        name: "&a&l✚ THÊM MỨC ĐIỂM MỚI"
         lore:
-          - "&7Thêm mức điểm mới"
           - ""
-          - "&e▶ Click để thêm!"
+          - "&7Tạo mức điểm mới với"
+          - "&7phần thưởng tùy chỉnh"
+          - ""
+          - "&a&l➥ &fNhấp để thêm!"
+          - ""
       
       tier-display:
         start-slot: 18
         end-slot: 44
-        material: DIAMOND
-        name: "&6&l{score} Điểm"
+        material: NETHER_STAR
+        name: "&6&l⚡ {score} Điểm"
         lore:
-          - "&7Phần thưởng cho {score} điểm"
           - ""
-          - "&eVật phẩm: &a{items}"
-          - "&eCommands: &a{commands}"
+          - "&7Phần thưởng cho mức &e{score} &7điểm"
           - ""
-          - "&a▶ Click trái: Chỉnh sửa"
-          - "&c▶ Click phải: Xóa"
+          - "&8▸ &eVật phẩm: &a&l{items}"
+          - "&8▸ &eCommands: &a&l{commands}"
+          - ""
+          - "&a&l➤ CHUỘT TRÁI &f▸ &aChỉnh sửa"
+          - "&c&l➤ CHUỘT PHẢI &f▸ &cXóa mức này"
+          - ""
       
       back-button:
         slot: 45
-        material: ARROW
-        name: "&c&lQuay Lại"
+        material: BARRIER
+        name: "&c&l⬅ Quay Lại"
         lore:
-          - "&7Về menu phần thưởng"
+          - ""
+          - "&7Quay về menu phần thưởng"
+          - ""
   
   # Chỉnh sửa một mức điểm cụ thể
   score-tier-editor:
-    title: "&8▎ &6&lChỉnh Sửa Phần Thưởng"
+    title: "&8[ &6&lPHÓ BẢN &8] &eChỉnh Sửa Mức"
     size: 54
     filler:
       enabled: true
-      material: BLACK_STAINED_GLASS_PANE
+      material: GRAY_STAINED_GLASS_PANE
       start-slot: 0
       end-slot: 17
     
     items:
       info:
         slot: 4
-        material: PAPER
-        name: "&6&lPhần Thưởng {score} Điểm"
+        material: WRITABLE_BOOK
+        name: "&e&l⚡ &6&lPhần Thưởng {score} Điểm"
         lore:
+          - ""
           - "&7Đặt các item phần thưởng vào"
           - "&7các ô trống phía dưới"
           - ""
-          - "&aPhần thưởng sẽ tự động lưu!"
+          - "&a&l✔ Phần thưởng tự động lưu!"
+          - ""
       
       command-info:
         slot: 8
         material: COMMAND_BLOCK
-        name: "&6&lCommand Rewards"
+        name: "&e&l⚙ &6&lLệnh Phần Thưởng"
         lore:
-          - "&7Thêm lệnh thực thi"
           - ""
-          - "&eSố lượng: &a{count}"
+          - "&7Thêm lệnh thực thi khi"
+          - "&7đạt mức điểm này"
           - ""
-          - "&e▶ Click để quản lý!"
+          - "&8▸ &eSố lượng: &a&l{count} &elệnh"
+          - ""
+          - "&a&l➥ &fNhấp để quản lý!"
+          - ""
       
       reward-slots:
         start: 18
@@ -553,19 +654,23 @@ reward-editor:
       
       save-button:
         slot: 49
-        material: LIME_WOOL
-        name: "&a&l✔ LƯU"
+        material: LIME_CONCRETE
+        name: "&a&l✔ LƯU PHẦN THƯỞNG"
         lore:
-          - "&7Lưu phần thưởng"
           - ""
-          - "&e▶ Click để lưu!"
+          - "&7Lưu tất cả phần thưởng"
+          - ""
+          - "&a&l➤ &fNHẤP ĐỂ LƯU"
+          - ""
       
       back-button:
         slot: 45
-        material: ARROW
-        name: "&c&lQuay Lại"
+        material: BARRIER
+        name: "&c&l⬅ Quay Lại"
         lore:
-          - "&7Về danh sách mức điểm"
+          - ""
+          - "&7Quay về danh sách mức điểm"
+          - ""
 
 # ─────────────────────────────────────────────────────────────────────────────
 # COMMAND REWARD GUI - Quản Lý Lệnh Thưởng
@@ -573,115 +678,139 @@ reward-editor:
 command-rewards:
   # Lệnh hoàn thành
   completion:
-    title: "&8▎ &6&lLệnh Hoàn Thành"
+    title: "&8[ &6&lPHÓ BẢN &8] &aLệnh Hoàn Thành"
     size: 54
     filler:
       enabled: true
-      material: GRAY_STAINED_GLASS_PANE
+      material: BLACK_STAINED_GLASS_PANE
     
     items:
       info:
         slot: 4
-        material: PAPER
-        name: "&6&lHướng Dẫn Lệnh"
+        material: WRITABLE_BOOK
+        name: "&e&l📋 &6&lHƯỚNG DẪN LỆNH"
         lore:
+          - ""
           - "&7Thêm các lệnh sẽ được thực thi"
           - "&7khi người chơi hoàn thành phó bản"
           - ""
-          - "&e✦ &7Placeholders:"
-          - "  &e{player} &7- Tên người chơi"
-          - "  &e{score} &7- Điểm số đạt được"
+          - "&e&l✦ PLACEHOLDERS:"
+          - "  &8▸ &e{player} &7- Tên người chơi"
+          - "  &8▸ &e{score} &7- Điểm số đạt được"
           - ""
-          - "&7Ví dụ:"
-          - "  &eeco give {player} 1000"
-          - "  &ecrate givekey {player} diamond 1"
+          - "&e&lVÍ DỤ:"
+          - "  &8▸ &feco give {player} 1000"
+          - "  &8▸ &fcrate givekey {player} diamond 1"
+          - ""
       
       add-command:
         slot: 8
         material: WRITABLE_BOOK
-        name: "&a&l+ THÊM LỆNH"
+        name: "&a&l✚ THÊM LỆNH MỚI"
         lore:
-          - "&7Click để thêm lệnh mới"
           - ""
-          - "&e▶ Nhập lệnh trong chat!"
+          - "&7Nhấp để thêm lệnh mới"
+          - ""
+          - "&a&l➥ &fNhập lệnh trong chat!"
+          - ""
       
       command-display:
         start-slot: 18
         end-slot: 44
         material: COMMAND_BLOCK
-        name: "&6Lệnh #{index}"
+        name: "&e&l⚙ &6Lệnh #{index}"
         lore:
+          - ""
           - "&e/{command}"
           - ""
-          - "&c▶ Click phải để xóa"
+          - "&c&l➤ CHUỘT PHẢI &f▸ &cXóa lệnh"
+          - ""
       
       back-button:
         slot: 45
-        material: ARROW
-        name: "&c&lQuay Lại"
+        material: BARRIER
+        name: "&c&l⬅ Quay Lại"
         lore:
-          - "&7Về menu phần thưởng"
+          - ""
+          - "&7Quay về menu phần thưởng"
+          - ""
       
       save-close-button:
         slot: 49
-        material: LIME_WOOL
+        material: LIME_CONCRETE
         name: "&a&l✔ LƯU VÀ ĐÓNG"
         lore:
+          - ""
           - "&7Lưu và đóng menu"
+          - ""
+          - "&a&l➤ &fNHẤP ĐỂ LƯU"
+          - ""
   
   # Lệnh theo điểm
   score-tier:
-    title: "&8▎ &6&lLệnh Theo Điểm"
+    title: "&8[ &6&lPHÓ BẢN &8] &eLệnh Theo Điểm"
     size: 54
     filler:
       enabled: true
-      material: GRAY_STAINED_GLASS_PANE
+      material: BLACK_STAINED_GLASS_PANE
     
     items:
       info:
         slot: 4
-        material: PAPER
-        name: "&6&lLệnh Cho {score} Điểm"
+        material: WRITABLE_BOOK
+        name: "&e&l⚡ &6&lLệnh Cho {score} Điểm"
         lore:
-          - "&7Các lệnh sẽ được thực thi"
-          - "&7khi đạt {score} điểm"
           - ""
-          - "&e✦ &7Placeholders:"
-          - "  &e{player} &7- Tên người chơi"
-          - "  &e{score} &7- Điểm số đạt được"
+          - "&7Các lệnh sẽ được thực thi"
+          - "&7khi đạt &e{score} &7điểm"
+          - ""
+          - "&e&l✦ PLACEHOLDERS:"
+          - "  &8▸ &e{player} &7- Tên người chơi"
+          - "  &8▸ &e{score} &7- Điểm số đạt được"
+          - ""
       
       add-command:
         slot: 8
         material: WRITABLE_BOOK
-        name: "&a&l+ THÊM LỆNH"
+        name: "&a&l✚ THÊM LỆNH MỚI"
         lore:
-          - "&7Click để thêm lệnh mới"
           - ""
-          - "&e▶ Nhập lệnh trong chat!"
+          - "&7Nhấp để thêm lệnh mới"
+          - ""
+          - "&a&l➥ &fNhập lệnh trong chat!"
+          - ""
       
       command-display:
         start-slot: 18
         end-slot: 44
         material: COMMAND_BLOCK
-        name: "&6Lệnh #{index}"
+        name: "&e&l⚙ &6Lệnh #{index}"
         lore:
+          - ""
           - "&e/{command}"
           - ""
-          - "&c▶ Click phải để xóa"
+          - "&c&l➤ CHUỘT PHẢI &f▸ &cXóa lệnh"
+          - ""
       
       back-button:
         slot: 45
-        material: ARROW
-        name: "&c&lQuay Lại"
+        material: BARRIER
+        name: "&c&l⬅ Quay Lại"
         lore:
-          - "&7Về menu chỉnh sửa phần thưởng"
+          - ""
+          - "&7Quay về menu chỉnh sửa phần thưởng"
+          - ""
       
       save-close-button:
         slot: 49
-        material: LIME_WOOL
+        material: LIME_CONCRETE
         name: "&a&l✔ LƯU VÀ ĐÓNG"
         lore:
+          - ""
           - "&7Lưu và đóng menu"
+          - ""
+          - "&a&l➤ &fNHẤP ĐỂ LƯU"
+          - ""
 
 # ═══════════════════════════════════════════════════════════════════════════
 # KẾT THÚC CẤU HÌNH GUI

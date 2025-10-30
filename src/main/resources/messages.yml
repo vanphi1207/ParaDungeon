@@ -97,6 +97,8 @@ admin:
   score-tier-removed: "&cĐã xóa mốc điểm: &e{score}"
   score-tier-exists: "&cMốc điểm &e{score} &cđã tồn tại."
   invalid-arguments: "&cCác tham số không hợp lệ."
+  force-start-success: "&aĐã bắt đầu cưỡng chế phó bản &e{dungeon}&a!"
+  force-start-failed: "&cKhông tìm thấy phòng chờ đang hoạt động cho phó bản &e{dungeon}&c, hoặc phòng không có người chơi nào."
 
   # Hướng dẫn sử dụng lệnh admin
   usage:
@@ -108,6 +110,7 @@ admin:
     setlobby: "&cSử dụng: /dgadmin setlobby <dungeon>"
     setwavespawn: "&cSử dụng: /dgadmin setwavespawn <dungeon> <ải> <đợt>"
     setend: "&cSử dụng: /dgadmin setend <dungeon>"
+    forcestart: "&cSử dụng: /dgadmin forcestart <dungeon>"
 
 # --------------------------------------------------------------------------------------------------
 # Tin nhắn bảng xếp hạng (Leaderboard)
@@ -205,6 +208,7 @@ help:
     - "&c/dgadmin setlobby <tên> &7- Đặt điểm phòng chờ."
     - "&c/dgadmin setend <tên> &7- Đặt điểm kết thúc."
     - "&c/dgadmin setwavespawn <dungeon> <ải> <đợt> &7- Thêm điểm xuất hiện cho đợt quái."
+    - "&c/dgadmin forcestart <tên> &7- Bắt đầu cưỡng chế phó bản (bỏ qua yêu cầu số người)."
     - "&c/dgadmin reload &7- Tải lại toàn bộ cấu hình."
 
 # --------------------------------------------------------------------------------------------------

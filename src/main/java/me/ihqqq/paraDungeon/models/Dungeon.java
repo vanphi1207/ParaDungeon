@@ -12,6 +12,7 @@ public class Dungeon {
     private int maxPlayers;
     private int entriesPerReset;
     private int respawnLives;
+    private long autoRenewMinutes;
     private Location spawnPoint;
     private Location lobbyPoint;
     private Location endPoint; // Đã thêm
@@ -127,5 +128,13 @@ public class Dungeon {
 
     public void setRewards(DungeonRewards rewards) {
         this.rewards = rewards;
+    }
+
+    public long getAutoRenewMinutes() {
+        return autoRenewMinutes;
+    }
+
+    public void setAutoRenewMinutes(long autoRenewMinutes) {
+        this.autoRenewMinutes = autoRenewMinutes;
     }
 }

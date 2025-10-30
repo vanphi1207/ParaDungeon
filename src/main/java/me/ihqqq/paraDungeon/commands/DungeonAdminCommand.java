@@ -140,6 +140,7 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
         dungeon.setMaxPlayers(5);
         dungeon.setEntriesPerReset(3);
         dungeon.setRespawnLives(3);
+        dungeon.setAutoRenewMinutes(plugin.getConfig().getLong("settings.auto-renew-time", 10));
         plugin.getDungeonManager().saveDungeon(dungeon);
         sender.sendMessage(plugin.getConfigManager().getMessage("admin.dungeon-created", "dungeon", dungeonId));
     }

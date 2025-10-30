@@ -55,6 +55,9 @@ public class DungeonManager {
         dungeon.setMaxPlayers(section.getInt("max-players", 5));
         dungeon.setEntriesPerReset(section.getInt("entries-per-reset", 3));
         dungeon.setRespawnLives(section.getInt("respawn-lives", 3));
+        // Auto-renew time in minutes (per-dungeon override; falls back to global setting)
+        long defaultAutoRenew = plugin.getConfig().getLong("settings.auto-renew-time", 10);
+        dungeon.setAutoRenewMinutes(section.getLong("auto-renew-time", defaultAutoRenew));
 
         if (section.getConfigurationSection("spawn-point") != null)
             dungeon.setSpawnPoint(loadLocation(section.getConfigurationSection("spawn-point")));
@@ -106,6 +109,7 @@ public class DungeonManager {
         dungeonSection.set("max-players", dungeon.getMaxPlayers());
         dungeonSection.set("entries-per-reset", dungeon.getEntriesPerReset());
         dungeonSection.set("respawn-lives", dungeon.getRespawnLives());
+        dungeonSection.set("auto-renew-time", dungeon.getAutoRenewMinutes());
 
         if (dungeon.getSpawnPoint() != null)
             saveLocation(dungeonSection.createSection("spawn-point"), dungeon.getSpawnPoint());

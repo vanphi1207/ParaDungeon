@@ -7,6 +7,8 @@ settings:
   language: vi
   
   # Thời gian tự động làm mới phòng khi chưa start (phút)
+  # Đây là giá trị mặc định cho tất cả phó bản.
+  # Có thể ghi đè riêng cho từng phó bản trong dungeons.yml bằng khóa `auto-renew-time`.
   auto-renew-time: 10
   
   # Hệ thống lượt chơi

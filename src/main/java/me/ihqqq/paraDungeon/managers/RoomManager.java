@@ -529,19 +529,21 @@ public class RoomManager {
     }
 
     public void checkAutoRenew() {
-        long autoRenewTime = plugin.getConfig().getLong("settings.auto-renew-time", 10) * 60000;
         rooms.values().stream()
-                .filter(r -> r.getStatus() == DungeonRoom.RoomStatus.WAITING &&
-                        System.currentTimeMillis() - r.getCreationTime() > autoRenewTime)
+                .filter(r -> r.getStatus() == DungeonRoom.RoomStatus.WAITING)
                 .forEach(room -> {
-                    broadcastToRoom(room, plugin.getConfigManager().getMessage(
-                            "lobby.auto-renew",
-                            "time", String.valueOf(autoRenewTime / 60000)
-                    ));
-                    new HashSet<>(room.getPlayers()).forEach(uuid -> {
-                        Player p = Bukkit.getPlayer(uuid);
-                        if(p != null) leaveRoom(p);
-                    });
+                    long minutes = room.getDungeon().getAutoRenewMinutes();
+                    long thresholdMs = minutes * 60_000L;
+                    if (System.currentTimeMillis() - room.getCreationTime() > thresholdMs) {
+                        broadcastToRoom(room, plugin.getConfigManager().getMessage(
+                                "lobby.auto-renew",
+                                "time", String.valueOf(minutes)
+                        ));
+                        new HashSet<>(room.getPlayers()).forEach(uuid -> {
+                            Player p = Bukkit.getPlayer(uuid);
+                            if (p != null) leaveRoom(p);
+                        });
+                    }
                 });
     }
 

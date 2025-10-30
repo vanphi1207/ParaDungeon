@@ -17,6 +17,10 @@ dungeons:
     
     # Lượt chơi
     entries-per-reset: 3
+
+    # Thời gian tự động làm mới phòng chờ riêng cho phó bản này (phút)
+    # Nếu không đặt, sẽ dùng giá trị mặc định trong config.yml (settings.auto-renew-time)
+    auto-renew-time: 10
     
     # Lượt hồi sinh
     respawn-lives: 3

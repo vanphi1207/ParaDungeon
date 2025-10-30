@@ -32,6 +32,9 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         switch (args[0].toLowerCase()) {
+            case "forcestart":
+                handleForceStart(sender, args);
+                break;
             case "create":
                 if (args.length < 2) {
                     sender.sendMessage("§cUsage: /dgadmin create <name>");
@@ -113,6 +116,64 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
                 break;
         }
         return true;
+    }
+
+    private void handleForceStart(CommandSender sender, String[] args) {
+        // If sender is player and no dungeon specified, try to start their current room
+        if (args.length == 1 && sender instanceof Player) {
+            Player player = (Player) sender;
+            var room = plugin.getRoomManager().getPlayerRoom(player.getUniqueId());
+            if (room == null) {
+                sender.sendMessage(plugin.getConfigManager().getMessage("admin.forcestart-not-in-room"));
+                return;
+            }
+            switch (room.getStatus()) {
+                case ACTIVE -> sender.sendMessage(plugin.getConfigManager().getMessage("admin.forcestart-already-started"));
+                case COMPLETED, FAILED -> sender.sendMessage(plugin.getConfigManager().getMessage("admin.forcestart-already-finished"));
+                default -> {
+                    // Cancel countdown task if any, without broadcasting cancel message
+                    if (room.getCountdownTask() != -1) {
+                        org.bukkit.Bukkit.getScheduler().cancelTask(room.getCountdownTask());
+                        room.setCountdownTask(-1);
+                    }
+                    plugin.getRoomManager().startDungeon(room);
+                    sender.sendMessage(plugin.getConfigManager().getMessage("admin.forcestart-success", "dungeon", room.getDungeon().getId()));
+                }
+            }
+            return;
+        }
+
+        // Usage: /dgadmin forcestart <dungeonId>
+        if (args.length < 2) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("admin.usage.forcestart"));
+            return;
+        }
+
+        String dungeonId = args[1];
+        var dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+        if (dungeon == null) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("general.dungeon-not-found", "dungeon", dungeonId));
+            return;
+        }
+
+        var targetRoom = plugin.getRoomManager().getAllRooms().stream()
+                .filter(r -> r.getDungeon().getId().equalsIgnoreCase(dungeonId))
+                .filter(r -> r.getStatus() == me.ihqqq.paraDungeon.models.DungeonRoom.RoomStatus.WAITING
+                        || r.getStatus() == me.ihqqq.paraDungeon.models.DungeonRoom.RoomStatus.COUNTDOWN)
+                .findFirst()
+                .orElse(null);
+
+        if (targetRoom == null) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("admin.forcestart-no-room", "dungeon", dungeonId));
+            return;
+        }
+
+        if (targetRoom.getCountdownTask() != -1) {
+            org.bukkit.Bukkit.getScheduler().cancelTask(targetRoom.getCountdownTask());
+            targetRoom.setCountdownTask(-1);
+        }
+        plugin.getRoomManager().startDungeon(targetRoom);
+        sender.sendMessage(plugin.getConfigManager().getMessage("admin.forcestart-success", "dungeon", dungeonId));
     }
 
     private void sendHelp(CommandSender sender) {
@@ -254,7 +315,7 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("create", "delete", "addstage", "addwave", "setspawn", "setlobby", "setwavespawn", "setend", "reload")
+            return Arrays.asList("forcestart", "create", "delete", "addstage", "addwave", "setspawn", "setlobby", "setwavespawn", "setend", "reload")
                     .stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
         }
         if (args.length == 2 && !args[0].equalsIgnoreCase("create") && !args[0].equalsIgnoreCase("reload")) {

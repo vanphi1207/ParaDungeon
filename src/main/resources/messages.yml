@@ -87,6 +87,11 @@ admin:
   setend: "&aĐã đặt điểm kết thúc cho phó bản &e{dungeon}&a."
   wave-spawn-set: "&aĐã thêm vị trí xuất hiện cho đợt &e{wave}&a, ải &e{stage} &acủa phó bản &e{dungeon}&a."
   rewards-saved: "&aĐã lưu phần thưởng thành công!"
+  forcestart-success: "&aĐã bắt đầu phó bản &e{dungeon} &angay lập tức."
+  forcestart-no-room: "&cKhông có phòng chờ nào sẵn sàng cho phó bản &e{dungeon}&c."
+  forcestart-not-in-room: "&cBạn không ở trong phòng chờ nào."
+  forcestart-already-started: "&ePhòng này đã bắt đầu rồi."
+  forcestart-already-finished: "&ePhòng này đã kết thúc."
   type-score: "&eNhập điểm số yêu cầu trong khung chat (hoặc nhập 'cancel' để hủy):"
   command-prompt: "&eNhập lệnh phần thưởng trong khung chat (hoặc nhập 'cancel' để hủy):"
   command-added: "&aĐã thêm lệnh: &e{command}"
@@ -108,6 +113,7 @@ admin:
     setlobby: "&cSử dụng: /dgadmin setlobby <dungeon>"
     setwavespawn: "&cSử dụng: /dgadmin setwavespawn <dungeon> <ải> <đợt>"
     setend: "&cSử dụng: /dgadmin setend <dungeon>"
+    forcestart: "&cSử dụng: /dgadmin forcestart [tên_phó_bản]"
 
 # --------------------------------------------------------------------------------------------------
 # Tin nhắn bảng xếp hạng (Leaderboard)

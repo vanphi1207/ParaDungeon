@@ -11,3 +11,7 @@ commands:
   dungeonadmin:
     description: Dungeon admin command
     aliases: [dgadmin, phobanadmin]
+permissions:
+  paradungeon.admin:
+    description: Allows access to all ParaDungeon admin commands (including forcestart)
+    default: op

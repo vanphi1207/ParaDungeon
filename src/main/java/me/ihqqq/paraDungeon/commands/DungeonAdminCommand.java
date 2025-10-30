@@ -46,6 +46,39 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
                 }
                 deleteDungeon(sender, args[1]);
                 break;
+            case "edit":
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(plugin.getConfigManager().getMessage("general.player-only"));
+                    return true;
+                }
+                if (args.length < 2) {
+                    sender.sendMessage("§cUsage: /dgadmin edit <dungeon>");
+                    return true;
+                }
+                openRewardEditor((Player) sender, args[1]);
+                break;
+            case "addreward":
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(plugin.getConfigManager().getMessage("general.player-only"));
+                    return true;
+                }
+                if (args.length < 2) {
+                    sender.sendMessage("§cUsage: /dgadmin addreward <dungeon>");
+                    return true;
+                }
+                openAddReward((Player) sender, args[1]);
+                break;
+            case "editscore":
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(plugin.getConfigManager().getMessage("general.player-only"));
+                    return true;
+                }
+                if (args.length < 2) {
+                    sender.sendMessage("§cUsage: /dgadmin editscore <dungeon>");
+                    return true;
+                }
+                openEditScore((Player) sender, args[1]);
+                break;
             case "addstage":
                 if (args.length < 3) {
                     sender.sendMessage("§cUsage: /dgadmin addstage <dungeon> <stage_number> [NORMAL|BOSS]");
@@ -272,10 +305,37 @@ public class DungeonAdminCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void openRewardEditor(Player player, String dungeonId) {
+        Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+        if (dungeon == null) {
+            player.sendMessage(plugin.getConfigManager().getMessage("general.dungeon-not-found", "dungeon", dungeonId));
+            return;
+        }
+        plugin.getGUIManager().getRewardEditorGUI().openRewardMenu(player, dungeon);
+    }
+
+    private void openAddReward(Player player, String dungeonId) {
+        Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+        if (dungeon == null) {
+            player.sendMessage(plugin.getConfigManager().getMessage("general.dungeon-not-found", "dungeon", dungeonId));
+            return;
+        }
+        plugin.getGUIManager().getRewardEditorGUI().openCompletionRewardsEditor(player, dungeon);
+    }
+
+    private void openEditScore(Player player, String dungeonId) {
+        Dungeon dungeon = plugin.getDungeonManager().getDungeon(dungeonId);
+        if (dungeon == null) {
+            player.sendMessage(plugin.getConfigManager().getMessage("general.dungeon-not-found", "dungeon", dungeonId));
+            return;
+        }
+        plugin.getGUIManager().getRewardEditorGUI().openScoreRewardsEditor(player, dungeon);
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("create", "delete", "addstage", "addwave", "setspawn", "setlobby", "setwavespawn", "setend", "forcestart", "reload")
+            return Arrays.asList("create", "delete", "edit", "addreward", "editscore", "addstage", "addwave", "setspawn", "setlobby", "setwavespawn", "setend", "forcestart", "reload")
                     .stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
         }
         if (args.length == 2 && !args[0].equalsIgnoreCase("create") && !args[0].equalsIgnoreCase("reload")) {
